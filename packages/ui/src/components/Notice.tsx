@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
-export type NoticeTone = "success" | "information";
+export type NoticeTone = "success" | "information" | "error";
 
 export type NoticeProps = HTMLAttributes<HTMLDivElement> & {
   tone?: NoticeTone;

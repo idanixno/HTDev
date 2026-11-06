@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@zharfa/ui";
 import { ThemeToggle } from "./theme-toggle";
+import { fetchCurrentUser } from "../lib/session";
 
 const NAV_LINKS = [
   { href: "/courses", label: "دوره‌ها", current: true },
@@ -8,7 +9,9 @@ const NAV_LINKS = [
   { href: "/about", label: "درباره مدرس" },
 ] as const;
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const user = await fetchCurrentUser();
+
   return (
     <header className="site-header">
       <div className="site-header__inner">
@@ -36,9 +39,15 @@ export function SiteHeader() {
 
         <div className="site-header__actions">
           <ThemeToggle />
-          <Button variant="secondary" type="button">
-            ورود / حساب من
-          </Button>
+          {user ? (
+            <Button href="/dashboard" variant="secondary">
+              حساب من
+            </Button>
+          ) : (
+            <Button href="/login" variant="secondary">
+              ورود / حساب من
+            </Button>
+          )}
         </div>
       </div>
     </header>

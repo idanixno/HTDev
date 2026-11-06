@@ -1,5 +1,5 @@
-// Zharfa — foundation schema (Phase 1 scaffold).
-// Domain models expand in later phases. No fake payment/SpotPlayer success paths.
+// Zharfa — Prisma schema.
+// Domain models expand by phase. No fake payment/SpotPlayer success paths.
 
 generator client {
   provider = "prisma-client-js"
@@ -24,19 +24,77 @@ enum CourseAvailability {
   UNAVAILABLE
 }
 
-model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  phone        String?  @unique
-  displayName  String
-  role         UserRole @default(STUDENT)
-  passwordHash String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+enum OtpChannel {
+  EMAIL
+  SMS
+}
 
-  enrollments Enrollment[]
-  orders      Order[]
-  tickets     Ticket[]
+enum OtpPurpose {
+  PASSWORD_RECOVERY
+  EMAIL_VERIFICATION
+  PHONE_VERIFICATION
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  /// Display username as registered (preserves original casing).
+  username           String
+  /// Lowercased unique key for case-insensitive username uniqueness.
+  usernameNormalized String    @unique
+  /// Lowercased trimmed email.
+  email              String    @unique
+  /// E.164-ish Iranian local form (09XXXXXXXXX) when present.
+  phone              String?   @unique
+  displayName        String
+  role               UserRole  @default(STUDENT)
+  passwordHash       String
+  emailVerifiedAt    DateTime?
+  phoneVerifiedAt    DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  sessions      Session[]
+  otpChallenges OtpChallenge[]
+  enrollments   Enrollment[]
+  orders        Order[]
+  tickets       Ticket[]
+}
+
+/// Opaque session tokens are stored hashed; raw token only lives in the cookie.
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// OTP codes are stored as secure hashes; plaintext is never persisted.
+model OtpChallenge {
+  id                     String     @id @default(cuid())
+  userId                 String?
+  channel                OtpChannel
+  purpose                OtpPurpose
+  destinationNormalized  String
+  codeHash               String
+  expiresAt              DateTime
+  consumedAt             DateTime?
+  attemptCount           Int        @default(0)
+  maxAttempts            Int        @default(5)
+  createdAt              DateTime   @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([destinationNormalized, purpose, channel])
+  @@index([expiresAt])
 }
 
 model Course {
@@ -82,15 +140,15 @@ enum PaymentProvider {
 
 /// Orders never auto-mark PAID without a verified gateway callback.
 model Order {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   userId          String
   courseId        String
   amountToman     Int
-  status          OrderStatus     @default(PENDING)
+  status          OrderStatus      @default(PENDING)
   paymentProvider PaymentProvider?
   gatewayRef      String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
