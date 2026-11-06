@@ -11,6 +11,7 @@ import {
 import {
   CourseOfferKind,
   CoursePublicationStatus,
+  NotificationEventType,
   OrderStatus,
   PaymentProvider,
   PaymentTransactionStatus,
@@ -18,6 +19,7 @@ import {
 } from "@zharfa/database";
 import { isPurchasableOffer } from "../catalog/course-state";
 import { decimalToNumber, toDecimal } from "../catalog/pricing";
+import { NotificationsService } from "../notifications/notifications.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { SpotPlayerService } from "../spotplayer/spotplayer.service";
 import { applyCoupon, normalizeCouponCode } from "./coupon-math";
@@ -37,6 +39,9 @@ export class CommerceService {
     @Optional()
     @Inject(forwardRef(() => SpotPlayerService))
     private readonly spotplayer?: SpotPlayerService,
+    @Optional()
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notifications?: NotificationsService,
   ) {}
 
   async getCheckoutOptions(courseSlug: string) {
@@ -303,6 +308,21 @@ export class CommerceService {
           data: { status: OrderStatus.FAILED },
         }),
       ]);
+      try {
+        await this.notifications?.emit({
+          userId: tx.order.userId,
+          eventType: NotificationEventType.ORDER_FAILED,
+          context: {
+            courseTitle: tx.order.course?.title,
+            orderId: tx.orderId,
+            detail: verify.reason,
+          },
+          payload: { orderId: tx.orderId, reason: verify.reason },
+        });
+      } catch {
+        /* non-blocking */
+      }
+
       return {
         outcome: "failed" as const,
         orderId: tx.orderId,
@@ -320,6 +340,20 @@ export class CommerceService {
       refId: verify.refId,
       verifyPayload: verify.raw,
     });
+
+    try {
+      await this.notifications?.emit({
+        userId: tx.order.userId,
+        eventType: NotificationEventType.ORDER_PAID,
+        context: {
+          courseTitle: tx.order.course?.title,
+          orderId: tx.orderId,
+        },
+        payload: { orderId: tx.orderId, courseId: tx.order.courseId },
+      });
+    } catch {
+      /* non-blocking */
+    }
 
     // Access provisioning is separate from payment — queue after PAID only.
     // Failures here must not roll back OrderStatus.PAID.

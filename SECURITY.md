@@ -38,8 +38,10 @@ Local-first education platform. This document tracks security posture for Phase 
 - [ ] Redis-backed rate limits / session store — later hardening
 - [x] Payment adapters (ZarinPal v4 + AqayePardakht v2) with server-side verify + callback idempotency
 - [x] SpotPlayer license adapter + BullMQ AccessProvisioning (no invented keys; credentials masked)
+- [x] Ticket attachments: MIME/size allowlist, opaque storage keys, no path traversal, auth-only download (private `.data` / MinIO later)
+- [x] Notification email/SMS console adapters + outbound rate-limit stub (no secrets required locally)
 - [ ] Production merchant / SpotPlayer credentials + IP allowlists — operator setup
-- [ ] Object storage signed URLs / private buckets — later phase
+- [ ] Object storage signed URLs / private buckets — later phase (ticket attachments currently local private root)
 - [ ] Dependency audit / CI secret scanning — later phase
 
 ## Reporting

@@ -85,6 +85,15 @@ export default async function DashboardPage() {
         </article>
 
         <article className="dashboard__block">
+          <h2>پشتیبانی و اعلان‌ها</h2>
+          <Notice tone="information" title="تیکت داخلی">
+            از <Link href="/dashboard/tickets">تیکت‌های من</Link> درخواست
+            پشتیبانی بفرستید و{" "}
+            <Link href="/dashboard/notifications">اعلان‌ها</Link> را ببینید.
+          </Notice>
+        </article>
+
+        <article className="dashboard__block">
           <h2>دسترسی سریع</h2>
           <ul className="dashboard__links">
             <li>
@@ -99,10 +108,21 @@ export default async function DashboardPage() {
             <li>
               <Link href="/dashboard/access">لایسنس و دسترسی</Link>
             </li>
+            <li>
+              <Link href="/dashboard/tickets">پشتیبانی</Link>
+            </li>
+            <li>
+              <Link href="/dashboard/notifications">اعلان‌ها</Link>
+            </li>
             {user.role === "OWNER" ? (
-              <li>
-                <Link href="/dashboard/admin/spotplayer">ادمین اسپات‌پلیر</Link>
-              </li>
+              <>
+                <li>
+                  <Link href="/dashboard/admin/spotplayer">ادمین اسپات‌پلیر</Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/admin/tickets">ادمین تیکت‌ها</Link>
+                </li>
+              </>
             ) : null}
             <li>
               <Link href="/design-system">سیستم طراحی</Link>

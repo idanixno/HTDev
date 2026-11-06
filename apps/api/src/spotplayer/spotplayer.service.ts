@@ -1,20 +1,25 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
   OnModuleDestroy,
+  Optional,
   ServiceUnavailableException,
+  forwardRef,
 } from "@nestjs/common";
 import {
   CourseOfferKind,
   CoursePublicationStatus,
   GatewayCredentialsStatus,
+  NotificationEventType,
   OrderStatus,
   SpotPlayerAccessSource,
   SpotPlayerLicenseStatus,
 } from "@zharfa/database";
+import { NotificationsService } from "../notifications/notifications.service";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   decryptSecret,
@@ -50,7 +55,12 @@ import { DEFAULT_LICENSE_ENDPOINT } from "./spotplayer.types";
 export class SpotPlayerService implements OnModuleDestroy {
   private readonly logger = new Logger(SpotPlayerService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional()
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notifications?: NotificationsService,
+  ) {}
 
   async onModuleDestroy() {
     await closeAccessProvisioningQueue();
@@ -453,11 +463,19 @@ export class SpotPlayerService implements OnModuleDestroy {
       },
     });
 
+    const notifyCtx = {
+      userId: license.userId,
+      courseTitle: license.course?.title,
+      courseId: license.courseId,
+    };
+
     if (integrationStatus === "DISABLED") {
       return this.failLicense(
         license.id,
         "SpotPlayer technicalEnabled=false (DISABLED).",
         integrationStatus,
+        undefined,
+        notifyCtx,
       );
     }
     if (integrationStatus === "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED") {
@@ -465,6 +483,8 @@ export class SpotPlayerService implements OnModuleDestroy {
         license.id,
         "SpotPlayer credentials missing (IMPLEMENTED_BUT_CREDENTIALS_REQUIRED).",
         integrationStatus,
+        undefined,
+        notifyCtx,
       );
     }
 
@@ -475,6 +495,9 @@ export class SpotPlayerService implements OnModuleDestroy {
       return this.failLicense(
         license.id,
         "Course has no enabled SpotPlayer course mapping.",
+        undefined,
+        undefined,
+        notifyCtx,
       );
     }
 
@@ -504,6 +527,7 @@ export class SpotPlayerService implements OnModuleDestroy {
         result.reason,
         result.integrationStatus,
         result.raw,
+        notifyCtx,
       );
     }
 
@@ -514,6 +538,7 @@ export class SpotPlayerService implements OnModuleDestroy {
         "Provider response lacked license key/_id — not inventing success.",
         undefined,
         result.raw,
+        notifyCtx,
       );
     }
 
@@ -530,6 +555,20 @@ export class SpotPlayerService implements OnModuleDestroy {
       },
     });
 
+    try {
+      await this.notifications?.emit({
+        userId: license.userId,
+        eventType: NotificationEventType.ACCESS_PROVISIONED,
+        context: { courseTitle: license.course?.title },
+        payload: {
+          licenseId: updated.id,
+          courseId: license.courseId,
+        },
+      });
+    } catch {
+      /* non-blocking */
+    }
+
     return {
       outcome: "succeeded" as const,
       licenseId: updated.id,
@@ -542,6 +581,7 @@ export class SpotPlayerService implements OnModuleDestroy {
     reason: string,
     integrationStatus?: SpotPlayerIntegrationStatus,
     raw?: unknown,
+    notify?: { userId: string; courseTitle?: string; courseId?: string },
   ) {
     await this.prisma.spotPlayerLicense.update({
       where: { id: licenseId },
@@ -556,6 +596,27 @@ export class SpotPlayerService implements OnModuleDestroy {
           : {}),
       },
     });
+
+    if (notify?.userId) {
+      try {
+        await this.notifications?.emit({
+          userId: notify.userId,
+          eventType: NotificationEventType.ACCESS_PROVISION_FAILED,
+          context: {
+            courseTitle: notify.courseTitle,
+            detail: reason,
+          },
+          payload: {
+            licenseId,
+            courseId: notify.courseId,
+            reason,
+          },
+        });
+      } catch {
+        /* non-blocking */
+      }
+    }
+
     return {
       outcome: "failed" as const,
       licenseId,

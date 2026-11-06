@@ -11,12 +11,17 @@ import {
   CourseOfferKind,
   CoursePublicationStatus,
   GatewayCredentialsStatus,
+  NotificationChannel,
+  NotificationDeliveryStatus,
+  NotificationEventType,
   OrderStatus,
   PaymentProvider,
   PaymentTransactionStatus,
   Prisma,
   PrismaClient,
   SpotPlayerLicenseStatus,
+  TicketAuthorRole,
+  TicketStatus,
   UserRole,
 } from "@prisma/client";
 import * as argon2 from "argon2";
@@ -619,6 +624,7 @@ async function main() {
 
   const catalog = await seedCatalog();
   const commerce = await seedCommerce(createdStudents);
+  const support = await seedSupport(admin, createdStudents);
 
   // eslint-disable-next-line no-console
   console.log(
@@ -632,12 +638,183 @@ async function main() {
         })),
         catalog,
         commerce,
-        note: "Passwords from SEED_ADMIN_PASSWORD / SEED_STUDENT_PASSWORD (see README). Sample orders are PENDING/FAILED only — never fake PAID.",
+        support,
+        note: "Passwords from SEED_ADMIN_PASSWORD / SEED_STUDENT_PASSWORD (see README). Sample orders are PENDING/FAILED only — never fake PAID. No SUCCEEDED SpotPlayer licenses.",
       },
       null,
       2,
     ),
   );
+}
+
+async function seedSupport(
+  admin: { id: string },
+  students: { id: string; username: string; displayName?: string }[],
+) {
+  const sara = students.find((s) => s.username === "sara");
+  const reza = students.find((s) => s.username === "reza");
+  const course = await prisma.course.findFirst({
+    where: {
+      publicationStatus: CoursePublicationStatus.PUBLISHED,
+      offerKind: CourseOfferKind.PAID,
+    },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  let tickets = 0;
+  let messages = 0;
+  let notifications = 0;
+
+  if (sara) {
+    const open = await prisma.ticket.upsert({
+      where: { id: "seed_ticket_sara_open" },
+      create: {
+        id: "seed_ticket_sara_open",
+        userId: sara.id,
+        courseId: course?.id ?? null,
+        subject: "سؤال درباره دسترسی دوره",
+        description:
+          "سلام، پس از خرید هنوز لایسنس اسپات‌پلیر را نمی‌بینم. وضعیت سفارش را چک کرده‌ام.",
+        status: TicketStatus.OPEN,
+        telegramRef: null,
+      },
+      update: {
+        subject: "سؤال درباره دسترسی دوره",
+        description:
+          "سلام، پس از خرید هنوز لایسنس اسپات‌پلیر را نمی‌بینم. وضعیت سفارش را چک کرده‌ام.",
+        status: TicketStatus.OPEN,
+        courseId: course?.id ?? null,
+      },
+    });
+    tickets += 1;
+
+    await prisma.ticketMessage.deleteMany({ where: { ticketId: open.id } });
+    await prisma.ticketMessage.create({
+      data: {
+        id: "seed_msg_sara_1",
+        ticketId: open.id,
+        authorId: sara.id,
+        authorRole: TicketAuthorRole.STUDENT,
+        body: open.description,
+      },
+    });
+    messages += 1;
+
+    const n1 = await prisma.notification.upsert({
+      where: { id: "seed_notify_sara_ticket" },
+      create: {
+        id: "seed_notify_sara_ticket",
+        userId: sara.id,
+        eventType: NotificationEventType.TICKET_CREATED,
+        title: "تیکت ثبت شد",
+        body: `تیکت «${open.subject}» ثبت شد.`,
+        payload: { ticketId: open.id },
+      },
+      update: {
+        title: "تیکت ثبت شد",
+        body: `تیکت «${open.subject}» ثبت شد.`,
+        readAt: null,
+      },
+    });
+    notifications += 1;
+    await prisma.notificationDelivery.deleteMany({
+      where: { notificationId: n1.id },
+    });
+    await prisma.notificationDelivery.create({
+      data: {
+        notificationId: n1.id,
+        channel: NotificationChannel.IN_APP,
+        status: NotificationDeliveryStatus.SENT,
+        templateKey: "notify.ticket_created",
+        sentAt: new Date(),
+        attemptCount: 1,
+      },
+    });
+  }
+
+  if (reza) {
+    const waiting = await prisma.ticket.upsert({
+      where: { id: "seed_ticket_reza_waiting" },
+      create: {
+        id: "seed_ticket_reza_waiting",
+        userId: reza.id,
+        courseId: course?.id ?? null,
+        subject: "مشکل پخش ویدیو",
+        description:
+          "ویدیوی جلسه اول روی ویندوز پخش نمی‌شود. از اسپات‌پلیر نسخه جدید استفاده می‌کنم.",
+        status: TicketStatus.WAITING_FOR_USER,
+      },
+      update: {
+        status: TicketStatus.WAITING_FOR_USER,
+        courseId: course?.id ?? null,
+      },
+    });
+    tickets += 1;
+
+    await prisma.ticketMessage.deleteMany({ where: { ticketId: waiting.id } });
+    await prisma.ticketMessage.createMany({
+      data: [
+        {
+          id: "seed_msg_reza_1",
+          ticketId: waiting.id,
+          authorId: reza.id,
+          authorRole: TicketAuthorRole.STUDENT,
+          body: waiting.description,
+        },
+        {
+          id: "seed_msg_reza_2",
+          ticketId: waiting.id,
+          authorId: admin.id,
+          authorRole: TicketAuthorRole.ADMIN,
+          body: "لطفاً نسخه دقیق اسپات‌پلیر و اسکرین‌شات خطا را بفرستید.",
+        },
+      ],
+    });
+    messages += 2;
+
+    const n2 = await prisma.notification.upsert({
+      where: { id: "seed_notify_reza_reply" },
+      create: {
+        id: "seed_notify_reza_reply",
+        userId: reza.id,
+        eventType: NotificationEventType.TICKET_REPLY,
+        title: "پاسخ جدید تیکت",
+        body: `پاسخ جدیدی برای تیکت «${waiting.subject}» ثبت شد.`,
+        payload: { ticketId: waiting.id },
+      },
+      update: {
+        body: `پاسخ جدیدی برای تیکت «${waiting.subject}» ثبت شد.`,
+        readAt: null,
+      },
+    });
+    notifications += 1;
+    await prisma.notificationDelivery.deleteMany({
+      where: { notificationId: n2.id },
+    });
+    await prisma.notificationDelivery.createMany({
+      data: [
+        {
+          notificationId: n2.id,
+          channel: NotificationChannel.IN_APP,
+          status: NotificationDeliveryStatus.SENT,
+          templateKey: "notify.ticket_reply",
+          sentAt: new Date(),
+          attemptCount: 1,
+        },
+        {
+          notificationId: n2.id,
+          channel: NotificationChannel.EMAIL,
+          status: NotificationDeliveryStatus.SENT,
+          templateKey: "notify.ticket_reply",
+          destination: "reza@example.com",
+          sentAt: new Date(),
+          attemptCount: 1,
+        },
+      ],
+    });
+  }
+
+  return { tickets, messages, notifications };
 }
 
 async function seedCommerce(

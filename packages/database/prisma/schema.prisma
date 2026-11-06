@@ -70,8 +70,11 @@ model User {
   enrollments         Enrollment[]
   orders              Order[]
   tickets             Ticket[]
+  ticketMessages      TicketMessage[]
+  ticketAttachments   TicketAttachment[]
   couponRedemptions   CouponRedemption[]
   spotPlayerLicenses  SpotPlayerLicense[]
+  notifications       Notification[]
 }
 
 /// Opaque session tokens are stored hashed; raw token only lives in the cookie.
@@ -160,6 +163,7 @@ model Course {
   learningPathSteps     LearningPathStep[]
   spotPlayerMapping     SpotPlayerCourseMapping?
   spotPlayerLicenses    SpotPlayerLicense[]
+  tickets               Ticket[]
 
   @@index([publicationStatus, offerKind])
   @@index([categoryId])
@@ -403,23 +407,150 @@ model PaymentGatewaySetting {
   updatedAt          DateTime                  @updatedAt
 }
 
+/// Support ticket lifecycle. Transitions enforced in tickets/ticket-status.ts.
 enum TicketStatus {
   OPEN
   IN_PROGRESS
+  WAITING_FOR_USER
   RESOLVED
   CLOSED
 }
 
-model Ticket {
-  id        String       @id @default(cuid())
-  userId    String
-  subject   String
-  body      String
-  status    TicketStatus @default(OPEN)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+enum TicketAuthorRole {
+  STUDENT
+  ADMIN
+  SYSTEM
+}
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Ticket {
+  id          String       @id @default(cuid())
+  userId      String
+  /// Optional link to a catalog course (support context).
+  courseId    String?
+  subject     String
+  description String
+  status      TicketStatus @default(OPEN)
+  /// Supplementary only — tickets are primary; Telegram is optional metadata.
+  telegramRef String?
+  resolvedAt  DateTime?
+  closedAt    DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course       Course?            @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  messages     TicketMessage[]
+  attachments  TicketAttachment[]
+
+  @@index([userId, createdAt])
+  @@index([status, updatedAt])
+  @@index([courseId])
+}
+
+model TicketMessage {
+  id         String           @id @default(cuid())
+  ticketId   String
+  authorId   String?
+  authorRole TicketAuthorRole
+  body       String
+  createdAt  DateTime         @default(now())
+
+  ticket      Ticket             @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author      User?              @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  attachments TicketAttachment[]
+
+  @@index([ticketId, createdAt])
+}
+
+/// Attachment metadata only. Bytes live in private object storage (MinIO/local).
+/// Never expose raw filesystem paths; download via authenticated API only.
+model TicketAttachment {
+  id           String   @id @default(cuid())
+  ticketId     String
+  messageId    String?
+  uploadedById String
+  /// Opaque object key inside the private bucket/prefix (no path traversal).
+  storageKey   String   @unique
+  /// Original client filename (sanitized for display; not used as storage path).
+  fileName     String
+  contentType  String
+  sizeBytes    Int
+  /// SHA-256 hex of content for integrity / dedupe hints.
+  contentSha256 String?
+  createdAt    DateTime @default(now())
+
+  ticket     Ticket         @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  message    TicketMessage? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  uploadedBy User           @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@index([messageId])
+}
+
+/// Domain events that fan out to in-app + email/SMS deliveries.
+enum NotificationEventType {
+  USER_REGISTERED
+  ORDER_PAID
+  ORDER_FAILED
+  ACCESS_PROVISIONED
+  ACCESS_PROVISION_FAILED
+  TICKET_CREATED
+  TICKET_REPLY
+  TICKET_STATUS_CHANGED
+  SECURITY_RECOVERY_REQUESTED
+  SECURITY_PASSWORD_CHANGED
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+model Notification {
+  id        String                @id @default(cuid())
+  userId    String
+  eventType NotificationEventType
+  title     String
+  body      String
+  /// Structured event payload (ids, links) — never secrets.
+  payload   Json?
+  readAt    DateTime?
+  createdAt DateTime              @default(now())
+
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries NotificationDelivery[]
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+  @@index([eventType, createdAt])
+}
+
+model NotificationDelivery {
+  id             String                      @id @default(cuid())
+  notificationId String
+  channel        NotificationChannel
+  status         NotificationDeliveryStatus  @default(PENDING)
+  templateKey    String
+  /// Destination used (email/phone). Prefer masked in logs; full value for delivery only.
+  destination    String?
+  error          String?
+  attemptCount   Int                         @default(0)
+  sentAt         DateTime?
+  createdAt      DateTime                    @default(now())
+  updatedAt      DateTime                    @updatedAt
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId, channel])
+  @@index([status, createdAt])
 }
 
 /// Separate from OrderStatus — payment PAID does not imply license success.
