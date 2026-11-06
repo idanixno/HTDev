@@ -21,12 +21,21 @@ Local-first education platform. This document tracks security posture for Phase 
 | API | `4000` | NestJS |
 | Worker health | `4001` | BullMQ process health stub |
 
+## Auth (Phase 3)
+
+- Passwords: **Argon2id** (`argon2` package).
+- Sessions: opaque random token in **HttpOnly** `zharfa_session` cookie; only SHA-256 hash stored.
+- OTP recovery: SHA-256(pepper + code), expiry, single-use, attempt cap; response shape avoids account enumeration.
+- Messaging: `MessagingProvider` interface + console/dev adapter — no real SMS/email credentials required locally.
+- Rate limiting: in-memory stub per IP + bucket — replace with Redis before production.
+
 ## Checklist (foundation)
 
 - [x] `.env` gitignored; `.env.example` documents required vars without real secrets
 - [x] Prisma models for orders/licenses include explicit non-success default statuses
 - [x] Health endpoints do not call payment/SpotPlayer APIs
-- [ ] Auth (JWT/session hardening, password hashing, rate limits) — later phase
+- [x] Auth (session cookies, Argon2id, OTP hash, rate-limit stub)
+- [ ] Redis-backed rate limits / session store — later hardening
 - [ ] Webhook signature verification for payment providers — later phase
 - [ ] Object storage signed URLs / private buckets — later phase
 - [ ] Dependency audit / CI secret scanning — later phase

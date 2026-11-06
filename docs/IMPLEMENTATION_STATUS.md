@@ -8,18 +8,18 @@ Living ledger for the Zharfa / EDU personal education platform. Update in place;
 | Phase 0 Repository audit | IMPLEMENTED | See [phase-0-repo-audit.md](./phase-0-repo-audit.md) |
 | Workspace / Docker foundation | IN_PROGRESS | pnpm+turbo monorepo; compose Postgres/Redis/MinIO; health stubs (PR #1) |
 | Design tokens in code | IMPLEMENTED | `@zharfa/ui` dark/light CSS vars, type scale, spacing/radius from Native assets |
-| Design system components | IMPLEMENTED | Button, Field, Badge, Notice, Dialog, CourseCard (availability variants); RTL + a11y basics |
-| Public web shell / home | IMPLEMENTED | Layout, nav, theme toggle, hero first viewport + featured courses from Figma copy |
-| Identity / auth | NOT_STARTED | Login CTA is non-functional shell only |
-| Courses / catalog | NOT_STARTED | Prisma `Course` + home featured cards use design copy only |
+| Design system components | IMPLEMENTED | Button, Field, Badge, Notice (+error), Dialog, CourseCard; RTL + a11y basics |
+| Public web shell / home | IMPLEMENTED | Layout, nav, theme toggle, hero; featured courses from catalog API seed |
+| Identity / auth | IMPLEMENTED | Prisma User/Session/OtpChallenge; Nest Identity (Argon2id, OTP, HttpOnly session); web login/register/recover + gated `/dashboard`; console messaging adapters; rate-limit stub |
+| Courses / catalog | IMPLEMENTED | Prisma Category/Course (publication+offer enums)/CurriculumModule/Lesson/LearningPath; Nest `/catalog/*` list-filter-search-pagination + detail + paths; web `/courses`, `/courses/[slug]`, `/paths`, `/paths/[slug]`; local artwork placeholders; unit tests for state/pricing helpers |
 | Orders / payments (ZarinPal, AqayePardakht) | NOT_STARTED | Schema + SECURITY constraints; no fake success |
 | SpotPlayer access | NOT_STARTED | License model defaults to `pending`; no fake success |
-| Support tickets | NOT_STARTED | Prisma `Ticket` scaffold only |
+| Support tickets | NOT_STARTED | Prisma Ticket scaffold only |
 | Notifications | NOT_STARTED | |
 | Admin analytics | NOT_STARTED | |
 | CMS / SEO | NOT_STARTED | |
-| Security docs + controls | IN_PROGRESS | `SECURITY.md` foundation checklist |
-| Seed data | NOT_STARTED | |
-| E2E / local delivery | NOT_STARTED | |
+| Security docs + controls | IN_PROGRESS | `SECURITY.md`; auth hashing/sessions/OTP hashing in place; Redis rate-limit still stub |
+| Seed data | IMPLEMENTED | Admin + 4 students + 3 categories + 6 Persian courses (5 public) + 2 learning paths; artwork under `apps/web/public/artwork/` |
+| E2E / local delivery | NOT_STARTED | API unit tests: identity + course state/pricing helpers |
 
 Statuses: `NOT_STARTED` · `IN_PROGRESS` · `IMPLEMENTED` · `TESTED` · `VERIFIED` · `BLOCKED`
