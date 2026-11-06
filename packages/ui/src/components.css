@@ -1,0 +1,555 @@
+/* Zharfa native components — styles for @zharfa/ui React primitives */
+
+.z-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--zharfa-space-8);
+  min-height: 48px;
+  padding: 10px var(--zharfa-space-20);
+  border: 1px solid transparent;
+  border-radius: var(--zharfa-radius-6);
+  font-family: var(--zharfa-font-persian);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--zharfa-motion-fast),
+    border-color var(--zharfa-motion-fast),
+    color var(--zharfa-motion-fast),
+    opacity var(--zharfa-motion-fast),
+    transform var(--zharfa-motion-fast);
+}
+
+.z-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--zharfa-shadow-focus);
+}
+
+.z-btn--primary {
+  background: var(--zharfa-action-primary);
+  color: var(--zharfa-text-on-primary);
+}
+
+.z-btn--primary:hover:not(:disabled) {
+  background: var(--zharfa-action-hover);
+  text-decoration: none;
+}
+
+.z-btn--primary:active:not(:disabled) {
+  background: var(--zharfa-action-active);
+  color: var(--zharfa-text-on-action);
+  transform: translateY(1px);
+}
+
+.z-btn--secondary {
+  background: var(--zharfa-surface-raised);
+  border-color: var(--zharfa-border-default);
+  color: var(--zharfa-text-primary);
+}
+
+.z-btn--secondary:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--zharfa-text-link) 45%, var(--zharfa-border-default));
+  text-decoration: none;
+}
+
+.z-btn--ghost {
+  background: transparent;
+  border-color: var(--zharfa-border-default);
+  color: var(--zharfa-text-primary);
+}
+
+.z-btn--danger {
+  background: color-mix(in srgb, var(--zharfa-status-error) 16%, var(--zharfa-surface-raised));
+  border-color: color-mix(in srgb, var(--zharfa-status-error) 45%, var(--zharfa-border-default));
+  color: var(--zharfa-text-primary);
+}
+
+.z-btn:disabled,
+.z-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.z-btn--loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.z-btn__spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: z-spin 0.7s linear infinite;
+}
+
+@keyframes z-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.z-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-8);
+  width: 100%;
+  text-align: right;
+}
+
+.z-field__label {
+  margin: 0;
+  font-size: var(--zharfa-text-14);
+  font-weight: 700;
+  color: var(--zharfa-text-primary);
+}
+
+.z-field__control {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  width: 100%;
+  padding: 10px var(--zharfa-space-16);
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-6);
+  background: var(--zharfa-surface-base);
+  color: var(--zharfa-text-primary);
+  font-family: inherit;
+  font-size: var(--zharfa-text-16);
+  line-height: var(--zharfa-leading-body);
+  transition: border-color var(--zharfa-motion-fast), box-shadow var(--zharfa-motion-fast);
+}
+
+.z-field__control::placeholder {
+  color: var(--zharfa-text-secondary);
+}
+
+.z-field__control:focus {
+  outline: none;
+  border-color: var(--zharfa-text-link);
+  box-shadow: var(--zharfa-shadow-focus);
+}
+
+.z-field__control--mono {
+  font-family: var(--zharfa-font-code);
+}
+
+.z-field--error .z-field__control {
+  border-color: var(--zharfa-status-error);
+}
+
+.z-field--disabled {
+  opacity: 0.5;
+}
+
+.z-field__hint,
+.z-field__error {
+  margin: 0;
+  font-size: var(--zharfa-text-12);
+  line-height: var(--zharfa-leading-body);
+}
+
+.z-field__hint {
+  color: var(--zharfa-text-secondary);
+}
+
+.z-field__error {
+  color: var(--zharfa-status-error);
+}
+
+.z-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: var(--zharfa-space-4) 10px;
+  border-radius: var(--zharfa-radius-6);
+  background: var(--zharfa-surface-raised);
+  font-size: var(--zharfa-text-12);
+  line-height: var(--zharfa-leading-body);
+  white-space: nowrap;
+}
+
+.z-badge--success {
+  color: var(--zharfa-text-link);
+}
+
+.z-badge--pending {
+  color: var(--zharfa-status-success);
+}
+
+.z-badge--failure {
+  color: var(--zharfa-accent-preorder);
+}
+
+.z-badge--information {
+  color: var(--zharfa-status-error);
+}
+
+.z-notice {
+  display: flex;
+  gap: var(--zharfa-space-16);
+  align-items: flex-start;
+  width: 100%;
+  padding: var(--zharfa-space-20);
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-6);
+  background: var(--zharfa-surface-base);
+  text-align: right;
+}
+
+.z-notice__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--zharfa-space-4);
+  min-width: 0;
+}
+
+.z-notice__title {
+  margin: 0;
+  font-size: var(--zharfa-text-16);
+  font-weight: 700;
+  line-height: var(--zharfa-leading-body);
+}
+
+.z-notice__message {
+  margin: 0;
+  font-size: var(--zharfa-text-14);
+  color: var(--zharfa-text-secondary);
+  line-height: var(--zharfa-leading-body);
+}
+
+.z-notice__accent {
+  width: 3px;
+  min-height: 44px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.z-notice--success .z-notice__title {
+  color: var(--zharfa-status-success);
+}
+
+.z-notice--success .z-notice__accent {
+  background: var(--zharfa-status-success);
+}
+
+.z-notice--information .z-notice__title {
+  color: var(--zharfa-text-link);
+}
+
+.z-notice--information .z-notice__accent {
+  background: var(--zharfa-text-link);
+}
+
+.z-notice--error .z-notice__title {
+  color: var(--zharfa-status-error);
+}
+
+.z-notice--error .z-notice__accent {
+  background: var(--zharfa-status-error);
+}
+
+.z-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--zharfa-space-24);
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 72%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.z-dialog {
+  width: min(100%, 40rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-16);
+  padding: var(--zharfa-space-24);
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-12);
+  background: var(--zharfa-surface-card);
+  text-align: right;
+  box-shadow: 0 24px 64px color-mix(in srgb, #000 35%, transparent);
+}
+
+.z-dialog__header {
+  display: flex;
+  align-items: center;
+  gap: var(--zharfa-space-12);
+  width: 100%;
+}
+
+.z-dialog__title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--zharfa-text-22);
+  font-weight: 700;
+  line-height: var(--zharfa-leading-body);
+  color: var(--zharfa-text-primary);
+}
+
+.z-dialog__index {
+  margin: 0;
+  color: var(--zharfa-text-link);
+  font-size: var(--zharfa-text-24, 1.5rem);
+}
+
+.z-dialog__body {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: var(--zharfa-text-16);
+  line-height: var(--zharfa-leading-body);
+}
+
+.z-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--zharfa-space-12);
+}
+
+.z-dialog__footnote {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 13px;
+  line-height: var(--zharfa-leading-body);
+}
+
+.z-course-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 438px;
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-12);
+  background: var(--zharfa-surface-card);
+  overflow: hidden;
+  text-align: right;
+  transition:
+    border-color var(--zharfa-motion-medium),
+    transform var(--zharfa-motion-medium);
+}
+
+.z-course-card:hover {
+  border-color: color-mix(in srgb, var(--zharfa-text-link) 35%, var(--zharfa-border-default));
+  transform: translateY(-2px);
+}
+
+.z-course-card__visual {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 160px;
+  padding: var(--zharfa-space-16);
+  background: var(--zharfa-surface-base);
+}
+
+.z-course-card__visual-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--zharfa-space-8);
+}
+
+.z-course-card__code {
+  margin: 0;
+  font-family: var(--zharfa-font-code);
+  font-size: 10px;
+  color: var(--zharfa-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.z-course-card__index {
+  margin: 0;
+  font-size: 24px;
+  color: var(--zharfa-text-link);
+  line-height: 1;
+}
+
+.z-course-card__diagram {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-6);
+  padding: 10px;
+}
+
+.z-course-card__ring {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 0;
+  border: 1px solid var(--zharfa-accent-concept);
+  border-radius: var(--zharfa-radius-6);
+  padding: 10px;
+}
+
+.z-course-card__core {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 0;
+  border: 1px solid var(--zharfa-text-link);
+  border-radius: var(--zharfa-radius-6);
+  background: var(--zharfa-surface-card);
+  font-family: var(--zharfa-font-code);
+  font-size: 12px;
+  color: var(--zharfa-text-link);
+}
+
+.z-course-card__chain {
+  flex: 1;
+  display: flex;
+  gap: var(--zharfa-space-8);
+  min-height: 0;
+}
+
+.z-course-card__node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--zharfa-space-8);
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-4);
+  background: var(--zharfa-surface-card);
+  font-family: var(--zharfa-font-code);
+  text-align: center;
+}
+
+.z-course-card__node--accent {
+  border-color: var(--zharfa-status-success);
+}
+
+.z-course-card__node-order {
+  margin: 0;
+  font-size: 10px;
+  color: var(--zharfa-text-secondary);
+}
+
+.z-course-card__node-label {
+  margin: 0;
+  font-size: 9px;
+  color: var(--zharfa-status-success);
+  word-break: break-word;
+}
+
+.z-course-card--preorder .z-course-card__index,
+.z-course-card--comingSoon .z-course-card__index {
+  color: var(--zharfa-accent-concept);
+}
+
+.z-course-card--preorder .z-course-card__node--accent,
+.z-course-card--comingSoon .z-course-card__node--accent {
+  border-color: var(--zharfa-accent-concept);
+}
+
+.z-course-card--preorder .z-course-card__node-label,
+.z-course-card--comingSoon .z-course-card__node-label {
+  color: var(--zharfa-accent-concept);
+}
+
+.z-course-card--inProduction .z-course-card__node--accent {
+  border-color: var(--zharfa-text-link);
+}
+
+.z-course-card--inProduction .z-course-card__node-label {
+  color: var(--zharfa-text-link);
+}
+
+.z-course-card--unavailable .z-course-card__index,
+.z-course-card--unavailable .z-course-card__node-label {
+  color: var(--zharfa-text-secondary);
+}
+
+.z-course-card--unavailable .z-course-card__node--accent {
+  border-color: var(--zharfa-text-secondary);
+}
+
+.z-course-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-12);
+  padding: 22px;
+}
+
+.z-course-card__status {
+  margin: 0;
+  font-size: var(--zharfa-text-12);
+  color: var(--zharfa-text-secondary);
+}
+
+.z-course-card--preorder .z-course-card__status {
+  color: var(--zharfa-accent-preorder);
+}
+
+.z-course-card__title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: var(--zharfa-leading-body);
+  color: var(--zharfa-text-primary);
+}
+
+.z-course-card__summary,
+.z-course-card__meta {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  line-height: var(--zharfa-leading-body);
+}
+
+.z-course-card__summary {
+  font-size: var(--zharfa-text-14);
+}
+
+.z-course-card__meta {
+  font-size: var(--zharfa-text-12);
+}
+
+.z-course-card__divider {
+  height: 1px;
+  width: 100%;
+  background: var(--zharfa-border-default);
+  border: 0;
+}
+
+.z-course-card__price {
+  margin: 0;
+  font-size: var(--zharfa-text-16);
+  font-weight: 700;
+  color: var(--zharfa-text-primary);
+}
+
+.z-course-card--publishedFree .z-course-card__price {
+  color: var(--zharfa-status-success);
+}
+
+.z-course-card__cta {
+  margin: 0;
+  font-size: var(--zharfa-text-14);
+  color: var(--zharfa-text-link);
+}
+
+.z-course-card__cta a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.z-course-card__cta a:hover {
+  text-decoration: underline;
+}
