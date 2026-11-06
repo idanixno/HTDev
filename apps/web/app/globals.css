@@ -1,0 +1,141 @@
+@import "@zharfa/ui/tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  direction: rtl;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--zharfa-font-persian);
+  background: radial-gradient(
+      120% 80% at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      90% 60% at 0% 100%,
+      color-mix(in srgb, var(--zharfa-accent-concept) 14%, transparent),
+      transparent 50%
+    ),
+    var(--zharfa-bg-canvas);
+  color: var(--zharfa-text-primary);
+  line-height: 1.8;
+}
+
+a {
+  color: var(--zharfa-text-link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code {
+  font-family: var(--zharfa-font-code);
+  font-size: 0.9em;
+}
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--zharfa-space-16);
+  padding: var(--zharfa-space-20) var(--zharfa-space-32);
+  border-bottom: 1px solid var(--zharfa-border-default);
+  background: color-mix(in srgb, var(--zharfa-surface-base) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--zharfa-text-primary);
+}
+
+.brand span {
+  color: var(--zharfa-action-primary);
+}
+
+.shell__main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--zharfa-space-64) var(--zharfa-space-32);
+}
+
+.hero {
+  max-width: 42rem;
+  text-align: center;
+}
+
+.hero h1 {
+  margin: 0 0 var(--zharfa-space-16);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.hero p {
+  margin: 0 0 var(--zharfa-space-32);
+  color: var(--zharfa-text-secondary);
+  font-size: 1.125rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 var(--zharfa-space-24);
+  border-radius: var(--zharfa-radius-12);
+  background: var(--zharfa-action-primary);
+  color: var(--zharfa-text-on-action);
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.cta:hover {
+  background: var(--zharfa-action-hover);
+  text-decoration: none;
+}
+
+.theme-toggle {
+  min-height: 40px;
+  padding: 0 var(--zharfa-space-16);
+  border-radius: var(--zharfa-radius-12);
+  border: 1px solid var(--zharfa-border-default);
+  background: var(--zharfa-surface-raised);
+  color: var(--zharfa-text-primary);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.health {
+  margin-top: var(--zharfa-space-32);
+  padding: var(--zharfa-space-16);
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-12);
+  background: var(--zharfa-surface-card);
+  color: var(--zharfa-text-secondary);
+  font-size: 0.875rem;
+}

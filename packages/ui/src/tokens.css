@@ -1,0 +1,74 @@
+/**
+ * Zharfa design tokens — mirrored from Figma file ecYEt09V8ZOGzG2sRd4cC1
+ * (01 · Native assets / foundations). Dark + light are independent collections.
+ * Font: Vazirmatn (Persian), JetBrains Mono (technical).
+ */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --zharfa-bg-canvas: #080d18;
+  --zharfa-surface-base: #0d1524;
+  --zharfa-surface-card: #111c2e;
+  --zharfa-surface-raised: #17243a;
+
+  --zharfa-text-primary: #f5f7fc;
+  --zharfa-text-secondary: #a5b0c2;
+  --zharfa-text-link: #78a8ff;
+  --zharfa-text-on-action: #f5f7fc;
+
+  --zharfa-border-default: #26344b;
+
+  --zharfa-action-primary: #477ef2;
+  --zharfa-action-hover: #568af6;
+  --zharfa-action-active: #3565c7;
+
+  --zharfa-accent-concept: #8b78e6;
+
+  --zharfa-status-success: #71d5ac;
+  --zharfa-status-error: #ff939f;
+
+  --zharfa-space-0: 0;
+  --zharfa-space-4: 4px;
+  --zharfa-space-8: 8px;
+  --zharfa-space-12: 12px;
+  --zharfa-space-16: 16px;
+  --zharfa-space-20: 20px;
+  --zharfa-space-24: 24px;
+  --zharfa-space-32: 32px;
+  --zharfa-space-64: 64px;
+
+  --zharfa-radius-0: 0;
+  --zharfa-radius-4: 4px;
+  --zharfa-radius-12: 12px;
+
+  --zharfa-font-persian: "Vazirmatn", "Tahoma", sans-serif;
+  --zharfa-font-code: "JetBrains Mono", ui-monospace, monospace;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --zharfa-bg-canvas: #f5f7fc;
+  --zharfa-surface-base: #ffffff;
+  --zharfa-surface-card: #ffffff;
+  --zharfa-surface-raised: #ffffff;
+
+  --zharfa-text-primary: #152238;
+  --zharfa-text-secondary: #526178;
+  --zharfa-text-link: #2456b8;
+  --zharfa-text-on-action: #f5f7fc;
+
+  --zharfa-border-default: #cfd7e5;
+
+  --zharfa-action-primary: #2456b8;
+  --zharfa-action-hover: #2d64cf;
+  --zharfa-action-active: #1c4596;
+
+  --zharfa-accent-concept: #6854b2;
+
+  --zharfa-status-success: #18714c;
+  --zharfa-status-error: #b42338;
+}
+
