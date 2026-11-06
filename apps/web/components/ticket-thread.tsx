@@ -9,7 +9,7 @@ import {
   ticketStatusLabel,
   type PublicTicket,
   type TicketStatus,
-} from "../lib/tickets";
+} from "../lib/ticket-shared";
 
 export function TicketThread({
   ticket,

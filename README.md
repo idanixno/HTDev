@@ -8,54 +8,76 @@ Figma: [EDU / Zharfa](https://www.figma.com/design/ecYEt09V8ZOGzG2sRd4cC1)
 
 | App / package | Role |
 |---------------|------|
-| `apps/web` | Next.js App Router, RTL shell, auth BFF, catalog/paths, student dashboard |
-| `apps/api` | NestJS HTTP API + Identity + Catalog + Commerce + SpotPlayer + Tickets + Notifications |
-| `apps/worker` | BullMQ background jobs (AccessProvisioning) |
-| `packages/database` | Prisma schema + client + seed (users + education catalog) |
+| `apps/web` | Next.js App Router, RTL public shell, auth BFF, catalog/paths, student dashboard, OWNER `/admin` |
+| `apps/api` | NestJS HTTP API (Identity, Catalog, Commerce, SpotPlayer, Tickets, Notifications, Admin) |
+| `apps/worker` | BullMQ jobs (`access-provisioning`) |
+| `packages/database` | Prisma schema + client + seed |
 | `packages/ui` | Zharfa design system (`@zharfa/ui`) |
 | `packages/config` | Shared TS configs |
 
 ## Prerequisites
 
 - Node.js ≥ 20
-- [pnpm](https://pnpm.io) 10.x (`corepack enable`)
-- Docker + Docker Compose (Postgres, Redis, MinIO)
+- [pnpm](https://pnpm.io) 10.x (`corepack enable && corepack prepare pnpm@10.33.4 --activate`)
+- Docker + Docker Compose (Postgres 16, Redis 7, MinIO)
 
-## Setup
+## Local setup (exact)
 
 ```bash
-# 1. Install dependencies
+# 1. Install
 pnpm install
 
-# 2. Environment
+# 2. Environment (root .env — Prisma scripts load it via dotenv-cli)
 cp .env.example .env
 
 # 3. Infrastructure
 pnpm docker:up
-# or: docker compose up -d
+# wait until healthy: docker compose ps
+# expected: zharfa-postgres, zharfa-redis, zharfa-minio
 
-# 4. Database client + migrate (after Postgres is healthy)
+# 4. Prisma client + migrate + seed
 pnpm db:generate
-pnpm db:migrate
+pnpm db:migrate          # prisma migrate dev (uses root .env DATABASE_URL)
+pnpm db:seed             # demo users, catalog, coupons, sample orders/tickets
 
-# 5. Seed demo users + Persian catalog (courses, curriculum, paths)
-pnpm db:seed
-
-# 6. Run apps (separate terminals, or turbo)
+# 5. Dev processes (separate terminals, or turbo)
 pnpm --filter @zharfa/web dev      # http://localhost:3000
 pnpm --filter @zharfa/api dev      # http://localhost:4000/health
 pnpm --filter @zharfa/worker dev   # http://localhost:4001/health
 ```
 
-All apps (turbo):
+All apps via Turbo:
 
 ```bash
 pnpm dev
 ```
 
+Production-ish local builds:
+
+```bash
+pnpm build
+pnpm --filter @zharfa/web start
+pnpm --filter @zharfa/api start
+pnpm --filter @zharfa/worker start
+```
+
+## Local URLs
+
+| Surface | URL |
+|---------|-----|
+| Web (public) | http://localhost:3000 |
+| Student dashboard | http://localhost:3000/dashboard |
+| Admin (OWNER) | http://localhost:3000/admin |
+| API health | http://localhost:4000/health |
+| Worker health | http://localhost:4001/health |
+| Web health | http://localhost:3000/api/health |
+| MinIO API / console | http://localhost:9000 · http://localhost:9001 |
+| Postgres | `127.0.0.1:5432` (`zharfa` / `zharfa` / db `zharfa`) |
+| Redis | `redis://127.0.0.1:6379` |
+
 ## Demo accounts (seed)
 
-Passwords are **env-configurable** (see `.env.example`):
+Passwords are **env-configurable** (see `.env.example`). Defaults are for local demo only — change before any shared environment.
 
 | Role | Username | Email | Phone | Env var | Default (local only) |
 |------|----------|-------|-------|---------|----------------------|
@@ -65,102 +87,72 @@ Passwords are **env-configurable** (see `.env.example`):
 | STUDENT | `niloofar` | `niloofar@example.com` | `09123333333` | same | same |
 | STUDENT | `amir` | `amir@example.com` | — | same | same |
 
-Login accepts **username, email, or phone** + password. Recovery OTP is logged by the console email/SMS provider in API logs (no real SMS/email in local).
+Login accepts **username, email, or phone** + password.
 
-Seed also creates **3 categories**, **6 courses** (5 publicly listed), curriculum/lessons, and **2 learning paths**, with SVG artwork placeholders under `apps/web/public/artwork/`.
+- Admin panel: sign in as `admin` → http://localhost:3000/admin
+- Student flows: sign in as `sara` (or peers) → http://localhost:3000/dashboard
+- Recovery OTP is logged by the **console** email/SMS provider in API logs (no real SMS/email until credentials exist)
 
-## Auth surface
+Seed also creates categories, courses, curriculum, learning paths, coupons, gateway/SpotPlayer settings rows, sample PENDING/FAILED orders, historical PAID analytics fixtures (seed-only), tickets, notifications, CMS FAQ, and activity log samples. Adapters **never** invent runtime `PAID` or SUCCEEDED SpotPlayer licenses.
 
-| Surface | Path |
-|---------|------|
-| Login | `/login` |
-| Register | `/register` |
-| Recover password | `/recover` |
-| Student dashboard (gated) | `/dashboard` |
-| API identity | `POST /identity/register\|login\|logout`, `GET /identity/me`, `POST /identity/recover/*` |
+## Integration credential status (honest)
 
-Web sets an **HttpOnly** `zharfa_session` cookie via Next.js BFF routes under `/api/auth/*`. Nest also accepts the same token as cookie or `Authorization: Bearer`.
+| Integration | Env vars | Local status | Notes |
+|-------------|----------|--------------|-------|
+| ZarinPal | `ZARINPAL_MERCHANT_ID`, `ZARINPAL_SANDBOX` | `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` when empty | No fake PAID; paid purchase UI disabled without merchant id |
+| AqayePardakht | `AQAYE_PARDAKHT_PIN`, `AQAYE_PARDAKHT_SANDBOX` | `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` when empty | Same verify/idempotency rules |
+| SpotPlayer | `SPOTPLAYER_API_KEY`, `SPOTPLAYER_LICENSE_ENDPOINT` | `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` when empty | Payment PAID ≠ license SUCCEEDED; no invented keys |
+| Email / SMS | (console adapters only) | Console provider | OTP + notifications print to API logs; not a real MTA/SMS gateway |
+| Payment/SpotPlayer mocks | `PAYMENT_MOCK_HOOKS`, `SPOTPLAYER_MOCK_*` | Unit/test only | **Never** enable in production; mocks still require explicit verify/create calls |
 
-## Catalog surface
+Do **not** claim `VERIFIED_REAL_INTEGRATION` without live merchant/SpotPlayer/SMS credentials.
 
-| Surface | Path |
-|---------|------|
-| Course catalog | `/courses` (search, category, offer filters, pagination) |
-| Course detail | `/courses/[slug]` |
-| Learning paths | `/paths`, `/paths/[slug]` |
-| API catalog | `GET /catalog/categories`, `/catalog/courses`, `/catalog/courses/featured`, `/catalog/courses/:slug`, `/catalog/paths`, `/catalog/paths/:slug` |
-
-Course state uses coherent enums: `CoursePublicationStatus` (`DRAFT` / `PUBLISHED` / `UNPUBLISHED` / `ARCHIVED`) × `CourseOfferKind` (`FREE` / `PAID` / `PRE_SALE` / `COMING_SOON`). Pricing uses Prisma `Decimal` (Toman).
-
-## Commerce surface
+## Auth / catalog / commerce surfaces
 
 | Surface | Path |
 |---------|------|
-| Course purchase | `/courses/[slug]/purchase` (gated; disabled when no usable gateway) |
-| Payment pending / success / failure | `/payments/pending`, `/payments/success`, `/payments/failure` |
-| Student order history | `/dashboard/orders` |
-| API checkout | `GET /commerce/checkout/:slug`, `POST /commerce/checkout/start`, `POST /commerce/coupons/validate` |
-| API orders | `GET /commerce/orders`, `GET /commerce/orders/:id` |
-| Gateway callbacks | `GET /commerce/callbacks/zarinpal`, `GET\|POST /commerce/callbacks/aqayepardakht` |
-| Admin gateway settings | `GET\|PATCH /commerce/admin/gateways` (OWNER) |
+| Login / register / recover | `/login` · `/register` · `/recover` |
+| Student dashboard | `/dashboard` |
+| Admin shell (OWNER) | `/admin` (+ courses, orders, tickets, payments, SpotPlayer, CMS, …) |
+| Courses / paths | `/courses`, `/courses/[slug]`, `/paths` |
+| Purchase + payment pages | `/courses/[slug]/purchase`, `/payments/{pending,success,failure}` |
+| Student orders / access / tickets / notifications | `/dashboard/orders`, `/dashboard/access`, `/dashboard/tickets`, `/dashboard/notifications` |
+| API identity | `POST /identity/register\|login\|logout`, `GET /identity/me`, recover routes |
+| API catalog | `GET /catalog/*` |
+| API commerce | checkout, coupons, orders, gateway callbacks |
+| API SpotPlayer / tickets / notifications / admin | `/spotplayer/*`, `/tickets/*`, `/notifications/*`, `/admin/*` |
 
-Adapters: **ZarinPal v4** (`payment.zarinpal.com` / sandbox) and **AqayePardakht v2** (`panel.aqayepardakht.ir/api/v2`). Orders become `PAID` only after server-side verify. Missing `ZARINPAL_MERCHANT_ID` / `AQAYE_PARDAKHT_PIN` → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`.
-
-## SpotPlayer access
-
-| Surface | Path |
-|---------|------|
-| Student access / licenses | `/dashboard/access` |
-| Free course grant | Course detail CTA → `POST /spotplayer/access/free` |
-| Admin config + diagnostics | `/dashboard/admin/spotplayer` (OWNER) |
-| API student | `GET /spotplayer/access`, `POST /spotplayer/access/free` |
-| API admin | `GET\|PATCH /spotplayer/admin/config`, mappings, licenses, retry, diagnostics |
-
-Official license create: `POST https://panel.spotplayer.ir/license/edit/` with `$API` + `$LEVEL: -1` ([docs](https://spotplayer.ir/help/api)). After `OrderStatus.PAID` (or free enroll), API enqueues BullMQ `access-provisioning`; worker calls SpotPlayer. **Payment PAID ≠ license SUCCEEDED.** Missing `SPOTPLAYER_API_KEY` → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`. Platform facts from [spotplayer.ir](https://spotplayer.ir/): Windows/Mac/Android/Web available; iOS + Ubuntu listed as coming soon — student UI does not claim iOS.
-
-## Support tickets + notifications
-
-| Surface | Path |
-|---------|------|
-| Student tickets | `/dashboard/tickets`, `/dashboard/tickets/new`, `/dashboard/tickets/[id]` |
-| Admin tickets | `/dashboard/admin/tickets` (OWNER; status/q filters) |
-| Notifications inbox | `/dashboard/notifications` |
-| API tickets | `POST/GET /tickets`, `GET/POST/PATCH /tickets/:id…`, `GET /tickets/admin`, attachment download |
-| API notifications | `GET /notifications`, `POST /notifications/read-all`, `POST /notifications/:id/read` |
-
-Ticket statuses: `OPEN` → `IN_PROGRESS` / `WAITING_FOR_USER` / `RESOLVED` / `CLOSED` (transitions enforced in `ticket-status.ts`). Attachments use a private local store (`TICKET_ATTACHMENT_ROOT`); never under `apps/web/public`. Telegram ref is optional supplementary metadata only. Notifications fan out IN_APP + console email/SMS with delivery rows and per-user rate limits.
-
-## Health stubs
-
-| Service | URL |
-|---------|-----|
-| Web | `GET http://localhost:3000/api/health` |
-| API | `GET http://localhost:4000/health` |
-| Worker | `GET http://localhost:4001/health` |
+Web sets an **HttpOnly** `zharfa_session` cookie via Next.js BFF routes under `/api/auth/*`. Nest accepts cookie or `Authorization: Bearer`.
 
 ## Important product constraints
 
 - Currency display: **Toman**
-- Payments: ZarinPal + AqayePardakht adapters only — **no fabricated payment success**
+- Payments: ZarinPal + AqayePardakht only — **no fabricated payment success**
 - Protected video: SpotPlayer — **no fake license success**
 - Not a multi-instructor marketplace; no custom video hosting
-- SMS/email: interface + **console/dev provider** only until real credentials exist
+- SMS/email: interface + **console/dev provider** until real credentials exist
 
 ## Docs
 
-- [`docs/IMPLEMENTATION_STATUS.md`](./docs/IMPLEMENTATION_STATUS.md) — living feature ledger
-- [`docs/phase-0-repo-audit.md`](./docs/phase-0-repo-audit.md) — Phase 0 repository audit
+- [`docs/IMPLEMENTATION_STATUS.md`](./docs/IMPLEMENTATION_STATUS.md) — living feature ledger (VERIFIED / BLOCKED)
+- [`docs/TESTING.md`](./docs/TESTING.md) — how to run checks; what this environment verified
+- [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) — local-first notes (no production deploy required now)
+- [`CHANGELOG.md`](./CHANGELOG.md) — phase summary
 - [`SECURITY.md`](./SECURITY.md) — security posture
+- [`docs/security/`](./docs/security/) · [`docs/performance/`](./docs/performance/)
 
 ## Scripts
 
 | Script | Description |
 |--------|-------------|
+| `pnpm install` | Install workspace deps |
 | `pnpm dev` | Turbo dev for all packages |
-| `pnpm build` | Build all |
-| `pnpm docker:up` / `pnpm docker:down` | Compose infra |
-| `pnpm db:generate` | Prisma generate |
+| `pnpm build` | Build database → api / worker / web |
+| `pnpm typecheck` | Typecheck all packages |
+| `pnpm lint` | Lint (web: ESLint via next lint; api/worker: stub pending full ESLint) |
+| `pnpm test` | Build `@zharfa/database` then API + worker Vitest |
+| `pnpm docker:up` / `docker:down` / `docker:ps` | Compose infra |
+| `pnpm db:generate` | Prisma generate (root `.env`) |
 | `pnpm db:migrate` | Prisma migrate dev |
-| `pnpm db:seed` | Seed admin + students + catalog |
+| `pnpm db:seed` | Seed admin + students + catalog + fixtures |
 | `pnpm db:studio` | Prisma Studio |
-| `pnpm --filter @zharfa/api test` | Identity + catalog + commerce + SpotPlayer + tickets/notifications unit tests |

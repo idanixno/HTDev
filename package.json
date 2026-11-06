@@ -11,9 +11,10 @@
     "db:migrate": "pnpm --filter @zharfa/database migrate:dev",
     "db:seed": "pnpm --filter @zharfa/database seed",
     "db:studio": "pnpm --filter @zharfa/database studio",
-    "test": "pnpm --filter @zharfa/api test",
+    "test": "pnpm --filter @zharfa/database build && pnpm --filter @zharfa/api test && pnpm --filter @zharfa/worker test",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "docker:ps": "docker compose ps"
   },
   "devDependencies": {
     "turbo": "^2.5.4",

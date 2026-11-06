@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button, Field, Notice } from "@zharfa/ui";
-import type { SpotPlayerConfig } from "../lib/spotplayer";
+import type { SpotPlayerConfig } from "../lib/spotplayer-shared";
 
 export function SpotPlayerAdminForm({
   initial,

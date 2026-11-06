@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, Notice } from "@zharfa/ui";
 import { authFetch } from "../lib/api-client";
-import type { PublicNotification } from "../lib/notifications";
+import type { PublicNotification } from "../lib/notification-shared";
 
 export function NotificationsPanel({
   items,
