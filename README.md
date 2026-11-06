@@ -9,7 +9,7 @@ Figma: [EDU / Zharfa](https://www.figma.com/design/ecYEt09V8ZOGzG2sRd4cC1)
 | App / package | Role |
 |---------------|------|
 | `apps/web` | Next.js App Router, RTL shell, auth BFF, catalog/paths, student dashboard |
-| `apps/api` | NestJS HTTP API + Identity + Catalog modules |
+| `apps/api` | NestJS HTTP API + Identity + Catalog + Commerce modules |
 | `apps/worker` | BullMQ background jobs |
 | `packages/database` | Prisma schema + client + seed (users + education catalog) |
 | `packages/ui` | Zharfa design system (`@zharfa/ui`) |
@@ -91,6 +91,20 @@ Web sets an **HttpOnly** `zharfa_session` cookie via Next.js BFF routes under `/
 | API catalog | `GET /catalog/categories`, `/catalog/courses`, `/catalog/courses/featured`, `/catalog/courses/:slug`, `/catalog/paths`, `/catalog/paths/:slug` |
 
 Course state uses coherent enums: `CoursePublicationStatus` (`DRAFT` / `PUBLISHED` / `UNPUBLISHED` / `ARCHIVED`) × `CourseOfferKind` (`FREE` / `PAID` / `PRE_SALE` / `COMING_SOON`). Pricing uses Prisma `Decimal` (Toman).
+
+## Commerce surface
+
+| Surface | Path |
+|---------|------|
+| Course purchase | `/courses/[slug]/purchase` (gated; disabled when no usable gateway) |
+| Payment pending / success / failure | `/payments/pending`, `/payments/success`, `/payments/failure` |
+| Student order history | `/dashboard/orders` |
+| API checkout | `GET /commerce/checkout/:slug`, `POST /commerce/checkout/start`, `POST /commerce/coupons/validate` |
+| API orders | `GET /commerce/orders`, `GET /commerce/orders/:id` |
+| Gateway callbacks | `GET /commerce/callbacks/zarinpal`, `GET\|POST /commerce/callbacks/aqayepardakht` |
+| Admin gateway settings | `GET\|PATCH /commerce/admin/gateways` (OWNER) |
+
+Adapters: **ZarinPal v4** (`payment.zarinpal.com` / sandbox) and **AqayePardakht v2** (`panel.aqayepardakht.ir/api/v2`). Orders become `PAID` only after server-side verify. Missing `ZARINPAL_MERCHANT_ID` / `AQAYE_PARDAKHT_PIN` → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`.
 
 ## Health stubs
 

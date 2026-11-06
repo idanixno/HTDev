@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@zharfa/ui";
 import { fetchCourse } from "../../../lib/catalog";
+import { fetchCheckoutOptions } from "../../../lib/commerce";
+import { fetchCurrentUser } from "../../../lib/session";
 
 type Params = Promise<{ slug: string }>;
 
@@ -13,6 +15,15 @@ export default async function CourseDetailPage({
   const { slug } = await params;
   const course = await fetchCourse(slug);
   if (!course) notFound();
+
+  const user = await fetchCurrentUser();
+  const isPaidOffer =
+    course.offerKind === "PAID" || course.offerKind === "PRE_SALE";
+  const checkout = isPaidOffer ? await fetchCheckoutOptions(slug) : null;
+  const purchaseEnabled = Boolean(checkout?.purchaseEnabled);
+  const purchaseHref = user
+    ? `/courses/${slug}/purchase`
+    : `/login?next=/courses/${encodeURIComponent(slug)}/purchase`;
 
   return (
     <article className="course-detail">
@@ -43,13 +54,22 @@ export default async function CourseDetailPage({
               بازگشت به کاتالوگ
             </Button>
             {course.offerKind === "FREE" ? (
-              <Button href="/register" variant="primary">
-                ثبت‌نام برای دسترسی رایگان
+              <Button
+                href={user ? "/dashboard" : "/register"}
+                variant="primary"
+              >
+                {user ? "رفتن به حساب من" : "ثبت‌نام برای دسترسی رایگان"}
               </Button>
-            ) : course.offerKind === "PAID" || course.offerKind === "PRE_SALE" ? (
-              <Button href="/login" variant="primary">
-                ورود برای ادامه خرید
-              </Button>
+            ) : isPaidOffer ? (
+              purchaseEnabled ? (
+                <Button href={purchaseHref} variant="primary">
+                  {user ? "ادامه خرید" : "ورود برای خرید"}
+                </Button>
+              ) : (
+                <Button href={purchaseHref} variant="secondary">
+                  وضعیت درگاه خرید
+                </Button>
+              )
             ) : (
               <Button href="/paths" variant="primary">
                 مشاهده مسیرهای مرتبط
@@ -57,8 +77,9 @@ export default async function CourseDetailPage({
             )}
           </div>
           <p className="course-detail__note">
-            پرداخت و دسترسی ویدئو هنوز به درگاه واقعی و SpotPlayer وصل نشده‌اند —
-            بدون شبیه‌سازی موفقیت.
+            {isPaidOffer && !purchaseEnabled
+              ? "خرید پولی تا تنظیم اعتبارنامهٔ درگاه غیرفعال است (IMPLEMENTED_BUT_CREDENTIALS_REQUIRED). SpotPlayer در فاز ۶."
+              : "پرداخت فقط پس از verify درگاه ثبت می‌شود — بدون موفقیت ساختگی. SpotPlayer هنوز فاز ۶ است."}
           </p>
         </div>
       </header>
