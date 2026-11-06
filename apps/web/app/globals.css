@@ -1326,6 +1326,199 @@ code {
   font-size: var(--zharfa-text-14);
 }
 
+/* —— Support tickets + notifications —— */
+.ticket-list {
+  list-style: none;
+  margin: var(--zharfa-space-32) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-16);
+}
+
+.ticket-list__item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--zharfa-space-16);
+  padding-block: var(--zharfa-space-16);
+  border-top: 1px solid var(--zharfa-border-default);
+}
+
+.ticket-list__item h2 {
+  margin: 0 0 var(--zharfa-space-8);
+  font-size: var(--zharfa-text-18);
+}
+
+.ticket-list__meta {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: var(--zharfa-text-14);
+}
+
+.ticket-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-16);
+  max-width: 40rem;
+  margin-top: var(--zharfa-space-24);
+}
+
+.ticket-form__label {
+  font-size: var(--zharfa-text-14);
+  color: var(--zharfa-text-secondary);
+}
+
+.ticket-form__select,
+.ticket-form__textarea,
+.ticket-search input {
+  width: 100%;
+  padding: var(--zharfa-space-12);
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-8, 8px);
+  background: var(--zharfa-bg-elevated, var(--zharfa-bg-canvas));
+  color: var(--zharfa-text-primary);
+  font: inherit;
+}
+
+.ticket-form__hint {
+  margin: 0;
+  font-size: var(--zharfa-text-14);
+  color: var(--zharfa-text-secondary);
+}
+
+.ticket-thread__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--zharfa-space-16);
+  margin-bottom: var(--zharfa-space-24);
+}
+
+.ticket-thread__title {
+  margin: 0 0 var(--zharfa-space-8);
+  font-size: var(--zharfa-text-28, 1.75rem);
+}
+
+.ticket-thread__meta {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+}
+
+.ticket-thread__messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-16);
+  margin-bottom: var(--zharfa-space-32);
+}
+
+.ticket-msg {
+  padding: var(--zharfa-space-16);
+  border-top: 1px solid var(--zharfa-border-default);
+}
+
+.ticket-msg--admin {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 6%, transparent);
+}
+
+.ticket-msg header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--zharfa-space-12);
+  margin-bottom: var(--zharfa-space-8);
+  font-size: var(--zharfa-text-14);
+  color: var(--zharfa-text-secondary);
+}
+
+.ticket-msg p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.ticket-thread__actions {
+  margin-top: var(--zharfa-space-24);
+  padding-top: var(--zharfa-space-16);
+  border-top: 1px solid var(--zharfa-border-default);
+}
+
+.ticket-thread__btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--zharfa-space-8);
+}
+
+.ticket-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--zharfa-space-12);
+  margin-block: var(--zharfa-space-16);
+}
+
+.ticket-filters__link {
+  color: var(--zharfa-text-secondary);
+}
+
+.ticket-filters__link--current {
+  color: var(--zharfa-text-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.ticket-search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--zharfa-space-12);
+  margin-bottom: var(--zharfa-space-24);
+}
+
+.ticket-search input {
+  max-width: 24rem;
+}
+
+.notify-panel__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--zharfa-space-12);
+  margin-bottom: var(--zharfa-space-24);
+}
+
+.notify-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-16);
+}
+
+.notify-item {
+  padding-block: var(--zharfa-space-16);
+  border-top: 1px solid var(--zharfa-border-default);
+}
+
+.notify-item--unread {
+  border-inline-start: 3px solid var(--zharfa-action-primary);
+  padding-inline-start: var(--zharfa-space-12);
+}
+
+.notify-item h2 {
+  margin: 0 0 var(--zharfa-space-8);
+  font-size: var(--zharfa-text-18);
+}
+
+.notify-item p {
+  margin: 0 0 var(--zharfa-space-8);
+}
+
+.notify-item__meta {
+  color: var(--zharfa-text-secondary);
+  font-size: var(--zharfa-text-14);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero,
   .atlas-panel,
@@ -1340,7 +1533,9 @@ code {
   .purchase,
   .payment-result,
   .orders,
-  .access-card {
+  .access-card,
+  .ticket-list__item,
+  .notify-item {
     animation: none !important;
     transition: none !important;
   }

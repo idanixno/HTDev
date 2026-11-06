@@ -1,4 +1,5 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
+import { NotificationsModule } from "../notifications/notifications.module";
 import { IdentityController } from "./identity.controller";
 import { IdentityService } from "./identity.service";
 import { PasswordService } from "./password.service";
@@ -10,6 +11,7 @@ import { ConsoleMessagingProvider } from "./messaging/console-messaging.provider
 import { MESSAGING_PROVIDER } from "./messaging/messaging.types";
 
 @Module({
+  imports: [forwardRef(() => NotificationsModule)],
   controllers: [IdentityController],
   providers: [
     IdentityService,

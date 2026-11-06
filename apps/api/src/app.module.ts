@@ -5,6 +5,8 @@ import { IdentityModule } from "./identity/identity.module";
 import { CatalogModule } from "./catalog/catalog.module";
 import { CommerceModule } from "./commerce/commerce.module";
 import { SpotPlayerModule } from "./spotplayer/spotplayer.module";
+import { NotificationsModule } from "./notifications/notifications.module";
+import { TicketsModule } from "./tickets/tickets.module";
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { SpotPlayerModule } from "./spotplayer/spotplayer.module";
     CatalogModule,
     CommerceModule,
     SpotPlayerModule,
+    NotificationsModule,
+    TicketsModule,
   ],
   controllers: [HealthController],
 })

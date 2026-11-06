@@ -9,7 +9,7 @@ Figma: [EDU / Zharfa](https://www.figma.com/design/ecYEt09V8ZOGzG2sRd4cC1)
 | App / package | Role |
 |---------------|------|
 | `apps/web` | Next.js App Router, RTL shell, auth BFF, catalog/paths, student dashboard |
-| `apps/api` | NestJS HTTP API + Identity + Catalog + Commerce + SpotPlayer modules |
+| `apps/api` | NestJS HTTP API + Identity + Catalog + Commerce + SpotPlayer + Tickets + Notifications |
 | `apps/worker` | BullMQ background jobs (AccessProvisioning) |
 | `packages/database` | Prisma schema + client + seed (users + education catalog) |
 | `packages/ui` | Zharfa design system (`@zharfa/ui`) |
@@ -118,6 +118,18 @@ Adapters: **ZarinPal v4** (`payment.zarinpal.com` / sandbox) and **AqayePardakht
 
 Official license create: `POST https://panel.spotplayer.ir/license/edit/` with `$API` + `$LEVEL: -1` ([docs](https://spotplayer.ir/help/api)). After `OrderStatus.PAID` (or free enroll), API enqueues BullMQ `access-provisioning`; worker calls SpotPlayer. **Payment PAID ≠ license SUCCEEDED.** Missing `SPOTPLAYER_API_KEY` → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`. Platform facts from [spotplayer.ir](https://spotplayer.ir/): Windows/Mac/Android/Web available; iOS + Ubuntu listed as coming soon — student UI does not claim iOS.
 
+## Support tickets + notifications
+
+| Surface | Path |
+|---------|------|
+| Student tickets | `/dashboard/tickets`, `/dashboard/tickets/new`, `/dashboard/tickets/[id]` |
+| Admin tickets | `/dashboard/admin/tickets` (OWNER; status/q filters) |
+| Notifications inbox | `/dashboard/notifications` |
+| API tickets | `POST/GET /tickets`, `GET/POST/PATCH /tickets/:id…`, `GET /tickets/admin`, attachment download |
+| API notifications | `GET /notifications`, `POST /notifications/read-all`, `POST /notifications/:id/read` |
+
+Ticket statuses: `OPEN` → `IN_PROGRESS` / `WAITING_FOR_USER` / `RESOLVED` / `CLOSED` (transitions enforced in `ticket-status.ts`). Attachments use a private local store (`TICKET_ATTACHMENT_ROOT`); never under `apps/web/public`. Telegram ref is optional supplementary metadata only. Notifications fan out IN_APP + console email/SMS with delivery rows and per-user rate limits.
+
 ## Health stubs
 
 | Service | URL |
@@ -151,4 +163,4 @@ Official license create: `POST https://panel.spotplayer.ir/license/edit/` with `
 | `pnpm db:migrate` | Prisma migrate dev |
 | `pnpm db:seed` | Seed admin + students + catalog |
 | `pnpm db:studio` | Prisma Studio |
-| `pnpm --filter @zharfa/api test` | Identity + catalog + commerce + SpotPlayer unit tests |
+| `pnpm --filter @zharfa/api test` | Identity + catalog + commerce + SpotPlayer + tickets/notifications unit tests |

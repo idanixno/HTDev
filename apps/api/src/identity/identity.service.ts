@@ -2,10 +2,18 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Optional,
   UnauthorizedException,
+  forwardRef,
 } from "@nestjs/common";
-import { OtpChannel, OtpPurpose, UserRole } from "@zharfa/database";
+import {
+  NotificationEventType,
+  OtpChannel,
+  OtpPurpose,
+  UserRole,
+} from "@zharfa/database";
 import { PrismaService } from "../prisma/prisma.service";
+import { NotificationsService } from "../notifications/notifications.service";
 import { PasswordService } from "./password.service";
 import { SessionService } from "./session.service";
 import { OtpService } from "./otp.service";
@@ -37,6 +45,9 @@ export class IdentityService {
     private readonly otp: OtpService,
     @Inject(MESSAGING_PROVIDER)
     private readonly messaging: MessagingProvider,
+    @Optional()
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notifications?: NotificationsService,
   ) {}
 
   async register(
@@ -90,6 +101,17 @@ export class IdentityService {
       userAgent: meta.userAgent,
       ipAddress: meta.ipAddress,
     });
+
+    try {
+      await this.notifications?.emit({
+        userId: user.id,
+        eventType: NotificationEventType.USER_REGISTERED,
+        context: { displayName: user.displayName },
+        payload: { userId: user.id },
+      });
+    } catch {
+      // Notification failures must not block registration.
+    }
 
     return {
       user: toPublicUser(user),
@@ -202,6 +224,17 @@ export class IdentityService {
       } else {
         await this.messaging.sendSms({ to: normalized, body });
       }
+
+      try {
+        await this.notifications?.emit({
+          userId,
+          eventType: NotificationEventType.SECURITY_RECOVERY_REQUESTED,
+          context: { detail: `کانال: ${channel}` },
+          payload: { channel, challengeId },
+        });
+      } catch {
+        /* non-blocking */
+      }
     }
 
     return {
@@ -231,6 +264,16 @@ export class IdentityService {
       data: { passwordHash },
     });
     await this.sessions.revokeAllForUser(result.challenge.userId);
+
+    try {
+      await this.notifications?.emit({
+        userId: result.challenge.userId,
+        eventType: NotificationEventType.SECURITY_PASSWORD_CHANGED,
+        payload: { via: "recovery" },
+      });
+    } catch {
+      /* non-blocking */
+    }
 
     return { ok: true };
   }
