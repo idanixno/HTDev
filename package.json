@@ -9,7 +9,9 @@
     "typecheck": "turbo run typecheck",
     "db:generate": "pnpm --filter @zharfa/database generate",
     "db:migrate": "pnpm --filter @zharfa/database migrate:dev",
+    "db:seed": "pnpm --filter @zharfa/database seed",
     "db:studio": "pnpm --filter @zharfa/database studio",
+    "test": "pnpm --filter @zharfa/api test",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },
@@ -26,7 +28,8 @@
       "@prisma/engines",
       "prisma",
       "esbuild",
-      "msgpackr-extract"
+      "msgpackr-extract",
+      "argon2"
     ]
   }
 }

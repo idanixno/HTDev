@@ -246,6 +246,14 @@
   background: var(--zharfa-text-link);
 }
 
+.z-notice--error .z-notice__title {
+  color: var(--zharfa-status-error);
+}
+
+.z-notice--error .z-notice__accent {
+  background: var(--zharfa-status-error);
+}
+
 .z-dialog-backdrop {
   position: fixed;
   inset: 0;
