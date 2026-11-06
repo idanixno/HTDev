@@ -1241,6 +1241,91 @@ code {
   }
 }
 
+/* —— SpotPlayer access —— */
+.access-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-24);
+  margin-block: var(--zharfa-space-32);
+}
+
+.access-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-12);
+  padding: var(--zharfa-space-24);
+  border-top: 1px solid var(--zharfa-border-default);
+}
+
+.access-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--zharfa-space-12);
+}
+
+.access-card__head h2 {
+  margin: 0;
+  font-size: var(--zharfa-text-18);
+}
+
+.access-card__meta {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: var(--zharfa-text-14);
+}
+
+.access-card__key {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-8);
+}
+
+.access-card__key textarea {
+  width: 100%;
+  font-family: var(--zharfa-font-code);
+  font-size: var(--zharfa-text-14);
+  padding: var(--zharfa-space-12);
+  border: 1px solid var(--zharfa-border-default);
+  background: var(--zharfa-bg-elevated, var(--zharfa-bg-canvas));
+  color: var(--zharfa-text-primary);
+  border-radius: var(--zharfa-radius-8, 8px);
+  resize: vertical;
+}
+
+.access-instructions {
+  margin-top: var(--zharfa-space-40);
+  padding-top: var(--zharfa-space-24);
+  border-top: 1px solid var(--zharfa-border-default);
+  max-width: 40rem;
+}
+
+.access-instructions h2,
+.access-instructions h3 {
+  margin-block: var(--zharfa-space-16) var(--zharfa-space-8);
+}
+
+.free-access {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-12);
+}
+
+.sp-admin-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--zharfa-space-24);
+  margin-block: var(--zharfa-space-24);
+}
+
+.sp-admin-check {
+  display: flex;
+  align-items: center;
+  gap: var(--zharfa-space-8);
+  font-size: var(--zharfa-text-14);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero,
   .atlas-panel,
@@ -1254,7 +1339,8 @@ code {
   .path-detail,
   .purchase,
   .payment-result,
-  .orders {
+  .orders,
+  .access-card {
     animation: none !important;
     transition: none !important;
   }

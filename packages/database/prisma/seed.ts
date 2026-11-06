@@ -16,6 +16,7 @@ import {
   PaymentTransactionStatus,
   Prisma,
   PrismaClient,
+  SpotPlayerLicenseStatus,
   UserRole,
 } from "@prisma/client";
 import * as argon2 from "argon2";
@@ -788,11 +789,72 @@ async function seedCommerce(
     sampleOrders += 1;
   }
 
+  const spotKeyPresent = Boolean(process.env.SPOTPLAYER_API_KEY?.trim());
+  await prisma.spotPlayerSetting.upsert({
+    where: { id: "default" },
+    create: {
+      id: "default",
+      technicalEnabled: true,
+      testMode: true,
+      credentialsStatus: spotKeyPresent
+        ? GatewayCredentialsStatus.PRESENT
+        : GatewayCredentialsStatus.MISSING,
+      licenseEndpoint: "https://panel.spotplayer.ir/license/edit/",
+    },
+    update: {
+      credentialsStatus: spotKeyPresent
+        ? GatewayCredentialsStatus.PRESENT
+        : GatewayCredentialsStatus.MISSING,
+    },
+  });
+
+  // Placeholder SpotPlayer course ids for demo mapping — not real licenses.
+  const freeCourse = await prisma.course.findFirst({
+    where: {
+      publicationStatus: CoursePublicationStatus.PUBLISHED,
+      offerKind: CourseOfferKind.FREE,
+    },
+  });
+  let mappings = 0;
+  if (paidCourse) {
+    await prisma.spotPlayerCourseMapping.upsert({
+      where: { courseId: paidCourse.id },
+      create: {
+        courseId: paidCourse.id,
+        spotPlayerCourseId: "seed_spotplayer_paid_course_placeholder",
+        enabled: true,
+      },
+      update: {
+        spotPlayerCourseId: "seed_spotplayer_paid_course_placeholder",
+        enabled: true,
+      },
+    });
+    mappings += 1;
+  }
+  if (freeCourse) {
+    await prisma.spotPlayerCourseMapping.upsert({
+      where: { courseId: freeCourse.id },
+      create: {
+        courseId: freeCourse.id,
+        spotPlayerCourseId: "seed_spotplayer_free_course_placeholder",
+        enabled: true,
+      },
+      update: {
+        spotPlayerCourseId: "seed_spotplayer_free_course_placeholder",
+        enabled: true,
+      },
+    });
+    mappings += 1;
+  }
+
   return {
     coupons: coupons.length,
     gatewaySettings: 2,
     sampleOrders,
-    note: "No PAID sample orders — payments require verified gateway callbacks.",
+    spotPlayerMappings: mappings,
+    spotPlayerLicensesSeeded: 0,
+    note: "No PAID sample orders and no SUCCEEDED SpotPlayer licenses — require real provider responses.",
+    spotPlayerLicenseDefault: SpotPlayerLicenseStatus.PENDING,
   };
 }
 

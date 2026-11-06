@@ -19,10 +19,13 @@ export default async function DashboardPage() {
             سلام، {user.displayName}
           </h1>
           <p className="dashboard__subtitle">
-            نمای کلی حساب — سفارش‌ها و وضعیت پرداخت را از تاریخچه ببینید.
+            نمای کلی حساب — سفارش‌ها، دسترسی اسپات‌پلیر و وضعیت پرداخت.
           </p>
         </div>
         <div className="dashboard__actions">
+          <Button href="/dashboard/access" variant="primary">
+            دسترسی دوره‌ها
+          </Button>
           <Button href="/courses" variant="secondary">
             مرور دوره‌ها
           </Button>
@@ -73,6 +76,15 @@ export default async function DashboardPage() {
         </article>
 
         <article className="dashboard__block">
+          <h2>دسترسی اسپات‌پلیر</h2>
+          <Notice tone="information" title="لایسنس جدا از پرداخت">
+            کلید لایسنس فقط پس از پاسخ واقعی اسپات‌پلیر در{" "}
+            <Link href="/dashboard/access">صفحه دسترسی</Link> دیده می‌شود — بدون
+            موفقیت ساختگی.
+          </Notice>
+        </article>
+
+        <article className="dashboard__block">
           <h2>دسترسی سریع</h2>
           <ul className="dashboard__links">
             <li>
@@ -84,6 +96,14 @@ export default async function DashboardPage() {
             <li>
               <Link href="/dashboard/orders">تاریخچه سفارش‌ها</Link>
             </li>
+            <li>
+              <Link href="/dashboard/access">لایسنس و دسترسی</Link>
+            </li>
+            {user.role === "OWNER" ? (
+              <li>
+                <Link href="/dashboard/admin/spotplayer">ادمین اسپات‌پلیر</Link>
+              </li>
+            ) : null}
             <li>
               <Link href="/design-system">سیستم طراحی</Link>
             </li>

@@ -9,8 +9,8 @@ Figma: [EDU / Zharfa](https://www.figma.com/design/ecYEt09V8ZOGzG2sRd4cC1)
 | App / package | Role |
 |---------------|------|
 | `apps/web` | Next.js App Router, RTL shell, auth BFF, catalog/paths, student dashboard |
-| `apps/api` | NestJS HTTP API + Identity + Catalog + Commerce modules |
-| `apps/worker` | BullMQ background jobs |
+| `apps/api` | NestJS HTTP API + Identity + Catalog + Commerce + SpotPlayer modules |
+| `apps/worker` | BullMQ background jobs (AccessProvisioning) |
 | `packages/database` | Prisma schema + client + seed (users + education catalog) |
 | `packages/ui` | Zharfa design system (`@zharfa/ui`) |
 | `packages/config` | Shared TS configs |
@@ -106,6 +106,18 @@ Course state uses coherent enums: `CoursePublicationStatus` (`DRAFT` / `PUBLISHE
 
 Adapters: **ZarinPal v4** (`payment.zarinpal.com` / sandbox) and **AqayePardakht v2** (`panel.aqayepardakht.ir/api/v2`). Orders become `PAID` only after server-side verify. Missing `ZARINPAL_MERCHANT_ID` / `AQAYE_PARDAKHT_PIN` → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`.
 
+## SpotPlayer access
+
+| Surface | Path |
+|---------|------|
+| Student access / licenses | `/dashboard/access` |
+| Free course grant | Course detail CTA → `POST /spotplayer/access/free` |
+| Admin config + diagnostics | `/dashboard/admin/spotplayer` (OWNER) |
+| API student | `GET /spotplayer/access`, `POST /spotplayer/access/free` |
+| API admin | `GET\|PATCH /spotplayer/admin/config`, mappings, licenses, retry, diagnostics |
+
+Official license create: `POST https://panel.spotplayer.ir/license/edit/` with `$API` + `$LEVEL: -1` ([docs](https://spotplayer.ir/help/api)). After `OrderStatus.PAID` (or free enroll), API enqueues BullMQ `access-provisioning`; worker calls SpotPlayer. **Payment PAID ≠ license SUCCEEDED.** Missing `SPOTPLAYER_API_KEY` → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`. Platform facts from [spotplayer.ir](https://spotplayer.ir/): Windows/Mac/Android/Web available; iOS + Ubuntu listed as coming soon — student UI does not claim iOS.
+
 ## Health stubs
 
 | Service | URL |
@@ -139,4 +151,4 @@ Adapters: **ZarinPal v4** (`payment.zarinpal.com` / sandbox) and **AqayePardakht
 | `pnpm db:migrate` | Prisma migrate dev |
 | `pnpm db:seed` | Seed admin + students + catalog |
 | `pnpm db:studio` | Prisma Studio |
-| `pnpm --filter @zharfa/api test` | Identity + catalog state/pricing unit tests |
+| `pnpm --filter @zharfa/api test` | Identity + catalog + commerce + SpotPlayer unit tests |

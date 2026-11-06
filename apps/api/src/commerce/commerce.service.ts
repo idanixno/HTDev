@@ -1,9 +1,12 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
   ServiceUnavailableException,
+  forwardRef,
 } from "@nestjs/common";
 import {
   CourseOfferKind,
@@ -16,6 +19,7 @@ import {
 import { isPurchasableOffer } from "../catalog/course-state";
 import { decimalToNumber, toDecimal } from "../catalog/pricing";
 import { PrismaService } from "../prisma/prisma.service";
+import { SpotPlayerService } from "../spotplayer/spotplayer.service";
 import { applyCoupon, normalizeCouponCode } from "./coupon-math";
 import { amountInt, toPublicOrder } from "./commerce.mapper";
 import { GatewayRegistryService } from "./gateways/gateway-registry.service";
@@ -30,6 +34,9 @@ export class CommerceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gateways: GatewayRegistryService,
+    @Optional()
+    @Inject(forwardRef(() => SpotPlayerService))
+    private readonly spotplayer?: SpotPlayerService,
   ) {}
 
   async getCheckoutOptions(courseSlug: string) {
@@ -313,6 +320,14 @@ export class CommerceService {
       refId: verify.refId,
       verifyPayload: verify.raw,
     });
+
+    // Access provisioning is separate from payment — queue after PAID only.
+    // Failures here must not roll back OrderStatus.PAID.
+    try {
+      await this.spotplayer?.queueAfterPaidOrder(tx.orderId);
+    } catch {
+      // Worker/admin retry path covers queue outages.
+    }
 
     return {
       outcome: "paid" as const,

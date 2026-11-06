@@ -65,12 +65,13 @@ model User {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  sessions      Session[]
-  otpChallenges OtpChallenge[]
-  enrollments   Enrollment[]
-  orders        Order[]
-  tickets       Ticket[]
-  couponRedemptions CouponRedemption[]
+  sessions            Session[]
+  otpChallenges       OtpChallenge[]
+  enrollments         Enrollment[]
+  orders              Order[]
+  tickets             Ticket[]
+  couponRedemptions   CouponRedemption[]
+  spotPlayerLicenses  SpotPlayerLicense[]
 }
 
 /// Opaque session tokens are stored hashed; raw token only lives in the cookie.
@@ -151,12 +152,14 @@ model Course {
   createdAt         DateTime                @default(now())
   updatedAt         DateTime                @updatedAt
 
-  category        Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  modules         CurriculumModule[]
-  lessons         Lesson[]
-  enrollments     Enrollment[]
-  orders          Order[]
-  learningPathSteps LearningPathStep[]
+  category              Category?                  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  modules               CurriculumModule[]
+  lessons               Lesson[]
+  enrollments           Enrollment[]
+  orders                Order[]
+  learningPathSteps     LearningPathStep[]
+  spotPlayerMapping     SpotPlayerCourseMapping?
+  spotPlayerLicenses    SpotPlayerLicense[]
 
   @@index([publicationStatus, offerKind])
   @@index([categoryId])
@@ -345,11 +348,12 @@ model Order {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course       Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  coupon       Coupon?              @relation(fields: [couponId], references: [id], onDelete: SetNull)
-  transactions PaymentTransaction[]
-  redemption   CouponRedemption?
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course             Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  coupon             Coupon?              @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  transactions       PaymentTransaction[]
+  redemption         CouponRedemption?
+  spotPlayerLicenses SpotPlayerLicense[]
 
   @@index([userId, createdAt])
   @@index([status])
@@ -418,15 +422,85 @@ model Ticket {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+/// Separate from OrderStatus — payment PAID does not imply license success.
+enum SpotPlayerLicenseStatus {
+  PENDING
+  QUEUED
+  IN_PROGRESS
+  SUCCEEDED
+  FAILED
+}
+
+/// How access was granted (payment vs free enroll). Orthogonal to license status.
+enum SpotPlayerAccessSource {
+  PAID_ORDER
+  FREE_COURSE
+}
+
+/// Singleton-ish SpotPlayer integration settings. API key prefers env; optional
+/// encrypted DB override exists for admin UI. Never return full key in API.
+model SpotPlayerSetting {
+  id                String                   @id @default("default")
+  technicalEnabled  Boolean                  @default(false)
+  /// When true, license create sends test:true per official SpotPlayer API docs.
+  testMode          Boolean                  @default(true)
+  /// AES-256-GCM ciphertext (base64) of API key when set via admin (env wins if present).
+  apiKeyEncrypted   String?
+  /// Last 4 chars for masked admin display only.
+  apiKeyLast4       String?
+  /// Cached reflection; runtime still re-checks env + decrypted key.
+  credentialsStatus GatewayCredentialsStatus @default(MISSING)
+  /// Override for POST license endpoint; default is official panel URL.
+  licenseEndpoint   String?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+}
+
+/// Maps a Zharfa course to a SpotPlayer panel course id (required for license create).
+model SpotPlayerCourseMapping {
+  id                 String   @id @default(cuid())
+  courseId           String   @unique
+  /// SpotPlayer course ObjectId from the instructor panel (official `course` array field).
+  spotPlayerCourseId String
+  enabled            Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([spotPlayerCourseId])
+}
+
 /// SpotPlayer licenses are provisioned only after verified paid/free access — never stubbed as success.
 model SpotPlayerLicense {
-  id         String   @id @default(cuid())
-  userId     String
-  courseId   String
-  licenseKey String?
-  status     String   @default("pending")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                   String                  @id @default(cuid())
+  userId               String
+  courseId             String
+  orderId              String?
+  accessSource         SpotPlayerAccessSource
+  /// Official SpotPlayer license `_id` from create response.
+  spotPlayerLicenseId  String?
+  /// Official SpotPlayer license `key` — only set after real provider response.
+  licenseKey           String?
+  /// Relative path from provider `url` (prefix with https://dl.spotplayer.ir).
+  licenseUrl           String?
+  status               SpotPlayerLicenseStatus @default(PENDING)
+  attemptCount         Int                     @default(0)
+  lastError            String?
+  lastAttemptAt        DateTime?
+  provisionedAt        DateTime?
+  /// Stable key for queue/idempotency (e.g. access:userId:courseId).
+  idempotencyKey       String                  @unique
+  /// Raw provider response (admin diagnostics); never invent keys here.
+  providerPayload      Json?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  order  Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@unique([userId, courseId])
+  @@index([status, updatedAt])
+  @@index([orderId])
 }
