@@ -1,0 +1,129 @@
+// Zharfa — foundation schema (Phase 1 scaffold).
+// Domain models expand in later phases. No fake payment/SpotPlayer success paths.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  OWNER
+}
+
+enum CourseAvailability {
+  PUBLISHED_PAID
+  PUBLISHED_FREE
+  PREORDER
+  IN_PRODUCTION
+  COMING_SOON
+  UNAVAILABLE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  phone        String?  @unique
+  displayName  String
+  role         UserRole @default(STUDENT)
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  enrollments Enrollment[]
+  orders      Order[]
+  tickets     Ticket[]
+}
+
+model Course {
+  id           String             @id @default(cuid())
+  slug         String             @unique
+  title        String
+  summary      String?
+  priceToman   Int                @default(0)
+  availability CourseAvailability @default(COMING_SOON)
+  publishedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  enrollments Enrollment[]
+  orders      Order[]
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+enum OrderStatus {
+  PENDING
+  AWAITING_GATEWAY
+  PAID
+  FAILED
+  REFUNDED
+  CANCELED
+}
+
+enum PaymentProvider {
+  ZARINPAL
+  AQAYE_PARDAKHT
+}
+
+/// Orders never auto-mark PAID without a verified gateway callback.
+model Order {
+  id              String          @id @default(cuid())
+  userId          String
+  courseId        String
+  amountToman     Int
+  status          OrderStatus     @default(PENDING)
+  paymentProvider PaymentProvider?
+  gatewayRef      String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model Ticket {
+  id        String       @id @default(cuid())
+  userId    String
+  subject   String
+  body      String
+  status    TicketStatus @default(OPEN)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// SpotPlayer licenses are provisioned only after verified paid/free access — never stubbed as success.
+model SpotPlayerLicense {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  licenseKey String?
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, courseId])
+}

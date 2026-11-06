@@ -1,0 +1,9 @@
+{
+  "name": "@zharfa/config",
+  "version": "0.0.0",
+  "private": true,
+  "files": ["tsconfig*.json"],
+  "scripts": {
+    "typecheck": "echo \"@zharfa/config: config-only package\""
+  }
+}
