@@ -33,7 +33,10 @@ export type AnalyticsDashboard = {
   };
 };
 
-type PaidOrderRow = { paidAt: Date | null; amountToman: { toNumber(): number } | number | string };
+type PaidOrderRow = {
+  paidAt: Date | null;
+  amountToman: { toNumber(): number } | number | string;
+};
 type CountRow = { createdAt: Date };
 
 function amountNumber(
@@ -57,30 +60,30 @@ function fillSeries(
   return days.map((date) => ({ date, value: map.get(date) ?? 0 }));
 }
 
-function countByKey(
+/** Merge sparse groupBy rows onto a full enum key list (zeros for missing). */
+export function fillStatusCounts(
   keys: string[],
-  rows: Array<{ key: string }>,
+  rows: StatusCount[],
 ): StatusCount[] {
   const map = new Map(keys.map((k) => [k, 0]));
   for (const row of rows) {
-    if (!map.has(row.key)) map.set(row.key, 0);
-    map.set(row.key, (map.get(row.key) ?? 0) + 1);
+    map.set(row.status, (map.get(row.status) ?? 0) + row.count);
   }
   return [...map.entries()].map(([status, count]) => ({ status, count }));
 }
 
 /**
- * Pure aggregation over already-fetched DB rows.
+ * Pure aggregation over already-fetched DB rows / groupBy counts.
  * Keeps SQL in the service; this function is unit-tested without Prisma.
  */
 export function buildAnalyticsDashboard(input: {
   range: DateRange;
   paidOrders: PaidOrderRow[];
-  allOrdersInRange: Array<{ status: OrderStatus }>;
+  ordersByStatus: StatusCount[];
   newUsers: CountRow[];
-  courses: Array<{ publicationStatus: CoursePublicationStatus }>;
-  tickets: Array<{ status: TicketStatus }>;
-  licenses: Array<{ status: SpotPlayerLicenseStatus }>;
+  coursesByPublication: StatusCount[];
+  ticketsByStatus: StatusCount[];
+  provisioningByStatus: StatusCount[];
   /** Open-ish tickets currently (not limited to range) for summary KPI. */
   openTicketCount: number;
   pendingProvisioningCount: number;
@@ -126,21 +129,21 @@ export function buildAnalyticsDashboard(input: {
     },
     series: { revenueByDay, ordersByDay, usersByDay },
     breakdowns: {
-      ordersByStatus: countByKey(
+      ordersByStatus: fillStatusCounts(
         Object.values(OrderStatus),
-        input.allOrdersInRange.map((o) => ({ key: o.status })),
+        input.ordersByStatus,
       ),
-      coursesByPublication: countByKey(
+      coursesByPublication: fillStatusCounts(
         Object.values(CoursePublicationStatus),
-        input.courses.map((c) => ({ key: c.publicationStatus })),
+        input.coursesByPublication,
       ),
-      ticketsByStatus: countByKey(
+      ticketsByStatus: fillStatusCounts(
         Object.values(TicketStatus),
-        input.tickets.map((t) => ({ key: t.status })),
+        input.ticketsByStatus,
       ),
-      provisioningByStatus: countByKey(
+      provisioningByStatus: fillStatusCounts(
         Object.values(SpotPlayerLicenseStatus),
-        input.licenses.map((l) => ({ key: l.status })),
+        input.provisioningByStatus,
       ),
     },
   };

@@ -1,12 +1,37 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@zharfa/ui";
 import { FreeAccessButton } from "../../../components/free-access-button";
 import { fetchCourse } from "../../../lib/catalog";
 import { fetchCheckoutOptions } from "../../../lib/commerce";
+import { buildPageMetadata } from "../../../lib/seo";
 import { fetchCurrentUser } from "../../../lib/session";
 
 type Params = Promise<{ slug: string }>;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const course = await fetchCourse(slug);
+  if (!course) {
+    return buildPageMetadata({
+      title: "دوره یافت نشد",
+      description: "این دوره در کاتالوگ ژرفا موجود نیست.",
+      path: `/courses/${slug}`,
+      noIndex: true,
+    });
+  }
+  return buildPageMetadata({
+    title: course.title,
+    description: course.summary ?? course.description ?? course.title,
+    path: course.href,
+    imagePath: course.coverAsset,
+  });
+}
 
 export default async function CourseDetailPage({
   params,
@@ -29,16 +54,20 @@ export default async function CourseDetailPage({
   return (
     <article className="course-detail">
       <header className="course-detail__hero">
-        <div
-          className="course-detail__artwork"
-          style={
-            course.coverAsset
-              ? { backgroundImage: `url(${course.coverAsset})` }
-              : undefined
-          }
-          role="img"
-          aria-label={course.title}
-        />
+        <div className="course-detail__artwork">
+          {course.coverAsset ? (
+            // Local SVG artwork — native img avoids next/image SVG optimizer gaps.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={course.coverAsset}
+              alt=""
+              className="course-detail__artwork-img"
+              decoding="async"
+              fetchPriority="high"
+            />
+          ) : null}
+          <span className="visually-hidden">{course.title}</span>
+        </div>
         <div className="course-detail__intro">
           <p className="course-detail__status">{course.statusLabel}</p>
           {course.category ? (

@@ -95,3 +95,77 @@ export function decodeBase64Payload(dataBase64: string): Buffer {
     throw new BadRequestException("رمزگشایی پیوست ناموفق بود.");
   }
 }
+
+/**
+ * Verify declared MIME against file magic bytes (defense against renamed malware).
+ * text/plain: reject NUL bytes and PE/ELF/Mach-O headers.
+ */
+export function assertAttachmentMagicBytes(
+  contentType: string,
+  bytes: Buffer,
+): void {
+  const type = contentType.trim().toLowerCase().split(";")[0]!;
+  const ok = matchesMagic(type, bytes);
+  if (!ok) {
+    throw new BadRequestException(
+      "محتوای فایل با نوع اعلام‌شده هم‌خوانی ندارد.",
+    );
+  }
+}
+
+function matchesMagic(contentType: string, bytes: Buffer): boolean {
+  if (bytes.length === 0) return false;
+
+  switch (contentType) {
+    case "image/png":
+      return (
+        bytes.length >= 8 &&
+        bytes[0] === 0x89 &&
+        bytes[1] === 0x50 &&
+        bytes[2] === 0x4e &&
+        bytes[3] === 0x47
+      );
+    case "image/jpeg":
+      return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+    case "image/gif":
+      return (
+        bytes.length >= 6 &&
+        bytes[0] === 0x47 &&
+        bytes[1] === 0x49 &&
+        bytes[2] === 0x46 &&
+        bytes[3] === 0x38 &&
+        (bytes[4] === 0x37 || bytes[4] === 0x39) &&
+        bytes[5] === 0x61
+      );
+    case "image/webp":
+      return (
+        bytes.length >= 12 &&
+        bytes[0] === 0x52 &&
+        bytes[1] === 0x49 &&
+        bytes[2] === 0x46 &&
+        bytes[3] === 0x46 &&
+        bytes[8] === 0x57 &&
+        bytes[9] === 0x45 &&
+        bytes[10] === 0x42 &&
+        bytes[11] === 0x50
+      );
+    case "application/pdf":
+      return (
+        bytes.length >= 5 &&
+        bytes[0] === 0x25 &&
+        bytes[1] === 0x50 &&
+        bytes[2] === 0x44 &&
+        bytes[3] === 0x46 &&
+        bytes[4] === 0x2d
+      );
+    case "text/plain":
+      if (bytes.includes(0x00)) return false;
+      // Reject common executable headers disguised as text.
+      if (bytes[0] === 0x4d && bytes[1] === 0x5a) return false; // PE/MZ
+      if (bytes[0] === 0x7f && bytes[1] === 0x45 && bytes[2] === 0x4c && bytes[3] === 0x46)
+        return false; // ELF
+      return true;
+    default:
+      return false;
+  }
+}

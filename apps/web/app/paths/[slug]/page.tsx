@@ -1,9 +1,34 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CourseCardLink } from "../../../components/course-card-link";
 import { fetchPath } from "../../../lib/catalog";
+import { buildPageMetadata } from "../../../lib/seo";
 
 type Params = Promise<{ slug: string }>;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const path = await fetchPath(slug);
+  if (!path) {
+    return buildPageMetadata({
+      title: "مسیر یافت نشد",
+      description: "این مسیر یادگیری در ژرفا موجود نیست.",
+      path: `/paths/${slug}`,
+      noIndex: true,
+    });
+  }
+  return buildPageMetadata({
+    title: path.title,
+    description: path.summary ?? path.description ?? path.title,
+    path: path.href,
+    imagePath: path.coverAsset,
+  });
+}
 
 export default async function PathDetailPage({
   params,

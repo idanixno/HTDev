@@ -12,6 +12,12 @@ import {
 } from "./analytics-aggregates";
 import { resolveDateRange } from "./date-range";
 
+/**
+ * Admin analytics loader.
+ * Parallel bounded queries only — no per-row N+1.
+ * Status breakdowns use Prisma groupBy; day series loads paid/user rows
+ * for the selected date range (not the full table).
+ */
 @Injectable()
 export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -31,11 +37,11 @@ export class AnalyticsService {
 
     const [
       paidOrders,
-      allOrdersInRange,
+      ordersByStatus,
       newUsers,
-      courses,
-      tickets,
-      licenses,
+      coursesByPublication,
+      ticketsByStatus,
+      licensesByStatus,
       openTicketCount,
       pendingProvisioningCount,
       publishedCourseCount,
@@ -47,24 +53,28 @@ export class AnalyticsService {
         },
         select: { paidAt: true, amountToman: true },
       }),
-      this.prisma.order.findMany({
+      this.prisma.order.groupBy({
+        by: ["status"],
         where: { createdAt: { gte: range.from, lte: range.to } },
-        select: { status: true },
+        _count: { _all: true },
       }),
       this.prisma.user.findMany({
         where: { createdAt: { gte: range.from, lte: range.to } },
         select: { createdAt: true },
       }),
-      this.prisma.course.findMany({
-        select: { publicationStatus: true },
+      this.prisma.course.groupBy({
+        by: ["publicationStatus"],
+        _count: { _all: true },
       }),
-      this.prisma.ticket.findMany({
+      this.prisma.ticket.groupBy({
+        by: ["status"],
         where: { createdAt: { gte: range.from, lte: range.to } },
-        select: { status: true },
+        _count: { _all: true },
       }),
-      this.prisma.spotPlayerLicense.findMany({
+      this.prisma.spotPlayerLicense.groupBy({
+        by: ["status"],
         where: { createdAt: { gte: range.from, lte: range.to } },
-        select: { status: true },
+        _count: { _all: true },
       }),
       this.prisma.ticket.count({
         where: {
@@ -96,11 +106,23 @@ export class AnalyticsService {
     return buildAnalyticsDashboard({
       range,
       paidOrders,
-      allOrdersInRange,
+      ordersByStatus: ordersByStatus.map((row) => ({
+        status: row.status,
+        count: row._count._all,
+      })),
       newUsers,
-      courses,
-      tickets,
-      licenses,
+      coursesByPublication: coursesByPublication.map((row) => ({
+        status: row.publicationStatus,
+        count: row._count._all,
+      })),
+      ticketsByStatus: ticketsByStatus.map((row) => ({
+        status: row.status,
+        count: row._count._all,
+      })),
+      provisioningByStatus: licensesByStatus.map((row) => ({
+        status: row.status,
+        count: row._count._all,
+      })),
       openTicketCount,
       pendingProvisioningCount,
       publishedCourseCount,

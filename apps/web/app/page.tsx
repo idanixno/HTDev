@@ -1,7 +1,15 @@
+import type { Metadata } from "next";
 import { Button } from "@zharfa/ui";
 import { AtlasPanel } from "../components/atlas-panel";
 import { CourseCardLink } from "../components/course-card-link";
 import { fetchFeaturedCourses } from "../lib/catalog";
+import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: siteMetadataBase.title,
+  description: siteMetadataBase.description,
+  path: "/",
+});
 
 export default async function HomePage() {
   const featured = await fetchFeaturedCourses();
@@ -61,11 +69,13 @@ export default async function HomePage() {
             این بخش از کاتالوگ پر می‌شود.
           </p>
         ) : (
-          <div className="featured__grid">
+          <ul className="featured__grid">
             {featured.map((course) => (
-              <CourseCardLink key={course.id} course={course} />
+              <li key={course.id}>
+                <CourseCardLink course={course} />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </section>
     </>

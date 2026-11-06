@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Field } from "@zharfa/ui";
 import { CourseCardLink } from "../../components/course-card-link";
@@ -5,6 +6,14 @@ import {
   fetchCategories,
   fetchCourses,
 } from "../../lib/catalog";
+import { buildPageMetadata } from "../../lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "دوره‌های ژرفا",
+  description:
+    "کاتالوگ دوره‌های ژرفا — فیلتر بر اساس قلمرو، وضعیت انتشار، و جستجو در عنوان و خلاصه.",
+  path: "/courses",
+});
 
 const OFFER_FILTERS = [
   { value: "", label: "همه وضعیت‌ها" },
@@ -149,11 +158,13 @@ export default async function CoursesPage({
               دوباره سر بزنید.
             </p>
           ) : (
-            <div className="catalog__grid">
+            <ul className="catalog__grid">
               {result.items.map((course) => (
-                <CourseCardLink key={course.id} course={course} />
+                <li key={course.id}>
+                  <CourseCardLink course={course} />
+                </li>
               ))}
-            </div>
+            </ul>
           )}
 
           {result.totalPages > 1 ? (

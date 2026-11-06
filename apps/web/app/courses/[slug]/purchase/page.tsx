@@ -1,11 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Notice } from "@zharfa/ui";
 import { CheckoutForm } from "../../../../components/checkout-form";
 import { fetchCheckoutOptions } from "../../../../lib/commerce";
+import { privateMetadata } from "../../../../lib/seo";
 import { fetchCurrentUser } from "../../../../lib/session";
 
 type Params = Promise<{ slug: string }>;
+
+export const metadata: Metadata = privateMetadata("خرید دوره");
 
 export default async function PurchasePage({ params }: { params: Params }) {
   const { slug } = await params;

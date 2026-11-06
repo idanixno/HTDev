@@ -3,10 +3,12 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import cookieParser from "cookie-parser";
 import { AppModule } from "./app.module";
+import { securityHeadersMiddleware } from "./security/security-headers.middleware";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
+  app.use(securityHeadersMiddleware);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

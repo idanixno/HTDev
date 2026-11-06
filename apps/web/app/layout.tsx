@@ -2,30 +2,40 @@ import type { Metadata } from "next";
 import { Vazirmatn, Inter, JetBrains_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import { SiteHeader } from "../components/site-header";
+import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
   subsets: ["arabic", "latin"],
   variable: "--font-vazirmatn",
   display: "swap",
+  preload: true,
 });
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  preload: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
-  title: "ژرفا | اطلس یادگیری عمیق",
-  description:
-    "اطلس یادگیریِ آرمان راد؛ از اولین مسئله تا تصمیم‌های معماری. مسیرت را با پیش‌نیاز روشن و تمرین واقعی بساز.",
+  ...buildPageMetadata({
+    title: siteMetadataBase.title,
+    description: siteMetadataBase.description,
+    path: "/",
+  }),
+  title: {
+    default: siteMetadataBase.title,
+    template: "%s | ژرفا",
+  },
 };
 
 export default async function RootLayout({

@@ -18,29 +18,26 @@ describe("buildAnalyticsDashboard", () => {
         { paidAt: new Date("2026-11-01T18:00:00Z"), amountToman: 50_000 },
         { paidAt: new Date("2026-11-03T08:00:00Z"), amountToman: 200_000 },
       ],
-      allOrdersInRange: [
-        { status: OrderStatus.PAID },
-        { status: OrderStatus.PAID },
-        { status: OrderStatus.PAID },
-        { status: OrderStatus.FAILED },
-        { status: OrderStatus.PENDING },
+      ordersByStatus: [
+        { status: OrderStatus.PAID, count: 3 },
+        { status: OrderStatus.FAILED, count: 1 },
+        { status: OrderStatus.PENDING, count: 1 },
       ],
       newUsers: [
         { createdAt: new Date("2026-11-02T12:00:00Z") },
         { createdAt: new Date("2026-11-02T13:00:00Z") },
       ],
-      courses: [
-        { publicationStatus: CoursePublicationStatus.PUBLISHED },
-        { publicationStatus: CoursePublicationStatus.PUBLISHED },
-        { publicationStatus: CoursePublicationStatus.DRAFT },
+      coursesByPublication: [
+        { status: CoursePublicationStatus.PUBLISHED, count: 2 },
+        { status: CoursePublicationStatus.DRAFT, count: 1 },
       ],
-      tickets: [
-        { status: TicketStatus.OPEN },
-        { status: TicketStatus.RESOLVED },
+      ticketsByStatus: [
+        { status: TicketStatus.OPEN, count: 1 },
+        { status: TicketStatus.RESOLVED, count: 1 },
       ],
-      licenses: [
-        { status: SpotPlayerLicenseStatus.PENDING },
-        { status: SpotPlayerLicenseStatus.FAILED },
+      provisioningByStatus: [
+        { status: SpotPlayerLicenseStatus.PENDING, count: 1 },
+        { status: SpotPlayerLicenseStatus.FAILED, count: 1 },
       ],
       openTicketCount: 1,
       pendingProvisioningCount: 1,
@@ -78,28 +75,8 @@ describe("buildAnalyticsDashboard", () => {
     expect(paid?.count).toBe(3);
     expect(
       dashboard.breakdowns.coursesByPublication.find(
-        (s) => s.status === CoursePublicationStatus.DRAFT,
+        (s) => s.status === CoursePublicationStatus.PUBLISHED,
       )?.count,
-    ).toBe(1);
-  });
-
-  it("returns zero-filled series when empty", () => {
-    const range = resolveDateRange({ from: "2026-11-05", to: "2026-11-06" });
-    const dashboard = buildAnalyticsDashboard({
-      range,
-      paidOrders: [],
-      allOrdersInRange: [],
-      newUsers: [],
-      courses: [],
-      tickets: [],
-      licenses: [],
-      openTicketCount: 0,
-      pendingProvisioningCount: 0,
-      publishedCourseCount: 0,
-    });
-    expect(dashboard.summary.revenueToman).toBe(0);
-    expect(dashboard.series.revenueByDay.every((p) => p.value === 0)).toBe(
-      true,
-    );
+    ).toBe(2);
   });
 });

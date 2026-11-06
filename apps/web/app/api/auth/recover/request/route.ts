@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { apiBaseUrl } from "../../../../../lib/auth-constants";
+import { assertSameOrigin } from "../../../../../lib/csrf";
 
 export async function POST(request: Request) {
+  const blocked = assertSameOrigin(request);
+  if (blocked) return blocked;
+
   const body = await request.json();
   const upstream = await fetch(`${apiBaseUrl()}/identity/recover/request`, {
     method: "POST",
