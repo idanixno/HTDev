@@ -22,7 +22,13 @@ export function ThemeToggle() {
   }
 
   return (
-    <button type="button" className="theme-toggle" onClick={toggle}>
+    <button
+      type="button"
+      className="z-btn z-btn--secondary theme-toggle"
+      onClick={toggle}
+      aria-pressed={theme === "light"}
+      aria-label={theme === "dark" ? "فعال‌سازی حالت روشن" : "فعال‌سازی حالت تیره"}
+    >
       {theme === "dark" ? "حالت روشن" : "حالت تیره"}
     </button>
   );

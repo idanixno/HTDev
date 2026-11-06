@@ -117,7 +117,23 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
-  packages/ui: {}
+  packages/ui:
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.6
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.1.5
+        version: 19.3.0(@types/react@19.3.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.3.1(react@19.3.1)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
 
 packages:
 
