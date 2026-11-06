@@ -1,47 +1,11 @@
-import { Button, CourseCard } from "@zharfa/ui";
+import { Button } from "@zharfa/ui";
 import { AtlasPanel } from "../components/atlas-panel";
+import { CourseCardLink } from "../components/course-card-link";
+import { fetchFeaturedCourses } from "../lib/catalog";
 
-const FEATURED = [
-  {
-    availability: "publishedPaid" as const,
-    indexLabel: "۰۱",
-    diagramCode: "BOUNDARY / ۰۱",
-    diagramKind: "boundary" as const,
-    title: "معماری تمیز در عمل",
-    summary: "مرزهای روشن؛ کدی که با تغییر نمی‌شکند.",
-    meta: "پیشرفته · ۱۸ ساعت · ۴۲ درس",
-    priceLabel: "۲٬۴۰۰٬۰۰۰ تومان",
-    href: "/courses/clean-architecture",
-  },
-  {
-    availability: "publishedFree" as const,
-    indexLabel: "۰۳",
-    diagramCode: "SYSTEM LAYERS",
-    chainNodes: ["USER / SHELL", "KERNEL", "HARDWARE"] as [
-      string,
-      string,
-      string,
-    ],
-    title: "شروع کار با Linux",
-    summary: "یک شروع عملی برای کار با سیستم‌عامل.",
-    meta: "مقدماتی · ۳ ساعت · ۱۲ درس",
-    priceLabel: "رایگان",
-    href: "/courses/linux-intro",
-  },
-  {
-    availability: "preorder" as const,
-    indexLabel: "۰۴",
-    diagramCode: "TRUST BOUNDARIES",
-    chainNodes: ["CLIENT", "AUTH / TOKEN", "API"] as [string, string, string],
-    title: "امنیت API در عمل",
-    summary: "اعتماد را در مرزهای سیستم طراحی کنید.",
-    meta: "متوسط · برآورد ۱۲ ساعت / ۳۰ درس",
-    priceLabel: "۱٬۹۰۰٬۰۰۰ تومان",
-    href: "/courses/api-security",
-  },
-];
+export default async function HomePage() {
+  const featured = await fetchFeaturedCourses();
 
-export default function HomePage() {
   return (
     <>
       <section className="hero" aria-labelledby="hero-heading">
@@ -86,15 +50,23 @@ export default function HomePage() {
             برای قدم بعدی تو
           </h2>
           <p className="featured__lead">
-            سه نقطه شروع متفاوت؛ یک رویکرد عمیق به یادگیری.
+            سه نقطه شروع متفاوت؛ یک رویکرد عمیق به یادگیری — از دادهٔ واقعی
+            کاتالوگ.
           </p>
         </header>
 
-        <div className="featured__grid">
-          {FEATURED.map((course) => (
-            <CourseCard key={course.href} {...course} />
-          ))}
-        </div>
+        {featured.length === 0 ? (
+          <p className="featured__empty">
+            هنوز دورهٔ ویژه‌ای از API در دسترس نیست. پس از اجرای migrate و seed،
+            این بخش از کاتالوگ پر می‌شود.
+          </p>
+        ) : (
+          <div className="featured__grid">
+            {featured.map((course) => (
+              <CourseCardLink key={course.id} course={course} />
+            ))}
+          </div>
+        )}
       </section>
     </>
   );
