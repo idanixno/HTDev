@@ -4,22 +4,51 @@ Living ledger for the Zharfa / EDU personal education platform. Update in place;
 
 | Feature area | Status | Notes |
 |--------------|--------|-------|
-| Phase 0 Figma audit | IMPLEMENTED | Project store + Figma `ecYEt09V8ZOGzG2sRd4cC1` |
-| Phase 0 Repository audit | IMPLEMENTED | See [phase-0-repo-audit.md](./phase-0-repo-audit.md) |
-| Workspace / Docker foundation | IN_PROGRESS | pnpm+turbo monorepo; compose Postgres/Redis/MinIO; health stubs (PR #1) |
-| Design tokens in code | IMPLEMENTED | `@zharfa/ui` dark/light CSS vars, type scale, spacing/radius from Native assets |
-| Design system components | IMPLEMENTED | Button, Field, Badge, Notice (+error), Dialog, CourseCard; RTL + a11y basics |
-| Public web shell / home | IMPLEMENTED | Layout, nav, theme toggle, hero; featured courses from catalog API seed |
-| Identity / auth | IMPLEMENTED | Prisma User/Session/OtpChallenge; Nest Identity (Argon2id, OTP, HttpOnly session); web login/register/recover + gated `/dashboard`; console messaging adapters; rate-limit stub |
-| Courses / catalog | IMPLEMENTED | Prisma Category/Course (publication+offer enums)/CurriculumModule/Lesson/LearningPath; Nest `/catalog/*` list-filter-search-pagination + detail + paths; web `/courses`, `/courses/[slug]`, `/paths`, `/paths/[slug]`; local artwork placeholders; unit tests for state/pricing helpers |
-| Orders / payments (ZarinPal, AqayePardakht) | IMPLEMENTED | Prisma Order/PaymentTransaction/Coupon/GatewaySetting (Decimal Toman); Nest checkout + coupon validate + ZarinPal/AqayePardakht adapters + callback verify/idempotency + admin gateway flags; web purchase + pending/success/failure + order history; missing creds → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` (paid purchase disabled); no fake PAID |
-| SpotPlayer access | IMPLEMENTED | Nest SpotPlayer module + official license adapter; course↔SpotPlayer mapping; env/DB encrypted API key (masked in responses); BullMQ `access-provisioning` after PAID / free grant; separate `SpotPlayerLicenseStatus` from payment; admin config/diagnostics + student `/dashboard/access`; free-course path; retries; missing key → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`; no invented license keys |
-| Support tickets | IMPLEMENTED | Prisma Ticket + Message + Attachment; statuses OPEN/IN_PROGRESS/WAITING_FOR_USER/RESOLVED/CLOSED with enforced transitions; Nest tickets API (student create/thread/reply + admin list/filters/reply/status); private attachment store (allowlist MIME/size, opaque keys, auth download); optional Telegram ref only as supplementary; web `/dashboard/tickets`, `/dashboard/tickets/new`, `/dashboard/admin/tickets` |
-| Notifications | IMPLEMENTED | Event-driven Nest module; templates; channels IN_APP + console email/SMS adapters; delivery status + rate-limit stub; wired to registration, recovery/password change, order paid/failed, SpotPlayer provision success/fail, ticket create/reply/status; web `/dashboard/notifications` |
-| Admin analytics | NOT_STARTED | |
-| CMS / SEO | NOT_STARTED | |
-| Security docs + controls | IN_PROGRESS | `SECURITY.md`; auth hashing/sessions/OTP hashing; payment verify + SpotPlayer no-fake-key; ticket attachment private store; Redis rate-limit still stub |
-| Seed data | IMPLEMENTED | Admin + 4 students + catalog + coupons + gateway settings + SpotPlayer settings/mappings placeholders + sample PENDING/FAILED orders + sample tickets/conversations/notifications (never fake PAID / never SUCCEEDED license) |
-| E2E / local delivery | NOT_STARTED | API unit tests: identity + catalog + commerce + SpotPlayer + ticket transitions + notify rate-limit + attachment rules |
+| Phase 0 Figma audit | VERIFIED | Project store + Figma `ecYEt09V8ZOGzG2sRd4cC1` |
+| Phase 0 Repository audit | VERIFIED | See [phase-0-repo-audit.md](./phase-0-repo-audit.md) |
+| Workspace / Docker foundation | VERIFIED | pnpm+turbo monorepo; compose Postgres/Redis/MinIO; health stubs. Compose itself **BLOCKED** in agent VM (no Docker CLI) — verified by file + scripts locally |
+| Design tokens in code | VERIFIED | `@zharfa/ui` dark/light CSS vars, type scale, spacing/radius; typecheck clean |
+| Design system components | VERIFIED | Button, Field, Badge, Notice, Dialog, CourseCard; typecheck + web build |
+| Public web shell / home | VERIFIED | Layout, nav, theme toggle, hero; web production build |
+| Identity / auth | VERIFIED | Unit tests (password/OTP/normalization); web/api build; live login smoke **BLOCKED** without Postgres |
+| Courses / catalog | VERIFIED | Unit tests (state/pricing); web/api build; seeded catalog runtime **BLOCKED** without migrate/seed |
+| Orders / payments (ZarinPal, AqayePardakht) | VERIFIED | Unit tests (order status, coupon math, callback idempotency, mock adapter); real gateway → **BLOCKED** (`IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` without merchant ids). No fake PAID |
+| SpotPlayer access | VERIFIED | Unit tests (adapter, crypto, provisioning logic); real license API → **BLOCKED** (empty `SPOTPLAYER_API_KEY`). No invented keys |
+| Support tickets | VERIFIED | Unit tests (status transitions, attachment rules/magic bytes); web client/server import split fixed for build |
+| Notifications | VERIFIED | Unit tests (rate-limit); console email/SMS only — real delivery **BLOCKED** |
+| Admin analytics | VERIFIED | Unit tests (date-range, aggregates); `/admin` in web build output |
+| CMS / SEO | VERIFIED | `robots.ts` / `sitemap.ts` present in web build; metadata helpers typecheck |
+| Security docs + controls | VERIFIED | Docs present; headers module in build; HSTS opt-in |
+| Performance (catalog/fonts/images) | VERIFIED | Docs + build; ISR/sitemap routes emitted |
+| Seed data | BLOCKED | Seed script present; cannot run without Postgres/Docker in this environment |
+| E2E / local delivery | VERIFIED | Phases 10–11: install/typecheck/lint/unit/build PASS; Docker/migrate/seed/runtime smoke + real integrations BLOCKED — see [TESTING.md](./TESTING.md) |
 
 Statuses: `NOT_STARTED` · `IN_PROGRESS` · `IMPLEMENTED` · `TESTED` · `VERIFIED` · `BLOCKED`
+
+**Honesty rule:** never use `VERIFIED_REAL_INTEGRATION` without live credentials. Missing payment/SpotPlayer/SMS credentials remain `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` / BLOCKED for live paths.
+
+## Phase 10–11 verification matrix (agent run)
+
+| Check | Result |
+|-------|--------|
+| `pnpm install` | PASS |
+| `pnpm db:generate` | PASS |
+| `pnpm typecheck` | PASS |
+| `pnpm lint` | PASS (api/worker ESLint still stub) |
+| API Vitest | PASS — 17 files / 72 tests |
+| Worker Vitest | PASS — no files (`passWithNoTests`) |
+| `pnpm build` (web/api/worker/database) | PASS |
+| Docker Compose / Postgres migrate+seed | BLOCKED — no Docker/`127.0.0.1:5432` |
+| Live ZarinPal / AqayePardakht / SpotPlayer / SMS | BLOCKED — credentials empty |
+
+## Residual limitations (honest)
+
+- Notification outbound rate limit remains in-memory (not Redis).
+- Auth rate limit falls back to per-process memory if Redis is down.
+- CSP still allows `'unsafe-inline'` scripts for Next App Router (no nonce pipeline).
+- HSTS off unless `ENABLE_HSTS=true` — correct for local; operators must enable deliberately behind HTTPS.
+- Ticket attachments still on local private disk (not MinIO signed URLs).
+- No CI dependency audit / secret scanning yet.
+- Sitemap caps course list at pageSize 100 for the first page only.
+- api/worker lint scripts are stubs (`lint: pending eslint setup`).
+- No browser E2E suite yet.

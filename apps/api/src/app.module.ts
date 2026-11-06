@@ -7,6 +7,7 @@ import { CommerceModule } from "./commerce/commerce.module";
 import { SpotPlayerModule } from "./spotplayer/spotplayer.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { TicketsModule } from "./tickets/tickets.module";
+import { AdminModule } from "./admin/admin.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { TicketsModule } from "./tickets/tickets.module";
     SpotPlayerModule,
     NotificationsModule,
     TicketsModule,
+    AdminModule,
   ],
   controllers: [HealthController],
 })

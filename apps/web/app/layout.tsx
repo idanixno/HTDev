@@ -1,37 +1,52 @@
 import type { Metadata } from "next";
 import { Vazirmatn, Inter, JetBrains_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import { SiteHeader } from "../components/site-header";
+import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
   subsets: ["arabic", "latin"],
   variable: "--font-vazirmatn",
   display: "swap",
+  preload: true,
 });
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  preload: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
-  title: "ژرفا | اطلس یادگیری عمیق",
-  description:
-    "اطلس یادگیریِ آرمان راد؛ از اولین مسئله تا تصمیم‌های معماری. مسیرت را با پیش‌نیاز روشن و تمرین واقعی بساز.",
+  ...buildPageMetadata({
+    title: siteMetadataBase.title,
+    description: siteMetadataBase.description,
+    path: "/",
+  }),
+  title: {
+    default: siteMetadataBase.title,
+    template: "%s | ژرفا",
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headerList = await headers();
+  const pathname = headerList.get("x-pathname") ?? "";
+  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+
   return (
     <html
       lang="fa"
@@ -51,8 +66,8 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
-        <div className="shell">
-          <SiteHeader />
+        <div className={isAdmin ? "shell shell--admin" : "shell"}>
+          {isAdmin ? null : <SiteHeader />}
           <main className="shell__main">{children}</main>
         </div>
       </body>

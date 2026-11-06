@@ -31,6 +31,14 @@
   --zharfa-status-success: #71d5ac;
   --zharfa-status-error: #ff939f;
 
+  /* Chart series — derived from role colors (admin analytics). */
+  --zharfa-chart-1: var(--zharfa-action-primary);
+  --zharfa-chart-2: var(--zharfa-accent-concept);
+  --zharfa-chart-3: var(--zharfa-status-success);
+  --zharfa-chart-4: var(--zharfa-accent-preorder);
+  --zharfa-chart-5: var(--zharfa-status-error);
+  --zharfa-chart-grid: color-mix(in srgb, var(--zharfa-border-default) 70%, transparent);
+
   --zharfa-space-0: 0;
   --zharfa-space-4: 4px;
   --zharfa-space-8: 8px;
@@ -93,4 +101,11 @@
 
   --zharfa-status-success: #18714c;
   --zharfa-status-error: #b42338;
+
+  --zharfa-chart-1: var(--zharfa-action-primary);
+  --zharfa-chart-2: var(--zharfa-accent-concept);
+  --zharfa-chart-3: var(--zharfa-status-success);
+  --zharfa-chart-4: var(--zharfa-accent-preorder);
+  --zharfa-chart-5: var(--zharfa-status-error);
+  --zharfa-chart-grid: color-mix(in srgb, var(--zharfa-border-default) 70%, transparent);
 }

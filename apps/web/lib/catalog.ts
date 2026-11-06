@@ -88,10 +88,18 @@ export type CourseListResult = {
   totalPages: number;
 };
 
+/**
+ * Public catalog ISR window (seconds).
+ * Catalog is public and relatively stable; 60s balances freshness vs API load.
+ * Private surfaces (dashboard/admin/auth) must keep cache: "no-store".
+ * See docs/performance/PUBLIC_CATALOG_CACHING.md.
+ */
+export const CATALOG_REVALIDATE_SECONDS = 60;
+
 async function catalogFetch<T>(path: string): Promise<T | null> {
   try {
     const res = await fetch(`${apiBaseUrl()}${path}`, {
-      next: { revalidate: 30 },
+      next: { revalidate: CATALOG_REVALIDATE_SECONDS },
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
