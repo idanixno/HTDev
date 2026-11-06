@@ -378,6 +378,26 @@ code {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--zharfa-space-24);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.featured__grid > li {
+  margin: 0;
+  min-width: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (max-width: 1100px) {
@@ -813,6 +833,14 @@ code {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--zharfa-space-24);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.catalog__grid > li {
+  margin: 0;
+  min-width: 0;
 }
 
 .catalog__pagination {
@@ -836,6 +864,8 @@ code {
 }
 
 .course-detail__artwork {
+  position: relative;
+  overflow: hidden;
   min-height: 280px;
   border: 1px solid var(--zharfa-border-default);
   background:
@@ -847,6 +877,14 @@ code {
     var(--zharfa-surface-card);
   background-size: cover;
   background-position: center;
+}
+
+.course-detail__artwork-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .course-detail__intro {
@@ -958,6 +996,8 @@ code {
 }
 
 .paths__art {
+  position: relative;
+  overflow: hidden;
   min-height: 140px;
   border: 1px solid var(--zharfa-border-default);
   background:
@@ -969,6 +1009,14 @@ code {
     var(--zharfa-surface-card);
   background-size: cover;
   background-position: center;
+}
+
+.paths__art-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .paths__body {

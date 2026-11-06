@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchPaths } from "../../lib/catalog";
+import { buildPageMetadata } from "../../lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "مسیرهای یادگیری",
+  description:
+    "نقشهٔ راه پیشنهادی دوره‌های ژرفا — ترتیب پیشنهادی بدون اشتراک اجباری.",
+  path: "/paths",
+});
 
 export default async function PathsPage() {
   const paths = await fetchPaths();
@@ -21,15 +30,18 @@ export default async function PathsPage() {
         <ul className="paths__list">
           {paths.map((path) => (
             <li key={path.id} className="paths__item">
-              <div
-                className="paths__art"
-                style={
-                  path.coverAsset
-                    ? { backgroundImage: `url(${path.coverAsset})` }
-                    : undefined
-                }
-                aria-hidden="true"
-              />
+              <div className="paths__art" aria-hidden="true">
+                {path.coverAsset ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={path.coverAsset}
+                    alt=""
+                    className="paths__art-img"
+                    decoding="async"
+                    loading="lazy"
+                  />
+                ) : null}
+              </div>
               <div className="paths__body">
                 <h2>
                   <Link href={path.href}>{path.title}</Link>

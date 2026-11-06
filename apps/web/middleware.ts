@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { applySecurityHeaders } from "./lib/security-headers";
 
 const SESSION_COOKIE_NAME = "zharfa_session";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const { pathname } = request.nextUrl;
+  const isDev = process.env.NODE_ENV !== "production";
+  const enableHsts = process.env.ENABLE_HSTS === "true";
 
   if (
     (pathname.startsWith("/dashboard") ||
@@ -16,7 +19,9 @@ export function middleware(request: NextRequest) {
   ) {
     const login = new URL("/login", request.url);
     login.searchParams.set("next", pathname + request.nextUrl.search);
-    return NextResponse.redirect(login);
+    const redirect = NextResponse.redirect(login);
+    applySecurityHeaders(redirect.headers, { pathname, isDev, enableHsts });
+    return redirect;
   }
 
   if (
@@ -25,34 +30,27 @@ export function middleware(request: NextRequest) {
       pathname === "/register" ||
       pathname.startsWith("/recover"))
   ) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const redirect = NextResponse.redirect(new URL("/dashboard", request.url));
+    applySecurityHeaders(redirect.headers, { pathname, isDev, enableHsts });
+    return redirect;
   }
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
 
-  return NextResponse.next({
+  const response = NextResponse.next({
     request: { headers: requestHeaders },
   });
+  applySecurityHeaders(response.headers, { pathname, isDev, enableHsts });
+  return response;
 }
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/admin",
-    "/admin/:path*",
-    "/payments/:path*",
-    "/login",
-    "/register",
-    "/recover/:path*",
-    "/",
-    "/courses",
-    "/courses/:path*",
-    "/paths",
-    "/paths/:path*",
-    "/about",
-    "/about/:path*",
-    "/design-system",
-    "/design-system/:path*",
+    /*
+     * Apply auth gates + security headers to app routes.
+     * Exclude Next internals and static assets (robots/sitemap are included).
+     */
+    "/((?!_next/static|_next/image|favicon.ico|artwork/).*)",
   ],
 };

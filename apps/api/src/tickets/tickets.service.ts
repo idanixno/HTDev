@@ -19,6 +19,7 @@ import { NotificationsService } from "../notifications/notifications.service";
 import { ticketStatusLabelFa } from "../notifications/templates";
 import {
   assertAllowedAttachment,
+  assertAttachmentMagicBytes,
   buildAttachmentStorageKey,
   decodeBase64Payload,
   sha256Hex,
@@ -444,6 +445,7 @@ export class TicketsService {
         sizeBytes: bytes.length,
         fileName: item.fileName,
       });
+      assertAttachmentMagicBytes(meta.contentType, bytes);
       const storageKey = buildAttachmentStorageKey(input.ticketId, meta.ext);
       await this.storage.put(storageKey, bytes);
       await this.prisma.ticketAttachment.create({

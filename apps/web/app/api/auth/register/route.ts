@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
-import { apiBaseUrl, SESSION_COOKIE_NAME } from "../../../../lib/auth-constants";
+import { apiBaseUrl } from "../../../../lib/auth-constants";
+import { assertSameOrigin } from "../../../../lib/csrf";
+import {
+  SESSION_COOKIE_NAME,
+  sessionCookieOptions,
+} from "../../../../lib/session-cookie";
 
 export async function POST(request: Request) {
+  const blocked = assertSameOrigin(request);
+  if (blocked) return blocked;
+
   const body = await request.json();
   const upstream = await fetch(`${apiBaseUrl()}/identity/register`, {
     method: "POST",
@@ -15,12 +23,12 @@ export async function POST(request: Request) {
   }
 
   const res = NextResponse.json({ user: data.user });
-  res.cookies.set(SESSION_COOKIE_NAME, data.sessionToken as string, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: data.expiresAt ? new Date(data.expiresAt as string) : undefined,
-  });
+  res.cookies.set(
+    SESSION_COOKIE_NAME,
+    data.sessionToken as string,
+    sessionCookieOptions(
+      data.expiresAt ? new Date(data.expiresAt as string) : undefined,
+    ),
+  );
   return res;
 }
