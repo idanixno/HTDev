@@ -1,7 +1,7 @@
 /**
- * Zharfa design tokens — mirrored from Figma file ecYEt09V8ZOGzG2sRd4cC1
- * (01 · Native assets / foundations). Dark + light are independent collections.
- * Font: Vazirmatn (Persian), JetBrains Mono (technical).
+ * Zharfa design tokens — from Figma ecYEt09V8ZOGzG2sRd4cC1
+ * (01 · Native assets). Dark + light are independent collections.
+ * Persian: Vazirmatn · Latin UI: Inter · Technical: JetBrains Mono.
  */
 
 :root,
@@ -17,6 +17,7 @@
   --zharfa-text-secondary: #a5b0c2;
   --zharfa-text-link: #78a8ff;
   --zharfa-text-on-action: #f5f7fc;
+  --zharfa-text-on-primary: #080d18;
 
   --zharfa-border-default: #26344b;
 
@@ -25,6 +26,7 @@
   --zharfa-action-active: #3565c7;
 
   --zharfa-accent-concept: #8b78e6;
+  --zharfa-accent-preorder: #f2c780;
 
   --zharfa-status-success: #71d5ac;
   --zharfa-status-error: #ff939f;
@@ -41,10 +43,29 @@
 
   --zharfa-radius-0: 0;
   --zharfa-radius-4: 4px;
+  --zharfa-radius-6: 6px;
   --zharfa-radius-12: 12px;
 
   --zharfa-font-persian: "Vazirmatn", "Tahoma", sans-serif;
+  --zharfa-font-latin: "Inter", "Vazirmatn", sans-serif;
   --zharfa-font-code: "JetBrains Mono", ui-monospace, monospace;
+
+  --zharfa-text-12: 0.75rem;
+  --zharfa-text-14: 0.875rem;
+  --zharfa-text-16: 1rem;
+  --zharfa-text-20: 1.25rem;
+  --zharfa-text-22: 1.375rem;
+  --zharfa-text-26: 1.625rem;
+  --zharfa-text-34: 2.125rem;
+  --zharfa-text-48: 3rem;
+  --zharfa-text-64: 4rem;
+
+  --zharfa-leading-tight: 1.35;
+  --zharfa-leading-body: 1.8;
+
+  --zharfa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--zharfa-text-link) 55%, transparent);
+  --zharfa-motion-fast: 160ms ease;
+  --zharfa-motion-medium: 280ms ease;
 }
 
 [data-theme="light"] {
@@ -53,12 +74,13 @@
   --zharfa-bg-canvas: #f5f7fc;
   --zharfa-surface-base: #ffffff;
   --zharfa-surface-card: #ffffff;
-  --zharfa-surface-raised: #ffffff;
+  --zharfa-surface-raised: #eef2f8;
 
   --zharfa-text-primary: #152238;
   --zharfa-text-secondary: #526178;
   --zharfa-text-link: #2456b8;
   --zharfa-text-on-action: #f5f7fc;
+  --zharfa-text-on-primary: #f5f7fc;
 
   --zharfa-border-default: #cfd7e5;
 
@@ -67,8 +89,8 @@
   --zharfa-action-active: #1c4596;
 
   --zharfa-accent-concept: #6854b2;
+  --zharfa-accent-preorder: #9a6b1f;
 
   --zharfa-status-success: #18714c;
   --zharfa-status-error: #b42338;
 }
-
