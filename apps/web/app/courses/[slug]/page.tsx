@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@zharfa/ui";
+import { FreeAccessButton } from "../../../components/free-access-button";
 import { fetchCourse } from "../../../lib/catalog";
 import { fetchCheckoutOptions } from "../../../lib/commerce";
 import { fetchCurrentUser } from "../../../lib/session";
@@ -54,12 +55,16 @@ export default async function CourseDetailPage({
               بازگشت به کاتالوگ
             </Button>
             {course.offerKind === "FREE" ? (
-              <Button
-                href={user ? "/dashboard" : "/register"}
-                variant="primary"
-              >
-                {user ? "رفتن به حساب من" : "ثبت‌نام برای دسترسی رایگان"}
-              </Button>
+              user ? (
+                <FreeAccessButton courseSlug={slug} />
+              ) : (
+                <Button
+                  href={`/login?next=/courses/${encodeURIComponent(slug)}`}
+                  variant="primary"
+                >
+                  ورود برای دسترسی رایگان
+                </Button>
+              )
             ) : isPaidOffer ? (
               purchaseEnabled ? (
                 <Button href={purchaseHref} variant="primary">
@@ -77,9 +82,11 @@ export default async function CourseDetailPage({
             )}
           </div>
           <p className="course-detail__note">
-            {isPaidOffer && !purchaseEnabled
-              ? "خرید پولی تا تنظیم اعتبارنامهٔ درگاه غیرفعال است (IMPLEMENTED_BUT_CREDENTIALS_REQUIRED). SpotPlayer در فاز ۶."
-              : "پرداخت فقط پس از verify درگاه ثبت می‌شود — بدون موفقیت ساختگی. SpotPlayer هنوز فاز ۶ است."}
+            {course.offerKind === "FREE"
+              ? "دسترسی رایگان بدون درگاه پرداخت؛ لایسنس اسپات‌پلیر فقط پس از پاسخ واقعی ارائه‌دهنده صادر می‌شود."
+              : isPaidOffer && !purchaseEnabled
+                ? "خرید پولی تا تنظیم اعتبارنامهٔ درگاه غیرفعال است (IMPLEMENTED_BUT_CREDENTIALS_REQUIRED)."
+                : "پرداخت فقط پس از verify درگاه ثبت می‌شود. صدور لایسنس اسپات‌پلیر محور جداگانه‌ای است."}
           </p>
         </div>
       </header>

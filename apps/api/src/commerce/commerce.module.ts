@@ -1,5 +1,6 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { IdentityModule } from "../identity/identity.module";
+import { SpotPlayerModule } from "../spotplayer/spotplayer.module";
 import { CommerceController } from "./commerce.controller";
 import { CommerceService } from "./commerce.service";
 import { AqayePardakhtAdapter } from "./gateways/aqayepardakht.adapter";
@@ -9,7 +10,7 @@ import { ZarinPalAdapter } from "./gateways/zarinpal.adapter";
 import { OwnerGuard } from "./roles.guard";
 
 @Module({
-  imports: [IdentityModule],
+  imports: [IdentityModule, forwardRef(() => SpotPlayerModule)],
   controllers: [CommerceController],
   providers: [
     CommerceService,

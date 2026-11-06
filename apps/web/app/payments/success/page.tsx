@@ -72,18 +72,20 @@ export default async function PaymentSuccessPage({
 
       {!reallyPaid ? (
         <Notice tone="error" title="هنوز پرداخت‌شده نیست">
-          بدون verify موفق، دسترسی داده نمی‌شود. SpotPlayer هم هنوز وصل نشده
-          است.
+          بدون verify موفق، دسترسی داده نمی‌شود.
         </Notice>
       ) : (
         <Notice tone="information" title="دسترسی ویدئو">
-          ثبت‌نام دوره انجام شد. صدور لایسنس SpotPlayer در فاز ۶ است و اینجا
-          جعل نمی‌شود.
+          پرداخت ثبت شد. صدور لایسنس اسپات‌پلیر محور جداگانه‌ای است — وضعیت را در{" "}
+          <Link href="/dashboard/access">صفحه دسترسی</Link> ببینید. کلید فقط پس
+          از پاسخ واقعی ارائه‌دهنده نمایش داده می‌شود.
         </Notice>
       )}
 
       <p className="payment-result__links">
         <Link href="/dashboard/orders">تاریخچه سفارش‌ها</Link>
+        {" · "}
+        <Link href="/dashboard/access">دسترسی اسپات‌پلیر</Link>
         {" · "}
         <Link href="/dashboard">حساب من</Link>
       </p>

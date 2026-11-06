@@ -5,7 +5,7 @@ Local-first education platform. This document tracks security posture for Phase 
 ## Principles
 
 - **No fake payment success.** ZarinPal and AqayePardakht adapters must only mark an order `PAID` after a verified gateway **verify** call (not browser return alone). Missing credentials → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`; checkout disables paid purchase. `PAYMENT_MOCK_HOOKS` is test-only and still requires explicit verify.
-- **No fake SpotPlayer success.** License rows stay `pending` until the real SpotPlayer API confirms issuance. Never invent license keys in seeds or health checks.
+- **No fake SpotPlayer success.** License rows stay `PENDING`/`QUEUED`/`FAILED` until the real SpotPlayer API returns `_id` + `key` (official `POST https://panel.spotplayer.ir/license/edit/`). Never invent license keys in seeds, health checks, or UI. API key is env-first with optional encrypted DB override; responses only show a masked key.
 - **Secrets stay out of git.** Use `.env` (gitignored) from `.env.example`. Rotate any credential that appears in chat or logs.
 - **Least privilege.** Owner vs student roles are enforced in the API; student routes must not expose admin analytics or unpublished course mutation.
 - **RTL / public surface.** Public pages avoid leaking PII; student dashboard requires authenticated session.
@@ -37,7 +37,8 @@ Local-first education platform. This document tracks security posture for Phase 
 - [x] Auth (session cookies, Argon2id, OTP hash, rate-limit stub)
 - [ ] Redis-backed rate limits / session store — later hardening
 - [x] Payment adapters (ZarinPal v4 + AqayePardakht v2) with server-side verify + callback idempotency
-- [ ] Production merchant credentials + IP allowlists — operator setup
+- [x] SpotPlayer license adapter + BullMQ AccessProvisioning (no invented keys; credentials masked)
+- [ ] Production merchant / SpotPlayer credentials + IP allowlists — operator setup
 - [ ] Object storage signed URLs / private buckets — later phase
 - [ ] Dependency audit / CI secret scanning — later phase
 
