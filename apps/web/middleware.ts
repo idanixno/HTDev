@@ -7,9 +7,14 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/dashboard") && !token) {
+  if (
+    (pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/payments") ||
+      pathname.includes("/purchase")) &&
+    !token
+  ) {
     const login = new URL("/login", request.url);
-    login.searchParams.set("next", pathname);
+    login.searchParams.set("next", pathname + request.nextUrl.search);
     return NextResponse.redirect(login);
   }
 
@@ -33,6 +38,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/payments/:path*",
     "/login",
     "/register",
     "/recover/:path*",

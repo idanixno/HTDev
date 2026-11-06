@@ -19,7 +19,7 @@ export default async function DashboardPage() {
             سلام، {user.displayName}
           </h1>
           <p className="dashboard__subtitle">
-            نمای کلی حساب — دوره‌ها و سفارش‌ها در فازهای بعدی پر می‌شوند.
+            نمای کلی حساب — سفارش‌ها و وضعیت پرداخت را از تاریخچه ببینید.
           </p>
         </div>
         <div className="dashboard__actions">
@@ -64,10 +64,11 @@ export default async function DashboardPage() {
         </article>
 
         <article className="dashboard__block">
-          <h2>دوره‌های من</h2>
-          <Notice tone="information" title="هنوز ثبت‌نامی نیست">
-            وقتی دوره بخری یا رایگان ثبت‌نام کنی، اینجا فهرست می‌شود. پرداخت ساختگی
-            نداریم.
+          <h2>سفارش‌ها</h2>
+          <Notice tone="information" title="تاریخچه پرداخت">
+            وضعیت سفارش‌ها را در{" "}
+            <Link href="/dashboard/orders">تاریخچه سفارش‌ها</Link> ببینید. فقط
+            پس از verify درگاه، وضعیت PAID می‌شود.
           </Notice>
         </article>
 
@@ -79,6 +80,9 @@ export default async function DashboardPage() {
             </li>
             <li>
               <Link href="/courses">کاتالوگ دوره‌ها</Link>
+            </li>
+            <li>
+              <Link href="/dashboard/orders">تاریخچه سفارش‌ها</Link>
             </li>
             <li>
               <Link href="/design-system">سیستم طراحی</Link>

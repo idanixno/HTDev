@@ -6,9 +6,14 @@
  *   SEED_STUDENT_PASSWORD (default: ChangeMeStudent!23)
  */
 import {
+  CouponDiscountType,
   CourseDiagramKind,
   CourseOfferKind,
   CoursePublicationStatus,
+  GatewayCredentialsStatus,
+  OrderStatus,
+  PaymentProvider,
+  PaymentTransactionStatus,
   Prisma,
   PrismaClient,
   UserRole,
@@ -612,6 +617,7 @@ async function main() {
   }
 
   const catalog = await seedCatalog();
+  const commerce = await seedCommerce(createdStudents);
 
   // eslint-disable-next-line no-console
   console.log(
@@ -624,12 +630,170 @@ async function main() {
           email: u.email,
         })),
         catalog,
-        note: "Passwords from SEED_ADMIN_PASSWORD / SEED_STUDENT_PASSWORD (see README)",
+        commerce,
+        note: "Passwords from SEED_ADMIN_PASSWORD / SEED_STUDENT_PASSWORD (see README). Sample orders are PENDING/FAILED only — never fake PAID.",
       },
       null,
       2,
     ),
   );
+}
+
+async function seedCommerce(
+  students: { id: string; username: string }[],
+) {
+  const zarinpalCreds = Boolean(process.env.ZARINPAL_MERCHANT_ID?.trim());
+  const aqayeCreds = Boolean(process.env.AQAYE_PARDAKHT_PIN?.trim());
+
+  for (const provider of [
+    PaymentProvider.ZARINPAL,
+    PaymentProvider.AQAYE_PARDAKHT,
+  ] as const) {
+    const present =
+      provider === PaymentProvider.ZARINPAL ? zarinpalCreds : aqayeCreds;
+    await prisma.paymentGatewaySetting.upsert({
+      where: { provider },
+      create: {
+        provider,
+        technicalEnabled: true,
+        checkoutVisible: true,
+        isDefault: provider === PaymentProvider.ZARINPAL,
+        sandboxMode: true,
+        credentialsStatus: present
+          ? GatewayCredentialsStatus.PRESENT
+          : GatewayCredentialsStatus.MISSING,
+      },
+      update: {
+        credentialsStatus: present
+          ? GatewayCredentialsStatus.PRESENT
+          : GatewayCredentialsStatus.MISSING,
+      },
+    });
+  }
+
+  const coupons = [
+    {
+      code: "DEEP20",
+      discountType: CouponDiscountType.PERCENT,
+      percentOff: "20",
+      maxDiscountToman: "500000",
+      maxRedemptions: 100,
+    },
+    {
+      code: "TOMAN50K",
+      discountType: CouponDiscountType.FIXED_TOMAN,
+      amountOffToman: "50000",
+      minOrderToman: "200000",
+      maxRedemptions: 50,
+    },
+  ] as const;
+
+  for (const c of coupons) {
+    const codeNormalized = c.code.toUpperCase();
+    await prisma.coupon.upsert({
+      where: { codeNormalized },
+      create: {
+        code: c.code,
+        codeNormalized,
+        discountType: c.discountType,
+        percentOff: "percentOff" in c ? c.percentOff : null,
+        amountOffToman: "amountOffToman" in c ? c.amountOffToman : null,
+        minOrderToman: "minOrderToman" in c ? c.minOrderToman : null,
+        maxDiscountToman: "maxDiscountToman" in c ? c.maxDiscountToman : null,
+        maxRedemptions: c.maxRedemptions,
+        active: true,
+      },
+      update: {
+        code: c.code,
+        discountType: c.discountType,
+        percentOff: "percentOff" in c ? c.percentOff : null,
+        amountOffToman: "amountOffToman" in c ? c.amountOffToman : null,
+        minOrderToman: "minOrderToman" in c ? c.minOrderToman : null,
+        maxDiscountToman: "maxDiscountToman" in c ? c.maxDiscountToman : null,
+        maxRedemptions: c.maxRedemptions,
+        active: true,
+      },
+    });
+  }
+
+  const paidCourse = await prisma.course.findFirst({
+    where: {
+      publicationStatus: CoursePublicationStatus.PUBLISHED,
+      offerKind: CourseOfferKind.PAID,
+    },
+    orderBy: { sortOrder: "asc" },
+  });
+  const sara = students.find((s) => s.username === "sara");
+  const reza = students.find((s) => s.username === "reza");
+
+  let sampleOrders = 0;
+  if (paidCourse && sara) {
+    // Honest sample: awaiting gateway — never seeded as PAID without verify.
+    const pending = await prisma.order.upsert({
+      where: { id: "seed_order_sara_pending" },
+      create: {
+        id: "seed_order_sara_pending",
+        userId: sara.id,
+        courseId: paidCourse.id,
+        listPriceToman: paidCourse.priceToman,
+        discountToman: 0,
+        amountToman: paidCourse.priceToman,
+        currency: "IRT",
+        status: OrderStatus.AWAITING_GATEWAY,
+        paymentProvider: PaymentProvider.ZARINPAL,
+      },
+      update: {
+        status: OrderStatus.AWAITING_GATEWAY,
+        listPriceToman: paidCourse.priceToman,
+        amountToman: paidCourse.priceToman,
+      },
+    });
+    await prisma.paymentTransaction.upsert({
+      where: { idempotencyKey: "seed:zarinpal:sara-pending" },
+      create: {
+        orderId: pending.id,
+        provider: PaymentProvider.ZARINPAL,
+        status: PaymentTransactionStatus.REDIRECTED,
+        amountToman: paidCourse.priceToman,
+        gatewayAuthority: "SEED-AUTHORITY-SARA",
+        idempotencyKey: "seed:zarinpal:sara-pending",
+      },
+      update: {
+        status: PaymentTransactionStatus.REDIRECTED,
+      },
+    });
+    sampleOrders += 1;
+  }
+
+  if (paidCourse && reza) {
+    await prisma.order.upsert({
+      where: { id: "seed_order_reza_failed" },
+      create: {
+        id: "seed_order_reza_failed",
+        userId: reza.id,
+        courseId: paidCourse.id,
+        listPriceToman: paidCourse.priceToman,
+        discountToman: 0,
+        amountToman: paidCourse.priceToman,
+        currency: "IRT",
+        status: OrderStatus.FAILED,
+        paymentProvider: PaymentProvider.AQAYE_PARDAKHT,
+      },
+      update: {
+        status: OrderStatus.FAILED,
+        listPriceToman: paidCourse.priceToman,
+        amountToman: paidCourse.priceToman,
+      },
+    });
+    sampleOrders += 1;
+  }
+
+  return {
+    coupons: coupons.length,
+    gatewaySettings: 2,
+    sampleOrders,
+    note: "No PAID sample orders — payments require verified gateway callbacks.",
+  };
 }
 
 main()

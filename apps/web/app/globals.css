@@ -1043,6 +1043,204 @@ code {
   }
 }
 
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.purchase,
+.payment-result,
+.orders {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--zharfa-space-48) var(--zharfa-space-64) var(--zharfa-space-80);
+  animation: fade-rise 0.55s ease both;
+}
+
+.purchase__eyebrow,
+.payment-result__eyebrow,
+.orders__eyebrow {
+  margin: 0 0 var(--zharfa-space-8);
+  color: var(--zharfa-text-secondary);
+  font-size: var(--zharfa-text-sm);
+}
+
+.purchase__title,
+.payment-result__title,
+.orders__title {
+  margin: 0 0 var(--zharfa-space-12);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  line-height: 1.25;
+}
+
+.purchase__subtitle,
+.payment-result__subtitle,
+.orders__subtitle {
+  margin: 0 0 var(--zharfa-space-32);
+  color: var(--zharfa-text-secondary);
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-20);
+  margin-bottom: var(--zharfa-space-32);
+  padding: var(--zharfa-space-24);
+  border: 1px solid var(--zharfa-border-default);
+  background: color-mix(in srgb, var(--zharfa-bg-elevated) 88%, transparent);
+}
+
+.checkout-form__summary {
+  display: grid;
+  gap: var(--zharfa-space-12);
+  margin: 0;
+}
+
+.checkout-form__summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--zharfa-space-16);
+}
+
+.checkout-form__summary dt {
+  color: var(--zharfa-text-secondary);
+}
+
+.checkout-form__summary dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.checkout-form__discount {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+}
+
+.checkout-form__coupon {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--zharfa-space-12);
+  align-items: end;
+}
+
+.checkout-form__gateways {
+  margin: 0;
+  padding: var(--zharfa-space-16);
+  border: 1px solid var(--zharfa-border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-12);
+}
+
+.checkout-form__gateways legend {
+  padding: 0 var(--zharfa-space-8);
+}
+
+.checkout-form__gateway {
+  display: flex;
+  align-items: center;
+  gap: var(--zharfa-space-12);
+  cursor: pointer;
+}
+
+.checkout-form__empty,
+.checkout-form__cred-note {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: var(--zharfa-text-sm);
+}
+
+.checkout-form__actions,
+.payment-result__links,
+.orders__back,
+.purchase__back {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--zharfa-space-12);
+  align-items: center;
+}
+
+.payment-result__meta {
+  display: grid;
+  gap: var(--zharfa-space-12);
+  margin: 0 0 var(--zharfa-space-24);
+  padding: var(--zharfa-space-20);
+  border: 1px solid var(--zharfa-border-default);
+}
+
+.payment-result__meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--zharfa-space-16);
+}
+
+.payment-result__meta dt {
+  color: var(--zharfa-text-secondary);
+}
+
+.payment-result__meta dd {
+  margin: 0;
+}
+
+.payment-result__hint {
+  margin: var(--zharfa-space-16) 0;
+}
+
+.orders__list {
+  list-style: none;
+  margin: 0 0 var(--zharfa-space-32);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--zharfa-space-16);
+}
+
+.orders__item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--zharfa-space-16);
+  padding: var(--zharfa-space-20);
+  border: 1px solid var(--zharfa-border-default);
+  background: color-mix(in srgb, var(--zharfa-bg-elevated) 80%, transparent);
+}
+
+.orders__item h2 {
+  margin: 0 0 var(--zharfa-space-8);
+  font-size: 1.1rem;
+}
+
+.orders__item p {
+  margin: 0;
+}
+
+.orders__meta {
+  margin-top: var(--zharfa-space-8) !important;
+  color: var(--zharfa-text-secondary);
+  font-size: var(--zharfa-text-sm);
+}
+
+@media (max-width: 720px) {
+  .purchase,
+  .payment-result,
+  .orders {
+    padding-inline: var(--zharfa-space-20);
+  }
+
+  .checkout-form__coupon {
+    grid-template-columns: 1fr;
+  }
+
+  .orders__item {
+    flex-direction: column;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero,
   .atlas-panel,
@@ -1053,7 +1251,10 @@ code {
   .catalog,
   .paths,
   .course-detail,
-  .path-detail {
+  .path-detail,
+  .purchase,
+  .payment-result,
+  .orders {
     animation: none !important;
     transition: none !important;
   }
