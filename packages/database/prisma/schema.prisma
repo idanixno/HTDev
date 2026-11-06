@@ -1,5 +1,5 @@
-// Zharfa — foundation schema (Phase 1 scaffold).
-// Domain models expand in later phases. No fake payment/SpotPlayer success paths.
+// Zharfa — Prisma schema.
+// Domain models expand by phase. No fake payment/SpotPlayer success paths.
 
 generator client {
   provider = "prisma-client-js"
@@ -15,43 +15,224 @@ enum UserRole {
   OWNER
 }
 
-enum CourseAvailability {
-  PUBLISHED_PAID
-  PUBLISHED_FREE
-  PREORDER
-  IN_PRODUCTION
+/// Lifecycle of a course listing (orthogonal to commercial offer).
+enum CoursePublicationStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
+}
+
+/// Commercial / catalog face of a course (orthogonal to publication).
+enum CourseOfferKind {
+  FREE
+  PAID
+  PRE_SALE
   COMING_SOON
-  UNAVAILABLE
+}
+
+enum CourseDiagramKind {
+  BOUNDARY
+  CHAIN
+}
+
+enum OtpChannel {
+  EMAIL
+  SMS
+}
+
+enum OtpPurpose {
+  PASSWORD_RECOVERY
+  EMAIL_VERIFICATION
+  PHONE_VERIFICATION
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  phone        String?  @unique
-  displayName  String
-  role         UserRole @default(STUDENT)
-  passwordHash String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                 String    @id @default(cuid())
+  /// Display username as registered (preserves original casing).
+  username           String
+  /// Lowercased unique key for case-insensitive username uniqueness.
+  usernameNormalized String    @unique
+  /// Lowercased trimmed email.
+  email              String    @unique
+  /// E.164-ish Iranian local form (09XXXXXXXXX) when present.
+  phone              String?   @unique
+  displayName        String
+  role               UserRole  @default(STUDENT)
+  passwordHash       String
+  emailVerifiedAt    DateTime?
+  phoneVerifiedAt    DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  enrollments Enrollment[]
-  orders      Order[]
-  tickets     Ticket[]
+  sessions            Session[]
+  otpChallenges       OtpChallenge[]
+  enrollments         Enrollment[]
+  orders              Order[]
+  tickets             Ticket[]
+  couponRedemptions   CouponRedemption[]
+  spotPlayerLicenses  SpotPlayerLicense[]
+}
+
+/// Opaque session tokens are stored hashed; raw token only lives in the cookie.
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// OTP codes are stored as secure hashes; plaintext is never persisted.
+model OtpChallenge {
+  id                    String     @id @default(cuid())
+  userId                String?
+  channel               OtpChannel
+  purpose               OtpPurpose
+  destinationNormalized String
+  codeHash              String
+  expiresAt             DateTime
+  consumedAt            DateTime?
+  attemptCount          Int        @default(0)
+  maxAttempts           Int        @default(5)
+  createdAt             DateTime   @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([destinationNormalized, purpose, channel])
+  @@index([expiresAt])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  summary   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courses Course[]
 }
 
 model Course {
-  id           String             @id @default(cuid())
-  slug         String             @unique
-  title        String
-  summary      String?
-  priceToman   Int                @default(0)
-  availability CourseAvailability @default(COMING_SOON)
-  publishedAt  DateTime?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  id                String                  @id @default(cuid())
+  slug              String                  @unique
+  title             String
+  summary           String?
+  description       String?
+  categoryId        String?
+  publicationStatus CoursePublicationStatus @default(DRAFT)
+  offerKind         CourseOfferKind         @default(COMING_SOON)
+  /// List / checkout price in Toman (Decimal for fractional pricing if needed).
+  priceToman        Decimal                 @default(0) @db.Decimal(12, 2)
+  /// Optional compare-at / strikethrough price in Toman.
+  compareAtToman    Decimal?                @db.Decimal(12, 2)
+  levelLabel        String?
+  durationHours     Decimal?                @db.Decimal(6, 2)
+  lessonCount       Int                     @default(0)
+  featured          Boolean                 @default(false)
+  sortOrder         Int                     @default(0)
+  /// Local public asset path for cover/artwork placeholder (e.g. /artwork/courses/…).
+  coverAsset        String?
+  indexLabel        String?
+  diagramCode       String?
+  diagramKind       CourseDiagramKind       @default(BOUNDARY)
+  /// Up to three chain-node labels for CourseCard chain diagrams.
+  chainNodes        String[]                @default([])
+  publishedAt       DateTime?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
 
-  enrollments Enrollment[]
-  orders      Order[]
+  category              Category?                  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  modules               CurriculumModule[]
+  lessons               Lesson[]
+  enrollments           Enrollment[]
+  orders                Order[]
+  learningPathSteps     LearningPathStep[]
+  spotPlayerMapping     SpotPlayerCourseMapping?
+  spotPlayerLicenses    SpotPlayerLicense[]
+
+  @@index([publicationStatus, offerKind])
+  @@index([categoryId])
+  @@index([featured, sortOrder])
+}
+
+/// Curriculum section within a course (ordered chapters).
+model CurriculumModule {
+  id        String   @id @default(cuid())
+  courseId  String
+  title     String
+  summary   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@index([courseId, sortOrder])
+}
+
+model Lesson {
+  id              String   @id @default(cuid())
+  courseId        String
+  moduleId        String?
+  title           String
+  summary         String?
+  sortOrder       Int      @default(0)
+  durationMinutes Int?
+  isPreview       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  course Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  module CurriculumModule? @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+
+  @@index([courseId, sortOrder])
+  @@index([moduleId, sortOrder])
+}
+
+/// Learning roadmap / path (مسیر یادگیری).
+model LearningPath {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  summary     String?
+  description String?
+  coverAsset  String?
+  published   Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  steps LearningPathStep[]
+
+  @@index([published, sortOrder])
+}
+
+model LearningPathStep {
+  id        String   @id @default(cuid())
+  pathId    String
+  courseId  String?
+  title     String
+  summary   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  path   LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  course Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([pathId, sortOrder])
 }
 
 model Enrollment {
@@ -66,6 +247,8 @@ model Enrollment {
   @@unique([userId, courseId])
 }
 
+/// Order lifecycle. Valid transitions are enforced in application code
+/// (see commerce/order-status.ts) — never jump to PAID without gateway verify.
 enum OrderStatus {
   PENDING
   AWAITING_GATEWAY
@@ -75,25 +258,149 @@ enum OrderStatus {
   CANCELED
 }
 
+/// Per-attempt payment attempt lifecycle (one Order may retry with new rows).
+enum PaymentTransactionStatus {
+  CREATED
+  REDIRECTED
+  CALLBACK_RECEIVED
+  VERIFIED
+  FAILED
+  CANCELED
+}
+
 enum PaymentProvider {
   ZARINPAL
   AQAYE_PARDAKHT
 }
 
-/// Orders never auto-mark PAID without a verified gateway callback.
+enum CouponDiscountType {
+  PERCENT
+  FIXED_TOMAN
+}
+
+/// Whether merchant credentials are available in process env (not secrets in DB).
+enum GatewayCredentialsStatus {
+  MISSING
+  PRESENT
+}
+
+model Coupon {
+  id               String             @id @default(cuid())
+  /// Display code as entered by admin (preserves casing for UX).
+  code             String
+  /// Uppercased unique key for case-insensitive lookup.
+  codeNormalized   String             @unique
+  discountType     CouponDiscountType
+  /// 0–100 when discountType = PERCENT.
+  percentOff       Decimal?           @db.Decimal(5, 2)
+  /// Fixed Toman off when discountType = FIXED_TOMAN.
+  amountOffToman   Decimal?           @db.Decimal(12, 2)
+  minOrderToman    Decimal?           @db.Decimal(12, 2)
+  maxDiscountToman Decimal?           @db.Decimal(12, 2)
+  startsAt         DateTime?
+  endsAt           DateTime?
+  maxRedemptions   Int?
+  redemptionCount  Int                @default(0)
+  active           Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  orders      Order[]
+  redemptions CouponRedemption[]
+
+  @@index([active, endsAt])
+}
+
+/// Audit of successful coupon use (incremented only when order becomes PAID).
+model CouponRedemption {
+  id         String   @id @default(cuid())
+  couponId   String
+  orderId    String   @unique
+  userId     String
+  createdAt  DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@index([userId])
+}
+
+/// Orders never auto-mark PAID without a verified gateway callback/verify.
 model Order {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   userId          String
   courseId        String
-  amountToman     Int
-  status          OrderStatus     @default(PENDING)
+  couponId        String?
+  /// Snapshot of coupon code at checkout time.
+  couponCode      String?
+  /// Course list price in Toman at checkout (server-side, never trust client).
+  listPriceToman  Decimal          @db.Decimal(12, 2)
+  discountToman   Decimal          @default(0) @db.Decimal(12, 2)
+  /// Payable amount in Toman after coupon (Decimal money).
+  amountToman     Decimal          @db.Decimal(12, 2)
+  /// IRT = Toman (ZarinPal currency code); amounts are always Toman.
+  currency        String           @default("IRT")
+  status          OrderStatus      @default(PENDING)
   paymentProvider PaymentProvider?
-  gatewayRef      String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  paidAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course             Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  coupon             Coupon?              @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  transactions       PaymentTransaction[]
+  redemption         CouponRedemption?
+  spotPlayerLicenses SpotPlayerLicense[]
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([courseId])
+}
+
+/// One gateway attempt. Duplicate callbacks are idempotent via authority + status.
+model PaymentTransaction {
+  id               String                   @id @default(cuid())
+  orderId          String
+  provider         PaymentProvider
+  status           PaymentTransactionStatus @default(CREATED)
+  amountToman      Decimal                  @db.Decimal(12, 2)
+  /// ZarinPal authority / AqayePardakht transid.
+  gatewayAuthority String?
+  /// ZarinPal ref_id / AqayePardakht tracking_number after successful verify.
+  gatewayRefId     String?
+  callbackPayload  Json?
+  verifyPayload    Json?
+  /// Stable key for idempotent callback processing (provider + authority).
+  idempotencyKey   String                   @unique
+  failureReason    String?
+  verifiedAt       DateTime?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, gatewayAuthority])
+  @@index([orderId, status])
+}
+
+/// Admin-tunable gateway flags. Secrets stay in env — never persisted here.
+/// technicalEnabled: adapter may be invoked when credentials PRESENT.
+/// checkoutVisible: offered on the student checkout UI.
+/// isDefault: preferred selectable gateway when multiple are usable.
+model PaymentGatewaySetting {
+  id                 String                    @id @default(cuid())
+  provider           PaymentProvider           @unique
+  technicalEnabled   Boolean                   @default(false)
+  checkoutVisible    Boolean                   @default(false)
+  isDefault          Boolean                   @default(false)
+  sandboxMode        Boolean                   @default(true)
+  /// Cached reflection of env presence for admin UI; runtime still re-checks env.
+  credentialsStatus  GatewayCredentialsStatus  @default(MISSING)
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
 }
 
 enum TicketStatus {
@@ -115,15 +422,85 @@ model Ticket {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+/// Separate from OrderStatus — payment PAID does not imply license success.
+enum SpotPlayerLicenseStatus {
+  PENDING
+  QUEUED
+  IN_PROGRESS
+  SUCCEEDED
+  FAILED
+}
+
+/// How access was granted (payment vs free enroll). Orthogonal to license status.
+enum SpotPlayerAccessSource {
+  PAID_ORDER
+  FREE_COURSE
+}
+
+/// Singleton-ish SpotPlayer integration settings. API key prefers env; optional
+/// encrypted DB override exists for admin UI. Never return full key in API.
+model SpotPlayerSetting {
+  id                String                   @id @default("default")
+  technicalEnabled  Boolean                  @default(false)
+  /// When true, license create sends test:true per official SpotPlayer API docs.
+  testMode          Boolean                  @default(true)
+  /// AES-256-GCM ciphertext (base64) of API key when set via admin (env wins if present).
+  apiKeyEncrypted   String?
+  /// Last 4 chars for masked admin display only.
+  apiKeyLast4       String?
+  /// Cached reflection; runtime still re-checks env + decrypted key.
+  credentialsStatus GatewayCredentialsStatus @default(MISSING)
+  /// Override for POST license endpoint; default is official panel URL.
+  licenseEndpoint   String?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+}
+
+/// Maps a Zharfa course to a SpotPlayer panel course id (required for license create).
+model SpotPlayerCourseMapping {
+  id                 String   @id @default(cuid())
+  courseId           String   @unique
+  /// SpotPlayer course ObjectId from the instructor panel (official `course` array field).
+  spotPlayerCourseId String
+  enabled            Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([spotPlayerCourseId])
+}
+
 /// SpotPlayer licenses are provisioned only after verified paid/free access — never stubbed as success.
 model SpotPlayerLicense {
-  id         String   @id @default(cuid())
-  userId     String
-  courseId   String
-  licenseKey String?
-  status     String   @default("pending")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                   String                  @id @default(cuid())
+  userId               String
+  courseId             String
+  orderId              String?
+  accessSource         SpotPlayerAccessSource
+  /// Official SpotPlayer license `_id` from create response.
+  spotPlayerLicenseId  String?
+  /// Official SpotPlayer license `key` — only set after real provider response.
+  licenseKey           String?
+  /// Relative path from provider `url` (prefix with https://dl.spotplayer.ir).
+  licenseUrl           String?
+  status               SpotPlayerLicenseStatus @default(PENDING)
+  attemptCount         Int                     @default(0)
+  lastError            String?
+  lastAttemptAt        DateTime?
+  provisionedAt        DateTime?
+  /// Stable key for queue/idempotency (e.g. access:userId:courseId).
+  idempotencyKey       String                  @unique
+  /// Raw provider response (admin diagnostics); never invent keys here.
+  providerPayload      Json?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  order  Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@unique([userId, courseId])
+  @@index([status, updatedAt])
+  @@index([orderId])
 }

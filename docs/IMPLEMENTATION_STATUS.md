@@ -8,18 +8,18 @@ Living ledger for the Zharfa / EDU personal education platform. Update in place;
 | Phase 0 Repository audit | IMPLEMENTED | See [phase-0-repo-audit.md](./phase-0-repo-audit.md) |
 | Workspace / Docker foundation | IN_PROGRESS | pnpm+turbo monorepo; compose Postgres/Redis/MinIO; health stubs (PR #1) |
 | Design tokens in code | IMPLEMENTED | `@zharfa/ui` dark/light CSS vars, type scale, spacing/radius from Native assets |
-| Design system components | IMPLEMENTED | Button, Field, Badge, Notice, Dialog, CourseCard (availability variants); RTL + a11y basics |
-| Public web shell / home | IMPLEMENTED | Layout, nav, theme toggle, hero first viewport + featured courses from Figma copy |
-| Identity / auth | NOT_STARTED | Login CTA is non-functional shell only |
-| Courses / catalog | NOT_STARTED | Prisma `Course` + home featured cards use design copy only |
-| Orders / payments (ZarinPal, AqayePardakht) | NOT_STARTED | Schema + SECURITY constraints; no fake success |
-| SpotPlayer access | NOT_STARTED | License model defaults to `pending`; no fake success |
-| Support tickets | NOT_STARTED | Prisma `Ticket` scaffold only |
+| Design system components | IMPLEMENTED | Button, Field, Badge, Notice (+error), Dialog, CourseCard; RTL + a11y basics |
+| Public web shell / home | IMPLEMENTED | Layout, nav, theme toggle, hero; featured courses from catalog API seed |
+| Identity / auth | IMPLEMENTED | Prisma User/Session/OtpChallenge; Nest Identity (Argon2id, OTP, HttpOnly session); web login/register/recover + gated `/dashboard`; console messaging adapters; rate-limit stub |
+| Courses / catalog | IMPLEMENTED | Prisma Category/Course (publication+offer enums)/CurriculumModule/Lesson/LearningPath; Nest `/catalog/*` list-filter-search-pagination + detail + paths; web `/courses`, `/courses/[slug]`, `/paths`, `/paths/[slug]`; local artwork placeholders; unit tests for state/pricing helpers |
+| Orders / payments (ZarinPal, AqayePardakht) | IMPLEMENTED | Prisma Order/PaymentTransaction/Coupon/GatewaySetting (Decimal Toman); Nest checkout + coupon validate + ZarinPal/AqayePardakht adapters + callback verify/idempotency + admin gateway flags; web purchase + pending/success/failure + order history; missing creds → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` (paid purchase disabled); no fake PAID |
+| SpotPlayer access | IMPLEMENTED | Nest SpotPlayer module + official license adapter; course↔SpotPlayer mapping; env/DB encrypted API key (masked in responses); BullMQ `access-provisioning` after PAID / free grant; separate `SpotPlayerLicenseStatus` from payment; admin config/diagnostics + student `/dashboard/access`; free-course path; retries; missing key → `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED`; no invented license keys |
+| Support tickets | NOT_STARTED | Prisma Ticket scaffold only |
 | Notifications | NOT_STARTED | |
 | Admin analytics | NOT_STARTED | |
 | CMS / SEO | NOT_STARTED | |
-| Security docs + controls | IN_PROGRESS | `SECURITY.md` foundation checklist |
-| Seed data | NOT_STARTED | |
-| E2E / local delivery | NOT_STARTED | |
+| Security docs + controls | IN_PROGRESS | `SECURITY.md`; auth hashing/sessions/OTP hashing; payment verify + SpotPlayer no-fake-key; Redis rate-limit still stub |
+| Seed data | IMPLEMENTED | Admin + 4 students + catalog + coupons + gateway settings + SpotPlayer settings/mappings placeholders + sample PENDING/FAILED orders (never fake PAID / never SUCCEEDED license) |
+| E2E / local delivery | NOT_STARTED | API unit tests: identity + catalog + commerce + SpotPlayer provisioning/idempotency/adapter |
 
 Statuses: `NOT_STARTED` · `IN_PROGRESS` · `IMPLEMENTED` · `TESTED` · `VERIFIED` · `BLOCKED`
