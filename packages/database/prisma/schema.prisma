@@ -75,6 +75,7 @@ model User {
   couponRedemptions   CouponRedemption[]
   spotPlayerLicenses  SpotPlayerLicense[]
   notifications       Notification[]
+  activityLogs        ActivityLog[]
 }
 
 /// Opaque session tokens are stored hashed; raw token only lives in the cookie.
@@ -634,4 +635,57 @@ model SpotPlayerLicense {
   @@unique([userId, courseId])
   @@index([status, updatedAt])
   @@index([orderId])
+}
+
+/// Admin / system audit trail. No secrets in metadata.
+enum ActivityActorKind {
+  OWNER
+  SYSTEM
+}
+
+model ActivityLog {
+  id         String            @id @default(cuid())
+  actorKind  ActivityActorKind @default(OWNER)
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  summary    String
+  /// Structured non-secret context (ids, before/after field names — never passwords/keys).
+  metadata   Json?
+  createdAt  DateTime          @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+}
+
+/// Editable FAQ rows for public CMS basics.
+model CmsFaqItem {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  sortOrder Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, sortOrder])
+}
+
+/// Singleton home / landing CMS copy (id = "home").
+model CmsHomeContent {
+  id               String   @id @default("home")
+  heroEyebrow      String?
+  heroTitle        String
+  heroSubtitle     String?
+  primaryCtaLabel  String?
+  primaryCtaHref   String?
+  secondaryCtaLabel String?
+  secondaryCtaHref String?
+  updatedAt        DateTime @updatedAt
+  createdAt        DateTime @default(now())
 }

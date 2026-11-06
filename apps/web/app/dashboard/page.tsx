@@ -117,10 +117,13 @@ export default async function DashboardPage() {
             {user.role === "OWNER" ? (
               <>
                 <li>
-                  <Link href="/dashboard/admin/spotplayer">ادمین اسپات‌پلیر</Link>
+                  <Link href="/admin">پنل مدیریت ژرفا</Link>
                 </li>
                 <li>
-                  <Link href="/dashboard/admin/tickets">ادمین تیکت‌ها</Link>
+                  <Link href="/admin/spotplayer">ادمین اسپات‌پلیر</Link>
+                </li>
+                <li>
+                  <Link href="/admin/tickets">ادمین تیکت‌ها</Link>
                 </li>
               </>
             ) : null}

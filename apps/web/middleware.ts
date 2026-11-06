@@ -9,6 +9,7 @@ export function middleware(request: NextRequest) {
 
   if (
     (pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/admin") ||
       pathname.startsWith("/payments") ||
       pathname.includes("/purchase")) &&
     !token
@@ -38,6 +39,8 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/admin",
+    "/admin/:path*",
     "/payments/:path*",
     "/login",
     "/register",

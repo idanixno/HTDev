@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Vazirmatn, Inter, JetBrains_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import { SiteHeader } from "../components/site-header";
 import "./globals.css";
 
@@ -27,11 +28,15 @@ export const metadata: Metadata = {
     "اطلس یادگیریِ آرمان راد؛ از اولین مسئله تا تصمیم‌های معماری. مسیرت را با پیش‌نیاز روشن و تمرین واقعی بساز.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headerList = await headers();
+  const pathname = headerList.get("x-pathname") ?? "";
+  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+
   return (
     <html
       lang="fa"
@@ -51,8 +56,8 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
-        <div className="shell">
-          <SiteHeader />
+        <div className={isAdmin ? "shell shell--admin" : "shell"}>
+          {isAdmin ? null : <SiteHeader />}
           <main className="shell__main">{children}</main>
         </div>
       </body>

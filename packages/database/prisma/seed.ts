@@ -6,6 +6,7 @@
  *   SEED_STUDENT_PASSWORD (default: ChangeMeStudent!23)
  */
 import {
+  ActivityActorKind,
   CouponDiscountType,
   CourseDiagramKind,
   CourseOfferKind,
@@ -19,6 +20,7 @@ import {
   PaymentTransactionStatus,
   Prisma,
   PrismaClient,
+  SpotPlayerAccessSource,
   SpotPlayerLicenseStatus,
   TicketAuthorRole,
   TicketStatus,
@@ -625,6 +627,8 @@ async function main() {
   const catalog = await seedCatalog();
   const commerce = await seedCommerce(createdStudents);
   const support = await seedSupport(admin, createdStudents);
+  const analytics = await seedAnalyticsFixtures(admin, createdStudents);
+  const cms = await seedCms(admin);
 
   // eslint-disable-next-line no-console
   console.log(
@@ -639,12 +643,299 @@ async function main() {
         catalog,
         commerce,
         support,
-        note: "Passwords from SEED_ADMIN_PASSWORD / SEED_STUDENT_PASSWORD (see README). Sample orders are PENDING/FAILED only — never fake PAID. No SUCCEEDED SpotPlayer licenses.",
+        analytics,
+        cms,
+        note: "Passwords from SEED_ADMIN_PASSWORD / SEED_STUDENT_PASSWORD (see README). Runtime payment adapters never invent PAID. Analytics seed inserts explicit historical PAID fixtures for admin charts only. No SUCCEEDED SpotPlayer licenses.",
       },
       null,
       2,
     ),
   );
+}
+
+/**
+ * Historical PAID rows for admin analytics charts.
+ * Explicit seed fixtures — NOT produced by gateway verify. Payment adapters still
+ * never mark PAID without a real verify path.
+ */
+async function seedAnalyticsFixtures(
+  admin: { id: string },
+  students: { id: string; username: string }[],
+) {
+  const paidCourse = await prisma.course.findFirst({
+    where: {
+      publicationStatus: CoursePublicationStatus.PUBLISHED,
+      offerKind: CourseOfferKind.PAID,
+    },
+    orderBy: { sortOrder: "asc" },
+  });
+  if (!paidCourse || students.length === 0) {
+    return { paidOrders: 0, activityLogs: 0, note: "skipped — missing course/students" };
+  }
+
+  const now = new Date();
+  const fixtures: Array<{
+    id: string;
+    dayOffset: number;
+    studentIndex: number;
+    discountToman: number;
+  }> = [
+    { id: "seed_analytics_paid_01", dayOffset: 28, studentIndex: 0, discountToman: 0 },
+    { id: "seed_analytics_paid_02", dayOffset: 25, studentIndex: 1, discountToman: 0 },
+    { id: "seed_analytics_paid_03", dayOffset: 21, studentIndex: 2, discountToman: 50000 },
+    { id: "seed_analytics_paid_04", dayOffset: 18, studentIndex: 0, discountToman: 0 },
+    { id: "seed_analytics_paid_05", dayOffset: 14, studentIndex: 3, discountToman: 0 },
+    { id: "seed_analytics_paid_06", dayOffset: 11, studentIndex: 1, discountToman: 100000 },
+    { id: "seed_analytics_paid_07", dayOffset: 8, studentIndex: 2, discountToman: 0 },
+    { id: "seed_analytics_paid_08", dayOffset: 5, studentIndex: 0, discountToman: 0 },
+    { id: "seed_analytics_paid_09", dayOffset: 3, studentIndex: 3, discountToman: 0 },
+    { id: "seed_analytics_paid_10", dayOffset: 1, studentIndex: 1, discountToman: 50000 },
+  ];
+
+  let paidOrders = 0;
+  for (const f of fixtures) {
+    const student = students[f.studentIndex % students.length]!;
+    const list = Number(paidCourse.priceToman);
+    const amount = Math.max(0, list - f.discountToman);
+    const paidAt = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() - f.dayOffset,
+        10 + (f.dayOffset % 5),
+        15,
+      ),
+    );
+
+    await prisma.order.upsert({
+      where: { id: f.id },
+      create: {
+        id: f.id,
+        userId: student.id,
+        courseId: paidCourse.id,
+        listPriceToman: paidCourse.priceToman,
+        discountToman: f.discountToman,
+        amountToman: amount,
+        currency: "IRT",
+        status: OrderStatus.PAID,
+        paymentProvider: f.dayOffset % 2 === 0
+          ? PaymentProvider.ZARINPAL
+          : PaymentProvider.AQAYE_PARDAKHT,
+        paidAt,
+        createdAt: paidAt,
+      },
+      update: {
+        status: OrderStatus.PAID,
+        amountToman: amount,
+        discountToman: f.discountToman,
+        paidAt,
+      },
+    });
+
+    await prisma.paymentTransaction.upsert({
+      where: { idempotencyKey: `seed:analytics:${f.id}` },
+      create: {
+        orderId: f.id,
+        provider:
+          f.dayOffset % 2 === 0
+            ? PaymentProvider.ZARINPAL
+            : PaymentProvider.AQAYE_PARDAKHT,
+        status: PaymentTransactionStatus.VERIFIED,
+        amountToman: amount,
+        gatewayAuthority: `SEED-ANALYTICS-${f.id}`,
+        gatewayRefId: `SEED-REF-${f.id}`,
+        idempotencyKey: `seed:analytics:${f.id}`,
+        verifiedAt: paidAt,
+      },
+      update: {
+        status: PaymentTransactionStatus.VERIFIED,
+        amountToman: amount,
+        verifiedAt: paidAt,
+      },
+    });
+    paidOrders += 1;
+  }
+
+  // Stagger student createdAt so user-registration series has shape.
+  for (let i = 0; i < students.length; i++) {
+    const s = students[i]!;
+    const createdAt = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() - (20 - i * 4),
+        9,
+      ),
+    );
+    await prisma.user.update({
+      where: { id: s.id },
+      data: { createdAt },
+    });
+  }
+
+  const activitySeeds = [
+    {
+      id: "seed_activity_course_publish",
+      action: "course.update",
+      entityType: "Course",
+      entityId: paidCourse.id,
+      summary: "انتشار دورهٔ نمونه برای دمو ادمین",
+    },
+    {
+      id: "seed_activity_gateway",
+      action: "payment.gateway.update",
+      entityType: "PaymentGatewaySetting",
+      entityId: "ZARINPAL",
+      summary: "فعال‌سازی نمایش درگاه زرین‌پال در seed",
+    },
+    {
+      id: "seed_activity_cms",
+      action: "cms.home.update",
+      entityType: "CmsHomeContent",
+      entityId: "home",
+      summary: "تنظیم محتوای صفحهٔ خانه",
+    },
+  ];
+
+  for (const a of activitySeeds) {
+    await prisma.activityLog.upsert({
+      where: { id: a.id },
+      create: {
+        id: a.id,
+        actorKind: ActivityActorKind.OWNER,
+        actorId: admin.id,
+        action: a.action,
+        entityType: a.entityType,
+        entityId: a.entityId,
+        summary: a.summary,
+        metadata: { seed: true },
+      },
+      update: {
+        summary: a.summary,
+        actorId: admin.id,
+      },
+    });
+  }
+
+  // Pending provisioning samples (never SUCCEEDED).
+  const pendingStudent = students[0]!;
+  await prisma.spotPlayerLicense.upsert({
+    where: {
+      userId_courseId: {
+        userId: pendingStudent.id,
+        courseId: paidCourse.id,
+      },
+    },
+    create: {
+      id: "seed_license_pending_analytics",
+      userId: pendingStudent.id,
+      courseId: paidCourse.id,
+      orderId: "seed_analytics_paid_01",
+      accessSource: SpotPlayerAccessSource.PAID_ORDER,
+      status: SpotPlayerLicenseStatus.PENDING,
+      idempotencyKey: `access:${pendingStudent.id}:${paidCourse.id}`,
+      attemptCount: 0,
+    },
+    update: {
+      status: SpotPlayerLicenseStatus.PENDING,
+      licenseKey: null,
+      spotPlayerLicenseId: null,
+    },
+  });
+
+  return {
+    paidOrders,
+    activityLogs: activitySeeds.length,
+    pendingLicenses: 1,
+    note: "PAID rows are analytics seed fixtures only; adapters still require real verify.",
+  };
+}
+
+async function seedCms(admin: { id: string }) {
+  await prisma.cmsHomeContent.upsert({
+    where: { id: "home" },
+    create: {
+      id: "home",
+      heroEyebrow: "اطلس یادگیری عمیق",
+      heroTitle: "ژرفا",
+      heroSubtitle:
+        "از اولین مسئله تا تصمیم‌های معماری — مسیرت را با پیش‌نیاز روشن بساز.",
+      primaryCtaLabel: "مشاهده دوره‌ها",
+      primaryCtaHref: "/courses",
+      secondaryCtaLabel: "مسیرهای یادگیری",
+      secondaryCtaHref: "/paths",
+    },
+    update: {
+      heroEyebrow: "اطلس یادگیری عمیق",
+      heroTitle: "ژرفا",
+      heroSubtitle:
+        "از اولین مسئله تا تصمیم‌های معماری — مسیرت را با پیش‌نیاز روشن بساز.",
+      primaryCtaLabel: "مشاهده دوره‌ها",
+      primaryCtaHref: "/courses",
+      secondaryCtaLabel: "مسیرهای یادگیری",
+      secondaryCtaHref: "/paths",
+    },
+  });
+
+  const faqs = [
+    {
+      id: "seed_faq_1",
+      question: "دسترسی ویدیو چگونه فعال می‌شود؟",
+      answer:
+        "پس از پرداخت موفق و verify درگاه، لایسنس اسپات‌پلیر به‌صورت جداگانه پرویژن می‌شود. موفقیت لایسنس ساختگی نیست.",
+      sortOrder: 1,
+    },
+    {
+      id: "seed_faq_2",
+      question: "آیا می‌توانم از کوپن استفاده کنم؟",
+      answer:
+        "در صفحهٔ خرید، کد کوپن را وارد کنید. تخفیف فقط روی سرور محاسبه می‌شود.",
+      sortOrder: 2,
+    },
+    {
+      id: "seed_faq_3",
+      question: "پشتیبانی چگونه کار می‌کند؟",
+      answer:
+        "از پنل دانشجو تیکت داخلی بسازید. تلگرام فقط مرجع تکمیلی است.",
+      sortOrder: 3,
+    },
+  ];
+
+  for (const f of faqs) {
+    await prisma.cmsFaqItem.upsert({
+      where: { id: f.id },
+      create: {
+        id: f.id,
+        question: f.question,
+        answer: f.answer,
+        sortOrder: f.sortOrder,
+        published: true,
+      },
+      update: {
+        question: f.question,
+        answer: f.answer,
+        sortOrder: f.sortOrder,
+        published: true,
+      },
+    });
+  }
+
+  await prisma.activityLog.upsert({
+    where: { id: "seed_activity_faq" },
+    create: {
+      id: "seed_activity_faq",
+      actorKind: ActivityActorKind.OWNER,
+      actorId: admin.id,
+      action: "cms.faq.create",
+      entityType: "CmsFaqItem",
+      entityId: "seed_faq_1",
+      summary: "ایجاد FAQهای اولیه",
+      metadata: { seed: true, count: faqs.length },
+    },
+    update: { summary: "ایجاد FAQهای اولیه" },
+  });
+
+  return { home: 1, faq: faqs.length };
 }
 
 async function seedSupport(
