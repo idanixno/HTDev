@@ -8,10 +8,10 @@ Figma: [EDU / Zharfa](https://www.figma.com/design/ecYEt09V8ZOGzG2sRd4cC1)
 
 | App / package | Role |
 |---------------|------|
-| `apps/web` | Next.js App Router, RTL shell, auth BFF, student dashboard |
-| `apps/api` | NestJS HTTP API + Identity module |
+| `apps/web` | Next.js App Router, RTL shell, auth BFF, catalog/paths, student dashboard |
+| `apps/api` | NestJS HTTP API + Identity + Catalog modules |
 | `apps/worker` | BullMQ background jobs |
-| `packages/database` | Prisma schema + client + seed |
+| `packages/database` | Prisma schema + client + seed (users + education catalog) |
 | `packages/ui` | Zharfa design system (`@zharfa/ui`) |
 | `packages/config` | Shared TS configs |
 
@@ -38,7 +38,7 @@ pnpm docker:up
 pnpm db:generate
 pnpm db:migrate
 
-# 5. Seed demo users (admin + students)
+# 5. Seed demo users + Persian catalog (courses, curriculum, paths)
 pnpm db:seed
 
 # 6. Run apps (separate terminals, or turbo)
@@ -67,6 +67,8 @@ Passwords are **env-configurable** (see `.env.example`):
 
 Login accepts **username, email, or phone** + password. Recovery OTP is logged by the console email/SMS provider in API logs (no real SMS/email in local).
 
+Seed also creates **3 categories**, **6 courses** (5 publicly listed), curriculum/lessons, and **2 learning paths**, with SVG artwork placeholders under `apps/web/public/artwork/`.
+
 ## Auth surface
 
 | Surface | Path |
@@ -78,6 +80,17 @@ Login accepts **username, email, or phone** + password. Recovery OTP is logged b
 | API identity | `POST /identity/register\|login\|logout`, `GET /identity/me`, `POST /identity/recover/*` |
 
 Web sets an **HttpOnly** `zharfa_session` cookie via Next.js BFF routes under `/api/auth/*`. Nest also accepts the same token as cookie or `Authorization: Bearer`.
+
+## Catalog surface
+
+| Surface | Path |
+|---------|------|
+| Course catalog | `/courses` (search, category, offer filters, pagination) |
+| Course detail | `/courses/[slug]` |
+| Learning paths | `/paths`, `/paths/[slug]` |
+| API catalog | `GET /catalog/categories`, `/catalog/courses`, `/catalog/courses/featured`, `/catalog/courses/:slug`, `/catalog/paths`, `/catalog/paths/:slug` |
+
+Course state uses coherent enums: `CoursePublicationStatus` (`DRAFT` / `PUBLISHED` / `UNPUBLISHED` / `ARCHIVED`) × `CourseOfferKind` (`FREE` / `PAID` / `PRE_SALE` / `COMING_SOON`). Pricing uses Prisma `Decimal` (Toman).
 
 ## Health stubs
 
@@ -110,6 +123,6 @@ Web sets an **HttpOnly** `zharfa_session` cookie via Next.js BFF routes under `/
 | `pnpm docker:up` / `pnpm docker:down` | Compose infra |
 | `pnpm db:generate` | Prisma generate |
 | `pnpm db:migrate` | Prisma migrate dev |
-| `pnpm db:seed` | Seed admin + students |
+| `pnpm db:seed` | Seed admin + students + catalog |
 | `pnpm db:studio` | Prisma Studio |
-| `pnpm --filter @zharfa/api test` | Identity unit tests |
+| `pnpm --filter @zharfa/api test` | Identity + catalog state/pricing unit tests |
