@@ -114,9 +114,10 @@ Do **not** claim `VERIFIED_REAL_INTEGRATION` without live merchant/SpotPlayer/SM
 | Login / register / recover | `/login` · `/register` · `/recover` |
 | Student dashboard | `/dashboard` |
 | Admin shell (OWNER) | `/admin` (+ courses, orders, tickets, payments, SpotPlayer, CMS, …) |
-| Courses / paths | `/courses`, `/courses/[slug]`, `/paths` |
+| Courses / paths / journal | `/courses`, `/courses/[slug]`, `/paths`, `/journal` |
+| About, FAQ, policies | `/about`, `/faq`, `/contact`, `/terms`, `/privacy`, `/refunds` |
 | Purchase + payment pages | `/courses/[slug]/purchase`, `/payments/{pending,success,failure}` |
-| Student orders / access / tickets / notifications | `/dashboard/orders`, `/dashboard/access`, `/dashboard/tickets`, `/dashboard/notifications` |
+| Student orders / access / tickets / notifications / security | `/dashboard/orders`, `/dashboard/access`, `/dashboard/tickets`, `/dashboard/notifications`, `/dashboard/account` |
 | API identity | `POST /identity/register\|login\|logout`, `GET /identity/me`, recover routes |
 | API catalog | `GET /catalog/*` |
 | API commerce | checkout, coupons, orders, gateway callbacks |

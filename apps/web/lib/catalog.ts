@@ -118,10 +118,31 @@ export async function fetchFeaturedCourses(): Promise<PublicCourseCard[]> {
   );
 }
 
+export type PublicFaq = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
+export type PublicArticleCard = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  coverAsset: string | null;
+  publishedAt: string | null;
+  readingMinutes: number;
+  href: string;
+};
+
+export type PublicArticle = PublicArticleCard & { body: string };
+
 export async function fetchCourses(params: {
   q?: string;
   category?: string;
   offer?: string;
+  level?: string;
+  sort?: string;
   page?: number;
   pageSize?: number;
 }): Promise<CourseListResult> {
@@ -129,6 +150,8 @@ export async function fetchCourses(params: {
   if (params.q) sp.set("q", params.q);
   if (params.category) sp.set("category", params.category);
   if (params.offer) sp.set("offer", params.offer);
+  if (params.level) sp.set("level", params.level);
+  if (params.sort && params.sort !== "catalog") sp.set("sort", params.sort);
   if (params.page) sp.set("page", String(params.page));
   if (params.pageSize) sp.set("pageSize", String(params.pageSize));
   const qs = sp.toString();
@@ -154,6 +177,24 @@ export async function fetchPaths(): Promise<PublicPath[]> {
 export async function fetchPath(slug: string): Promise<PublicPath | null> {
   return catalogFetch<PublicPath>(
     `/catalog/paths/${encodeURIComponent(slug)}`,
+  );
+}
+
+export async function fetchLevels(): Promise<string[]> {
+  return (await catalogFetch<string[]>("/catalog/meta/levels")) ?? [];
+}
+
+export async function fetchFaq(): Promise<PublicFaq[]> {
+  return (await catalogFetch<PublicFaq[]>("/catalog/faq")) ?? [];
+}
+
+export async function fetchArticles(): Promise<PublicArticleCard[]> {
+  return (await catalogFetch<PublicArticleCard[]>("/catalog/articles")) ?? [];
+}
+
+export async function fetchArticle(slug: string): Promise<PublicArticle | null> {
+  return catalogFetch<PublicArticle>(
+    `/catalog/articles/${encodeURIComponent(slug)}`,
   );
 }
 

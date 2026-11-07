@@ -201,6 +201,93 @@ export class UpsertFaqDto {
   published?: boolean;
 }
 
+export class UpsertArticleDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(80)
+  slug!: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  summary?: string | null;
+
+  @IsString()
+  @MinLength(20)
+  @MaxLength(20000)
+  body!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  coverAsset?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  published?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(120)
+  readingMinutes?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  sortOrder?: number;
+}
+
+export class UpsertModuleDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  summary?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  sortOrder?: number;
+}
+
+export class UpsertLessonDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  summary?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  sortOrder?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(600)
+  durationMinutes?: number | null;
+
+  @IsOptional()
+  @IsBoolean()
+  isPreview?: boolean;
+
+  @IsOptional()
+  @IsString()
+  moduleId?: string | null;
+}
+
 export class UpdateHomeCmsDto {
   @IsOptional()
   @IsString()

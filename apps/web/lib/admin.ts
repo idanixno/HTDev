@@ -86,6 +86,79 @@ export async function fetchAdminCourses(q?: string) {
   >(`/admin/courses${qs}`);
 }
 
+export type AdminCourseDraft = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  description: string | null;
+  categoryId: string | null;
+  publicationStatus: string;
+  offerKind: string;
+  priceToman: number;
+  compareAtToman: number | null;
+  levelLabel: string | null;
+  durationHours: number | null;
+  lessonCount: number;
+  featured: boolean;
+  sortOrder: number;
+  coverAsset: string | null;
+  indexLabel: string | null;
+  diagramKind: string;
+  modules: Array<{
+    id: string;
+    title: string;
+    summary: string | null;
+    sortOrder: number;
+    lessons: Array<{
+      id: string;
+      title: string;
+      summary: string | null;
+      sortOrder: number;
+      durationMinutes: number | null;
+      isPreview: boolean;
+      moduleId: string | null;
+    }>;
+  }>;
+};
+
+export async function fetchAdminCourse(id: string) {
+  return adminFetch<AdminCourseDraft>(`/admin/courses/${encodeURIComponent(id)}`);
+}
+
+export type AdminArticleDraft = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  body: string;
+  coverAsset: string | null;
+  published: boolean;
+  readingMinutes: number | null;
+  sortOrder: number;
+};
+
+export async function fetchAdminArticles() {
+  return adminFetch<
+    Array<{
+      id: string;
+      slug: string;
+      title: string;
+      summary: string | null;
+      published: boolean;
+      publishedAt: string | null;
+      sortOrder: number;
+      updatedAt: string;
+    }>
+  >("/admin/articles");
+}
+
+export async function fetchAdminArticle(id: string) {
+  return adminFetch<AdminArticleDraft>(
+    `/admin/articles/${encodeURIComponent(id)}`,
+  );
+}
+
 export async function fetchAdminCategories() {
   return adminFetch<
     Array<{

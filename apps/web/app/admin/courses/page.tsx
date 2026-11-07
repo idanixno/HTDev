@@ -1,4 +1,5 @@
-import { Badge, Notice } from "@zharfa/ui";
+import Link from "next/link";
+import { Badge, Button, Notice } from "@zharfa/ui";
 import { fetchAdminCourses, formatDateFa } from "../../../lib/admin";
 
 export default async function AdminCoursesPage({
@@ -21,6 +22,7 @@ export default async function AdminCoursesPage({
             فهرست کامل دوره‌ها با وضعیت انتشار و پیشنهاد تجاری.
           </p>
         </div>
+        <Button href="/admin/courses/new">دوره جدید</Button>
         <form className="admin-search" method="get">
           <input
             type="search"
@@ -54,7 +56,9 @@ export default async function AdminCoursesPage({
               {data.items.map((c) => (
                 <tr key={c.id}>
                   <td>
-                    <div className="admin-table__primary">{c.title}</div>
+                    <Link href={`/admin/courses/${c.id}`} className="admin-table__primary">
+                      {c.title}
+                    </Link>
                     <div className="admin-table__muted">{c.slug}</div>
                   </td>
                   <td>

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -15,10 +16,13 @@ import { decimalToNumber, formatTomanLabel } from "../catalog/pricing";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "./audit.service";
 import type {
+  UpsertArticleDto,
   UpsertCategoryDto,
   UpsertCouponDto,
   UpsertCourseDto,
   UpsertFaqDto,
+  UpsertLessonDto,
+  UpsertModuleDto,
   UpdateHomeCmsDto,
 } from "./dto/admin.dto";
 
@@ -77,6 +81,10 @@ export class AdminService {
 
   async upsertCourse(actorId: string, dto: UpsertCourseDto, id?: string) {
     this.assertCoursePricing(dto);
+    const existing = id
+      ? await this.prisma.course.findUnique({ where: { id } })
+      : null;
+    if (id && !existing) throw new NotFoundException("دوره یافت نشد.");
     const data = {
       slug: dto.slug.trim().toLowerCase(),
       title: dto.title.trim(),
@@ -95,7 +103,7 @@ export class AdminService {
         dto.durationHours == null
           ? null
           : new Prisma.Decimal(dto.durationHours),
-      lessonCount: dto.lessonCount ?? 0,
+      lessonCount: dto.lessonCount ?? existing?.lessonCount ?? 0,
       featured: dto.featured ?? false,
       sortOrder: dto.sortOrder ?? 0,
       coverAsset: dto.coverAsset ?? null,
@@ -103,13 +111,15 @@ export class AdminService {
       diagramKind: dto.diagramKind,
       publishedAt:
         dto.publicationStatus === CoursePublicationStatus.PUBLISHED
-          ? new Date()
+          ? (existing?.publishedAt ?? new Date())
           : null,
     };
 
-    const course = id
-      ? await this.prisma.course.update({ where: { id }, data })
-      : await this.prisma.course.create({ data });
+    const course = await this.writeUnique(async () =>
+      id
+        ? this.prisma.course.update({ where: { id }, data })
+        : this.prisma.course.create({ data }),
+    );
 
     await this.audit.record({
       actorId,
@@ -127,6 +137,255 @@ export class AdminService {
     });
 
     return { id: course.id, slug: course.slug, title: course.title };
+  }
+
+  async getCourse(id: string) {
+    const course = await this.prisma.course.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        modules: {
+          orderBy: { sortOrder: "asc" },
+          include: { lessons: { orderBy: { sortOrder: "asc" } } },
+        },
+      },
+    });
+    if (!course) throw new NotFoundException("دوره یافت نشد.");
+
+    const mapLesson = (lesson: (typeof course.modules)[number]["lessons"][number]) => ({
+      id: lesson.id,
+      title: lesson.title,
+      summary: lesson.summary,
+      sortOrder: lesson.sortOrder,
+      durationMinutes: lesson.durationMinutes,
+      isPreview: lesson.isPreview,
+      moduleId: lesson.moduleId,
+    });
+
+    return {
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      summary: course.summary,
+      description: course.description,
+      categoryId: course.categoryId,
+      publicationStatus: course.publicationStatus,
+      offerKind: course.offerKind,
+      priceToman: decimalToNumber(course.priceToman),
+      compareAtToman:
+        course.compareAtToman == null
+          ? null
+          : decimalToNumber(course.compareAtToman),
+      levelLabel: course.levelLabel,
+      durationHours:
+        course.durationHours == null
+          ? null
+          : decimalToNumber(course.durationHours),
+      lessonCount: course.lessonCount,
+      featured: course.featured,
+      sortOrder: course.sortOrder,
+      coverAsset: course.coverAsset,
+      indexLabel: course.indexLabel,
+      diagramKind: course.diagramKind,
+      modules: course.modules.map((mod) => ({
+        id: mod.id,
+        title: mod.title,
+        summary: mod.summary,
+        sortOrder: mod.sortOrder,
+        lessons: mod.lessons.map(mapLesson),
+      })),
+    };
+  }
+
+  async upsertModule(actorId: string, courseId: string, dto: UpsertModuleDto, id?: string) {
+    await this.requireCourse(courseId);
+    if (id) {
+      const existing = await this.prisma.curriculumModule.findFirst({
+        where: { id, courseId },
+      });
+      if (!existing) throw new NotFoundException("فصل یافت نشد.");
+    }
+    const data = {
+      title: dto.title.trim(),
+      summary: dto.summary ?? null,
+      sortOrder: dto.sortOrder ?? 0,
+    };
+    const module = await this.writeUnique(async () =>
+      id
+        ? this.prisma.curriculumModule.update({ where: { id }, data })
+        : this.prisma.curriculumModule.create({ data: { ...data, courseId } }),
+    );
+    await this.audit.record({
+      actorId,
+      action: id ? "course.module.update" : "course.module.create",
+      entityType: "CurriculumModule",
+      entityId: module.id,
+      summary: `${id ? "ویرایش" : "افزودن"} فصل «${module.title}»`,
+      metadata: { courseId },
+    });
+    return { id: module.id, title: module.title };
+  }
+
+  async patchModule(actorId: string, id: string, dto: UpsertModuleDto) {
+    const existing = await this.prisma.curriculumModule.findUnique({
+      where: { id },
+    });
+    if (!existing) throw new NotFoundException("فصل یافت نشد.");
+    return this.upsertModule(actorId, existing.courseId, dto, id);
+  }
+
+  async deleteModule(actorId: string, id: string) {
+    const existing = await this.prisma.curriculumModule.findUnique({
+      where: { id },
+    });
+    if (!existing) throw new NotFoundException("فصل یافت نشد.");
+    await this.prisma.$transaction([
+      this.prisma.lesson.deleteMany({ where: { moduleId: id } }),
+      this.prisma.curriculumModule.delete({ where: { id } }),
+    ]);
+    await this.refreshLessonCount(existing.courseId);
+    await this.audit.record({
+      actorId,
+      action: "course.module.delete",
+      entityType: "CurriculumModule",
+      entityId: id,
+      summary: `حذف فصل «${existing.title}»`,
+      metadata: { courseId: existing.courseId },
+    });
+    return { ok: true };
+  }
+
+  async upsertLesson(
+    actorId: string,
+    courseId: string,
+    dto: UpsertLessonDto,
+    id?: string,
+  ) {
+    await this.requireCourse(courseId);
+    if (dto.moduleId) {
+      const module = await this.prisma.curriculumModule.findFirst({
+        where: { id: dto.moduleId, courseId },
+      });
+      if (!module) throw new BadRequestException("فصل انتخاب‌شده به این دوره تعلق ندارد.");
+    }
+    if (id) {
+      const existing = await this.prisma.lesson.findFirst({
+        where: { id, courseId },
+      });
+      if (!existing) throw new NotFoundException("درس یافت نشد.");
+    }
+    const data = {
+      title: dto.title.trim(),
+      summary: dto.summary ?? null,
+      sortOrder: dto.sortOrder ?? 0,
+      durationMinutes: dto.durationMinutes ?? null,
+      isPreview: dto.isPreview ?? false,
+      moduleId: dto.moduleId || null,
+    };
+    const lesson = await this.writeUnique(async () =>
+      id
+        ? this.prisma.lesson.update({ where: { id }, data })
+        : this.prisma.lesson.create({ data: { ...data, courseId } }),
+    );
+    await this.refreshLessonCount(courseId);
+    await this.audit.record({
+      actorId,
+      action: id ? "course.lesson.update" : "course.lesson.create",
+      entityType: "Lesson",
+      entityId: lesson.id,
+      summary: `${id ? "ویرایش" : "افزودن"} درس «${lesson.title}»`,
+      metadata: { courseId },
+    });
+    return { id: lesson.id, title: lesson.title };
+  }
+
+  async patchLesson(actorId: string, id: string, dto: UpsertLessonDto) {
+    const existing = await this.prisma.lesson.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException("درس یافت نشد.");
+    return this.upsertLesson(actorId, existing.courseId, dto, id);
+  }
+
+  async deleteLesson(actorId: string, id: string) {
+    const existing = await this.prisma.lesson.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException("درس یافت نشد.");
+    await this.prisma.lesson.delete({ where: { id } });
+    await this.refreshLessonCount(existing.courseId);
+    await this.audit.record({
+      actorId,
+      action: "course.lesson.delete",
+      entityType: "Lesson",
+      entityId: id,
+      summary: `حذف درس «${existing.title}»`,
+      metadata: { courseId: existing.courseId },
+    });
+    return { ok: true };
+  }
+
+  async listArticles() {
+    const rows = await this.prisma.article.findMany({
+      orderBy: [{ sortOrder: "asc" }, { updatedAt: "desc" }],
+    });
+    return rows.map((article) => ({
+      id: article.id,
+      slug: article.slug,
+      title: article.title,
+      summary: article.summary,
+      published: article.published,
+      publishedAt: article.publishedAt?.toISOString() ?? null,
+      sortOrder: article.sortOrder,
+      updatedAt: article.updatedAt.toISOString(),
+    }));
+  }
+
+  async getArticle(id: string) {
+    const article = await this.prisma.article.findUnique({ where: { id } });
+    if (!article) throw new NotFoundException("یادداشت یافت نشد.");
+    return {
+      id: article.id,
+      slug: article.slug,
+      title: article.title,
+      summary: article.summary,
+      body: article.body,
+      coverAsset: article.coverAsset,
+      published: article.published,
+      readingMinutes: article.readingMinutes,
+      sortOrder: article.sortOrder,
+    };
+  }
+
+  async upsertArticle(actorId: string, dto: UpsertArticleDto, id?: string) {
+    const existing = id
+      ? await this.prisma.article.findUnique({ where: { id } })
+      : null;
+    if (id && !existing) throw new NotFoundException("یادداشت یافت نشد.");
+    const published = dto.published ?? false;
+    const data = {
+      slug: dto.slug.trim().toLowerCase(),
+      title: dto.title.trim(),
+      summary: dto.summary ?? null,
+      body: dto.body.trim(),
+      coverAsset: dto.coverAsset ?? null,
+      published,
+      publishedAt: published ? (existing?.publishedAt ?? new Date()) : null,
+      readingMinutes: dto.readingMinutes ?? null,
+      sortOrder: dto.sortOrder ?? 0,
+    };
+    const article = await this.writeUnique(async () =>
+      id
+        ? this.prisma.article.update({ where: { id }, data })
+        : this.prisma.article.create({ data }),
+    );
+    await this.audit.record({
+      actorId,
+      action: id ? "article.update" : "article.create",
+      entityType: "Article",
+      entityId: article.id,
+      summary: id
+        ? `به‌روزرسانی یادداشت «${article.title}»`
+        : `ایجاد یادداشت «${article.title}»`,
+      metadata: { slug: article.slug, published: article.published },
+    });
+    return { id: article.id, slug: article.slug, title: article.title };
   }
 
   // ── Categories ───────────────────────────────────────────────────────
@@ -508,6 +767,40 @@ export class AdminService {
       summary: "حذف FAQ",
     });
     return { ok: true };
+  }
+
+  private async requireCourse(id: string) {
+    const course = await this.prisma.course.findUnique({ where: { id } });
+    if (!course) throw new NotFoundException("دوره یافت نشد.");
+    return course;
+  }
+
+  private async refreshLessonCount(courseId: string) {
+    const lessonCount = await this.prisma.lesson.count({ where: { courseId } });
+    await this.prisma.course.update({
+      where: { id: courseId },
+      data: { lessonCount },
+    });
+  }
+
+  private async writeUnique<T>(fn: () => Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === "P2002"
+      ) {
+        throw new ConflictException("این شناسه یا اسلاگ قبلاً استفاده شده است.");
+      }
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === "P2025"
+      ) {
+        throw new NotFoundException("رکورد یافت نشد.");
+      }
+      throw err;
+    }
   }
 
   private assertCoursePricing(dto: UpsertCourseDto) {

@@ -2,6 +2,7 @@ import { CourseOfferKind } from "@zharfa/database";
 import { Transform, Type } from "class-transformer";
 import {
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -9,6 +10,16 @@ import {
   MaxLength,
   Min,
 } from "class-validator";
+
+export const COURSE_SORTS = [
+  "catalog",
+  "newest",
+  "price_asc",
+  "price_desc",
+  "title",
+] as const;
+
+export type CourseSort = (typeof COURSE_SORTS)[number];
 
 export class ListCoursesQueryDto {
   @IsOptional()
@@ -26,6 +37,16 @@ export class ListCoursesQueryDto {
   @IsOptional()
   @IsEnum(CourseOfferKind)
   offer?: CourseOfferKind;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
+  level?: string;
+
+  @IsOptional()
+  @IsIn(COURSE_SORTS)
+  sort?: CourseSort;
 
   @IsOptional()
   @Type(() => Number)

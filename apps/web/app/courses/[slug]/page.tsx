@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@zharfa/ui";
+import { CourseCardLink } from "../../../components/course-card-link";
 import { FreeAccessButton } from "../../../components/free-access-button";
-import { fetchCourse } from "../../../lib/catalog";
+import { fetchCourse, fetchCourses } from "../../../lib/catalog";
+import { absoluteUrl } from "../../../lib/site-url";
 import { fetchCheckoutOptions } from "../../../lib/commerce";
 import { buildPageMetadata } from "../../../lib/seo";
 import { fetchCurrentUser } from "../../../lib/session";
@@ -43,6 +45,30 @@ export default async function CourseDetailPage({
   if (!course) notFound();
 
   const user = await fetchCurrentUser();
+  const related = course.category
+    ? (await fetchCourses({
+        category: course.category.slug,
+        pageSize: 4,
+      })).items.filter((item) => item.slug !== course.slug).slice(0, 3)
+    : [];
+  const previews = course.modules.flatMap((mod) =>
+    mod.lessons
+      .filter((lesson) => lesson.isPreview)
+      .map((lesson) => ({ ...lesson, moduleTitle: mod.title })),
+  );
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: course.title,
+    description: course.summary ?? course.description ?? course.title,
+    inLanguage: "fa",
+    url: absoluteUrl(course.href),
+    provider: {
+      "@type": "Organization",
+      name: "ژرفا",
+      url: absoluteUrl("/"),
+    },
+  };
   const isPaidOffer =
     course.offerKind === "PAID" || course.offerKind === "PRE_SALE";
   const checkout = isPaidOffer ? await fetchCheckoutOptions(slug) : null;
@@ -53,6 +79,23 @@ export default async function CourseDetailPage({
 
   return (
     <article className="course-detail">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <nav className="crumbs" aria-label="مسیر">
+        <Link href="/">خانه</Link>
+        <span aria-hidden="true">/</span>
+        <Link href="/courses">دوره‌ها</Link>
+        {course.category ? (
+          <>
+            <span aria-hidden="true">/</span>
+            <Link href={`/courses?category=${course.category.slug}`}>
+              {course.category.title}
+            </Link>
+          </>
+        ) : null}
+      </nav>
       <header className="course-detail__hero">
         <div className="course-detail__artwork">
           {course.coverAsset ? (
@@ -112,10 +155,10 @@ export default async function CourseDetailPage({
           </div>
           <p className="course-detail__note">
             {course.offerKind === "FREE"
-              ? "دسترسی رایگان بدون درگاه پرداخت؛ لایسنس اسپات‌پلیر فقط پس از پاسخ واقعی ارائه‌دهنده صادر می‌شود."
+              ? "این دوره رایگان است و از درگاه پرداخت عبور نمی‌کند. لایسنس ویدیو فقط بعد از پاسخ اسپات‌پلیر صادر می‌شود."
               : isPaidOffer && !purchaseEnabled
-                ? "خرید پولی تا تنظیم اعتبارنامهٔ درگاه غیرفعال است (IMPLEMENTED_BUT_CREDENTIALS_REQUIRED)."
-                : "پرداخت فقط پس از verify درگاه ثبت می‌شود. صدور لایسنس اسپات‌پلیر محور جداگانه‌ای است."}
+                ? "خرید این دوره تا وقتی درگاه پرداخت پیکربندی نشده باشد شروع نمی‌شود. وضعیت دقیق در صفحه خرید نوشته شده است."
+                : "پرداخت فقط بعد از تأیید سرور با درگاه ثبت می‌شود. ساخت لایسنس اسپات‌پلیر مرحله جداگانه‌ای است."}
           </p>
         </div>
       </header>
@@ -124,6 +167,26 @@ export default async function CourseDetailPage({
         <section className="course-detail__section">
           <h2>درباره دوره</h2>
           <p>{course.description}</p>
+        </section>
+      ) : null}
+
+      {previews.length > 0 ? (
+        <section className="course-detail__section" aria-labelledby="previews">
+          <h2 id="previews">پیش‌نمایش رایگان</h2>
+          <ul className="course-detail__lessons">
+            {previews.map((lesson) => (
+              <li key={lesson.id}>
+                <span>{lesson.title}</span>
+                <span className="course-detail__lesson-meta">
+                  {lesson.moduleTitle}
+                  {lesson.durationMinutes != null
+                    ? ` · ${lesson.durationMinutes.toLocaleString("fa-IR")} دقیقه`
+                    : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p>تماشای ویدیو داخل همین سایت انجام نمی‌شود و از اسپات‌پلیر است.</p>
         </section>
       ) : null}
 
@@ -156,8 +219,34 @@ export default async function CourseDetailPage({
         )}
       </section>
 
+      {related.length > 0 ? (
+        <section className="course-detail__section" aria-labelledby="related">
+          <h2 id="related">دوره‌های همین موضوع</h2>
+          <ul className="related-list">
+            {related.map((item) => (
+              <li key={item.id}>
+                <CourseCardLink course={item} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <section className="course-detail__section">
+        <h2>قبل از خرید</h2>
+        <ul>
+          <li>قیمت به تومان است و تخفیف فقط روی سرور حساب می‌شود.</li>
+          <li>
+            شرایط بازپرداخت در <Link href="/refunds">صفحه بازپرداخت</Link> است.
+          </li>
+          <li>
+            پرسش‌های عمومی در <Link href="/faq">پرسش‌های رایج</Link> جمع شده‌اند.
+          </li>
+        </ul>
+      </section>
+
       <p className="course-detail__back">
-        <Link href="/courses">← همه دوره‌ها</Link>
+        <Link href="/courses">همه دوره‌ها</Link>
       </p>
     </article>
   );

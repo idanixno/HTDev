@@ -138,6 +138,16 @@
   font-family: var(--zharfa-font-code);
 }
 
+textarea.z-field__control,
+select.z-field__control {
+  display: block;
+}
+
+textarea.z-field__control {
+  min-height: 9rem;
+  resize: vertical;
+}
+
 .z-field--error .z-field__control {
   border-color: var(--zharfa-status-error);
 }

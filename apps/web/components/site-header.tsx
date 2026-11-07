@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { Button } from "@zharfa/ui";
+import { MobileNav } from "./mobile-nav";
 import { ThemeToggle } from "./theme-toggle";
 import { fetchCurrentUser } from "../lib/session";
 
 const NAV_LINKS = [
   { href: "/courses", label: "دوره‌ها", match: "/courses" },
-  { href: "/paths", label: "مسیرهای یادگیری", match: "/paths" },
-  { href: "/about", label: "درباره مدرس", match: "/about" },
+  { href: "/paths", label: "مسیرها", match: "/paths" },
+  { href: "/journal", label: "یادداشت‌ها", match: "/journal" },
+  { href: "/about", label: "درباره", match: "/about" },
 ] as const;
 
 export async function SiteHeader() {
@@ -45,6 +47,7 @@ export async function SiteHeader() {
 
         <div className="site-header__actions">
           <ThemeToggle />
+          <MobileNav authed={Boolean(user)} />
           {user ? (
             <Button href="/dashboard" variant="secondary">
               حساب من

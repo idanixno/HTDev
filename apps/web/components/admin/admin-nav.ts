@@ -2,6 +2,7 @@ export const ADMIN_NAV = [
   { href: "/admin", label: "داشبورد", match: "/admin", exact: true },
   { href: "/admin/courses", label: "دوره‌ها", match: "/admin/courses" },
   { href: "/admin/categories", label: "دسته‌ها", match: "/admin/categories" },
+  { href: "/admin/journal", label: "یادداشت‌ها", match: "/admin/journal" },
   { href: "/admin/orders", label: "سفارش‌ها", match: "/admin/orders" },
   { href: "/admin/customers", label: "مشتریان", match: "/admin/customers" },
   { href: "/admin/tickets", label: "تیکت‌ها", match: "/admin/tickets" },

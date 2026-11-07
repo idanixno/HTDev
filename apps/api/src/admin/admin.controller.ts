@@ -23,10 +23,13 @@ import {
   AdminOrdersQueryDto,
   AnalyticsQueryDto,
   UpdateHomeCmsDto,
+  UpsertArticleDto,
   UpsertCategoryDto,
   UpsertCouponDto,
   UpsertCourseDto,
   UpsertFaqDto,
+  UpsertLessonDto,
+  UpsertModuleDto,
 } from "./dto/admin.dto";
 
 /**
@@ -81,6 +84,11 @@ export class AdminController {
     return this.admin.listCourses(query);
   }
 
+  @Get("courses/:id")
+  course(@Param("id") id: string) {
+    return this.admin.getCourse(id);
+  }
+
   @Post("courses")
   createCourse(@Req() req: AuthedRequest, @Body() body: UpsertCourseDto) {
     return this.admin.upsertCourse(req.user!.id, body);
@@ -93,6 +101,52 @@ export class AdminController {
     @Body() body: UpsertCourseDto,
   ) {
     return this.admin.upsertCourse(req.user!.id, body, id);
+  }
+
+  @Post("courses/:id/modules")
+  createModule(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: UpsertModuleDto,
+  ) {
+    return this.admin.upsertModule(req.user!.id, id, body);
+  }
+
+  @Patch("modules/:id")
+  updateModule(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: UpsertModuleDto,
+  ) {
+    return this.admin.patchModule(req.user!.id, id, body);
+  }
+
+  @Delete("modules/:id")
+  deleteModule(@Req() req: AuthedRequest, @Param("id") id: string) {
+    return this.admin.deleteModule(req.user!.id, id);
+  }
+
+  @Post("courses/:id/lessons")
+  createLesson(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: UpsertLessonDto,
+  ) {
+    return this.admin.upsertLesson(req.user!.id, id, body);
+  }
+
+  @Patch("lessons/:id")
+  updateLesson(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: UpsertLessonDto,
+  ) {
+    return this.admin.patchLesson(req.user!.id, id, body);
+  }
+
+  @Delete("lessons/:id")
+  deleteLesson(@Req() req: AuthedRequest, @Param("id") id: string) {
+    return this.admin.deleteLesson(req.user!.id, id);
   }
 
   // Categories
@@ -174,6 +228,31 @@ export class AdminController {
       });
       return result;
     });
+  }
+
+  // Journal
+  @Get("articles")
+  articles() {
+    return this.admin.listArticles();
+  }
+
+  @Get("articles/:id")
+  article(@Param("id") id: string) {
+    return this.admin.getArticle(id);
+  }
+
+  @Post("articles")
+  createArticle(@Req() req: AuthedRequest, @Body() body: UpsertArticleDto) {
+    return this.admin.upsertArticle(req.user!.id, body);
+  }
+
+  @Patch("articles/:id")
+  updateArticle(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: UpsertArticleDto,
+  ) {
+    return this.admin.upsertArticle(req.user!.id, body, id);
   }
 
   // CMS

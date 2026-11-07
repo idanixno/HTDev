@@ -5,6 +5,7 @@ import { CourseCardLink } from "../../components/course-card-link";
 import {
   fetchCategories,
   fetchCourses,
+  fetchLevels,
 } from "../../lib/catalog";
 import { buildPageMetadata } from "../../lib/seo";
 
@@ -23,10 +24,20 @@ const OFFER_FILTERS = [
   { value: "COMING_SOON", label: "به‌زودی" },
 ] as const;
 
+const SORTS = [
+  { value: "", label: "ترتیب کاتالوگ" },
+  { value: "newest", label: "تازه‌ترین" },
+  { value: "title", label: "عنوان" },
+  { value: "price_asc", label: "قیمت، کم به زیاد" },
+  { value: "price_desc", label: "قیمت، زیاد به کم" },
+] as const;
+
 type SearchParams = Promise<{
   q?: string;
   category?: string;
   offer?: string;
+  level?: string;
+  sort?: string;
   page?: string;
 }>;
 
@@ -39,11 +50,14 @@ export default async function CoursesPage({
   const q = sp.q?.trim() || undefined;
   const category = sp.category?.trim() || undefined;
   const offer = sp.offer?.trim() || undefined;
+  const level = sp.level?.trim() || undefined;
+  const sort = sp.sort?.trim() || undefined;
   const page = Math.max(1, Number(sp.page ?? "1") || 1);
 
-  const [categories, result] = await Promise.all([
+  const [categories, levels, result] = await Promise.all([
     fetchCategories(),
-    fetchCourses({ q, category, offer, page, pageSize: 12 }),
+    fetchLevels(),
+    fetchCourses({ q, category, offer, level, sort, page, pageSize: 12 }),
   ]);
 
   const buildHref = (overrides: Record<string, string | undefined>) => {
@@ -52,6 +66,8 @@ export default async function CoursesPage({
       q: q ?? "",
       category: category ?? "",
       offer: offer ?? "",
+      level: level ?? "",
+      sort: sort ?? "",
       page: String(page),
       ...overrides,
     };
@@ -86,6 +102,8 @@ export default async function CoursesPage({
               <input type="hidden" name="category" value={category} />
             ) : null}
             {offer ? <input type="hidden" name="offer" value={offer} /> : null}
+            {level ? <input type="hidden" name="level" value={level} /> : null}
+            {sort ? <input type="hidden" name="sort" value={sort} /> : null}
 
             <div className="catalog__filter-group">
               <p className="catalog__filter-label">قلمرو</p>
@@ -140,9 +158,67 @@ export default async function CoursesPage({
               </ul>
             </div>
 
+            {levels.length > 0 ? (
+              <div className="catalog__filter-group">
+                <p className="catalog__filter-label">سطح</p>
+                <ul className="catalog__filter-list">
+                  <li>
+                    <Link
+                      href={buildHref({ level: "", page: "1" })}
+                      className={
+                        "catalog__filter-chip" +
+                        (!level ? " catalog__filter-chip--active" : "")
+                      }
+                    >
+                      همه سطح‌ها
+                    </Link>
+                  </li>
+                  {levels.map((item) => (
+                    <li key={item}>
+                      <Link
+                        href={buildHref({ level: item, page: "1" })}
+                        className={
+                          "catalog__filter-chip" +
+                          (level === item ? " catalog__filter-chip--active" : "")
+                        }
+                      >
+                        {item}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <div className="catalog__filter-group">
+              <p className="catalog__filter-label">مرتب‌سازی</p>
+              <ul className="catalog__filter-list">
+                {SORTS.map((item) => (
+                  <li key={item.value || "catalog"}>
+                    <Link
+                      href={buildHref({ sort: item.value, page: "1" })}
+                      className={
+                        "catalog__filter-chip" +
+                        ((sort ?? "") === item.value
+                          ? " catalog__filter-chip--active"
+                          : "")
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <button type="submit" className="catalog__search-submit">
               اعمال جستجو
             </button>
+            {q || category || offer || level || sort ? (
+              <Link href="/courses" className="catalog__clear">
+                پاک کردن فیلترها
+              </Link>
+            ) : null}
           </form>
         </aside>
 

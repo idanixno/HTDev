@@ -11,6 +11,7 @@ function LoginForm() {
   const router = useRouter();
   const search = useSearchParams();
   const next = search.get("next") || "/dashboard";
+  const passwordChanged = search.get("notice") === "password";
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -48,6 +49,11 @@ function LoginForm() {
       }
     >
       <form className="auth-form" onSubmit={onSubmit} noValidate>
+        {passwordChanged ? (
+          <Notice tone="success" title="رمز عوض شد">
+            با رمز جدید وارد شوید. نشست‌های قبلی بسته شدند.
+          </Notice>
+        ) : null}
         {error ? (
           <Notice tone="error" title="ورود انجام نشد">
             {error}

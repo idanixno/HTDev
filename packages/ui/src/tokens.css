@@ -47,12 +47,22 @@
   --zharfa-space-20: 20px;
   --zharfa-space-24: 24px;
   --zharfa-space-32: 32px;
+  --zharfa-space-40: 40px;
+  --zharfa-space-48: 48px;
   --zharfa-space-64: 64px;
 
   --zharfa-radius-0: 0;
   --zharfa-radius-4: 4px;
   --zharfa-radius-6: 6px;
+  --zharfa-radius-8: 8px;
   --zharfa-radius-12: 12px;
+  --zharfa-radius-16: 16px;
+
+  --zharfa-shadow-raised: 0 16px 40px color-mix(in srgb, #000 28%, transparent);
+  --zharfa-z-header: 20;
+  --zharfa-z-overlay: 40;
+  --zharfa-container: 1120px;
+  --zharfa-container-wide: 1440px;
 
   --zharfa-font-persian: "Vazirmatn", "Tahoma", sans-serif;
   --zharfa-font-latin: "Inter", "Vazirmatn", sans-serif;

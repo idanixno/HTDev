@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Button } from "@zharfa/ui";
 import { AtlasPanel } from "../components/atlas-panel";
 import { CourseCardLink } from "../components/course-card-link";
-import { fetchFeaturedCourses } from "../lib/catalog";
+import {
+  fetchCategories,
+  fetchFeaturedCourses,
+  fetchPaths,
+} from "../lib/catalog";
 import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -12,7 +17,11 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default async function HomePage() {
-  const featured = await fetchFeaturedCourses();
+  const [featured, categories, paths] = await Promise.all([
+    fetchFeaturedCourses(),
+    fetchCategories(),
+    fetchPaths(),
+  ]);
 
   return (
     <>
@@ -73,6 +82,56 @@ export default async function HomePage() {
             {featured.map((course) => (
               <li key={course.id}>
                 <CourseCardLink course={course} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="home-band" aria-labelledby="domains-heading">
+        <header className="home-band__intro">
+          <p className="home-band__eyebrow">موضوع‌ها</p>
+          <h2 id="domains-heading">از روی مسئله انتخاب کنید</h2>
+          <p>
+            دسته‌ها موضوع دوره‌اند، نه فروشنده. هر دسته به همان فیلتر کاتالوگ
+            وصل است.
+          </p>
+        </header>
+        {categories.length === 0 ? (
+          <p className="featured__empty">دسته‌ای از کاتالوگ در دسترس نیست.</p>
+        ) : (
+          <ul className="home-band__grid">
+            {categories.map((category) => (
+              <li key={category.id}>
+                <Link href={`/courses?category=${category.slug}`}>
+                  <strong>{category.title}</strong>
+                  <span>
+                    {category.courseCount.toLocaleString("fa-IR")} دوره
+                  </span>
+                  {category.summary ? <p>{category.summary}</p> : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="home-band" aria-labelledby="paths-heading">
+        <header className="home-band__intro">
+          <p className="home-band__eyebrow">مسیر</p>
+          <h2 id="paths-heading">ترتیب پیشنهادی، بدون اشتراک</h2>
+        </header>
+        {paths.length === 0 ? (
+          <p className="featured__empty">مسیر منتشرشده‌ای در دسترس نیست.</p>
+        ) : (
+          <ul className="home-band__paths">
+            {paths.map((path) => (
+              <li key={path.id}>
+                <Link href={path.href}>
+                  <strong>{path.title}</strong>
+                  <span>{path.summary}</span>
+                  <em>{path.stepCount.toLocaleString("fa-IR")} گام</em>
+                </Link>
               </li>
             ))}
           </ul>

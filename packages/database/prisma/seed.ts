@@ -629,6 +629,7 @@ async function main() {
   const support = await seedSupport(admin, createdStudents);
   const analytics = await seedAnalyticsFixtures(admin, createdStudents);
   const cms = await seedCms(admin);
+  const journal = await seedJournal(admin);
 
   // eslint-disable-next-line no-console
   console.log(
@@ -645,6 +646,7 @@ async function main() {
         support,
         analytics,
         cms,
+        journal,
         note: "Passwords from SEED_ADMIN_PASSWORD / SEED_STUDENT_PASSWORD (see README). Runtime payment adapters never invent PAID. Analytics seed inserts explicit historical PAID fixtures for admin charts only. No SUCCEEDED SpotPlayer licenses.",
       },
       null,
@@ -936,6 +938,104 @@ async function seedCms(admin: { id: string }) {
   });
 
   return { home: 1, faq: faqs.length };
+}
+
+async function seedJournal(admin: { id: string }) {
+  const notes = [
+    {
+      id: "seed_article_syllabus",
+      slug: "read-the-syllabus",
+      title: "قبل از خرید، سرفصل را چطور بخوانیم",
+      summary:
+        "سرفصل، سطح و پیش‌نمایش رایگان باید به سؤال «این دوره برای من است؟» جواب بدهند.",
+      sortOrder: 1,
+      readingMinutes: 4,
+      body: `خرید یک دوره تصمیم محصولی است، نه فقط یک پرداخت.
+
+## چه چیزی را در صفحه دوره جدی بگیریم
+
+عنوان جذاب کافی نیست. خلاصه باید بگوید مسئله چیست، سطح برای چه کسی است، و سرفصل تا کجا پیش می‌رود. اگر درسی با برچسب پیش‌نمایش وجود دارد، همان را قبل از پرداخت ببینید — نه نقل‌قول‌های ساختگی.
+
+## چه چیزی را از صفحه انتظار نداشته باشیم
+
+ژرفا پلیر ویدیوی مستقل ندارد. ویدیوی محافظت‌شده بعد از ثبت دسترسی، در اسپات‌پلیر باز می‌شود. پیشرفت تماشا در این وب‌سایت نمایش داده نمی‌شود چون از ارائه‌دهنده خوانده نمی‌شود.
+
+اگر سرفصل با هدف شما جور نیست، دوره را نخرید. مسیر یادگیری فقط ترتیب پیشنهادی است و اشتراک اجباری نمی‌سازد.`,
+    },
+    {
+      id: "seed_article_access",
+      slug: "payment-and-access",
+      title: "پرداخت موفق با دسترسی ویدیو یکی نیست",
+      summary:
+        "وضعیت سفارش و وضعیت لایسنس اسپات‌پلیر دو مرحله جدا هستند.",
+      sortOrder: 2,
+      readingMinutes: 3,
+      body: `بعد از بازگشت از درگاه، مرورگر به‌تنهایی سفارش را پرداخت‌شده نمی‌کند. سرور نتیجه را با درگاه تطبیق می‌دهد و فقط همان پاسخ معتبر، وضعیت سفارش را عوض می‌کند.
+
+## بعد از پرداخت چه می‌بینید
+
+در حساب شما، سفارش با وضعیت واقعی‌اش ثبت می‌شود. اگر دوره پولی باشد، صدور لایسنس اسپات‌پلیر جداگانه شروع می‌شود. تا وقتی ارائه‌دهنده کلید را برگرداند، صفحه دسترسی موفقیت را نشان نمی‌دهد.
+
+## دوره رایگان
+
+دوره رایگان از درگاه پرداخت عبور نمی‌کند. ثبت‌نام و درخواست دسترسی کافی است، اما لایسنس همچنان به پاسخ واقعی اسپات‌پلیر وابسته است.
+
+اگر دسترسی ساخته نشد، از تیکت پشتیبانی داخل حساب پیگیری کنید. شماره یا کلید ساختگی در رابط نمایش داده نمی‌شود.`,
+    },
+    {
+      id: "seed_article_catalog",
+      slug: "one-instructor-catalog",
+      title: "این کاتالوگ بازار مدرس‌ها نیست",
+      summary:
+        "ژرفا آموزش یک مدرس است و موضوع دوره‌ها به یک زبان یا فریم‌ورک محدود نمی‌شود.",
+      sortOrder: 3,
+      readingMinutes: 3,
+      body: `هر دوره در ژرفا متعلق به همین مجموعه است. دسته‌ها موضوع را جدا می‌کنند — معماری، سیستم، امنیت، یا هر قلمرو دیگری که بعداً منتشر شود — ولی فروشنده و پشتیبانی چندمدرسه نیست.
+
+## مسیر را با دسته قاطی نکنید
+
+دسته برای پیدا کردن موضوع است. مسیر یادگیری ترتیب پیشنهادی چند دوره است و می‌تواند درس اجباری و اختیاری را فقط در حد توضیح همان مسیر نشان دهد. خرید هر دوره مستقل است؛ اشتراک سراسری وجود ندارد.
+
+وقتی دوره تازه‌ای منتشر یا پیش‌فروش می‌شود، همان وضعیت روی کارت و صفحه دوره دیده می‌شود. عدد دانشجو، امتیاز ساختگی، یا وعده نتیجه شغلی در این صفحات جایی ندارد.`,
+    },
+  ];
+
+  for (const note of notes) {
+    await prisma.article.upsert({
+      where: { id: note.id },
+      create: {
+        ...note,
+        published: true,
+        publishedAt: new Date(),
+      },
+      update: {
+        slug: note.slug,
+        title: note.title,
+        summary: note.summary,
+        body: note.body,
+        sortOrder: note.sortOrder,
+        readingMinutes: note.readingMinutes,
+        published: true,
+      },
+    });
+  }
+
+  await prisma.activityLog.upsert({
+    where: { id: "seed_activity_journal" },
+    create: {
+      id: "seed_activity_journal",
+      actorKind: ActivityActorKind.OWNER,
+      actorId: admin.id,
+      action: "article.create",
+      entityType: "Article",
+      entityId: "seed_article_syllabus",
+      summary: "انتشار یادداشت‌های آموزشی اولیه",
+      metadata: { seed: true, count: notes.length },
+    },
+    update: { summary: "انتشار یادداشت‌های آموزشی اولیه" },
+  });
+
+  return { articles: notes.length };
 }
 
 async function seedSupport(

@@ -1,4 +1,5 @@
-import { Notice } from "@zharfa/ui";
+import Link from "next/link";
+import { Button, Notice } from "@zharfa/ui";
 import { fetchAdminCategories } from "../../../lib/admin";
 
 export default async function AdminCategoriesPage() {
@@ -14,6 +15,7 @@ export default async function AdminCategoriesPage() {
           </h1>
           <p className="admin-page__subtitle">ساختار موضوعی دوره‌ها.</p>
         </div>
+        <Button href="/admin/categories/new">دسته جدید</Button>
       </header>
 
       {!data ? (
@@ -35,7 +37,11 @@ export default async function AdminCategoriesPage() {
             <tbody>
               {data.map((c) => (
                 <tr key={c.id}>
-                  <td className="admin-table__primary">{c.title}</td>
+                  <td>
+                    <Link href={`/admin/categories/${c.id}`} className="admin-table__primary">
+                      {c.title}
+                    </Link>
+                  </td>
                   <td className="admin-table__muted">{c.slug}</td>
                   <td>{c.sortOrder}</td>
                   <td>{c.courseCount.toLocaleString("fa-IR")}</td>

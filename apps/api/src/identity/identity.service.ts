@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -270,6 +271,49 @@ export class IdentityService {
         userId: result.challenge.userId,
         eventType: NotificationEventType.SECURITY_PASSWORD_CHANGED,
         payload: { via: "recovery" },
+      });
+    } catch {
+      /* non-blocking */
+    }
+
+    return { ok: true };
+  }
+
+  /**
+   * Authenticated password change. Revokes every session, including the current
+   * one, so a stolen cookie cannot survive a reset.
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ ok: true }> {
+    if (currentPassword === newPassword) {
+      throw new BadRequestException("رمز جدید باید با رمز فعلی متفاوت باشد.");
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException("نشست معتبر نیست.");
+    }
+
+    const ok = await this.passwords.verify(user.passwordHash, currentPassword);
+    if (!ok) {
+      throw new UnauthorizedException("رمز فعلی نادرست است.");
+    }
+
+    const passwordHash = await this.passwords.hash(newPassword);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+    await this.sessions.revokeAllForUser(userId);
+
+    try {
+      await this.notifications?.emit({
+        userId,
+        eventType: NotificationEventType.SECURITY_PASSWORD_CHANGED,
+        payload: { via: "account" },
       });
     } catch {
       /* non-blocking */

@@ -11,7 +11,21 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/courses", "/courses/", "/paths", "/paths/"],
+        allow: [
+          "/",
+          "/courses",
+          "/courses/",
+          "/paths",
+          "/paths/",
+          "/journal",
+          "/journal/",
+          "/about",
+          "/faq",
+          "/contact",
+          "/terms",
+          "/privacy",
+          "/refunds",
+        ],
         disallow: [
           "/admin",
           "/admin/",
@@ -25,6 +39,8 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/design-system",
           "/design-system/",
+          "/maintenance",
+          "/forbidden",
         ],
       },
     ],

@@ -40,4 +40,24 @@ export class CatalogController {
   offerKinds() {
     return { items: this.catalog.offerKinds() };
   }
+
+  @Get("meta/levels")
+  levels() {
+    return this.catalog.listLevels();
+  }
+
+  @Get("faq")
+  faq() {
+    return this.catalog.listPublishedFaq();
+  }
+
+  @Get("articles")
+  articles() {
+    return this.catalog.listArticles();
+  }
+
+  @Get("articles/:slug")
+  article(@Param("slug") slug: string) {
+    return this.catalog.getArticleBySlug(slug);
+  }
 }

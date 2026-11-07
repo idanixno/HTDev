@@ -17,7 +17,14 @@ Living ledger for the Zharfa / EDU personal education platform. Update in place;
 | Support tickets | VERIFIED | Unit tests (status transitions, attachment rules/magic bytes); web client/server import split fixed for build |
 | Notifications | VERIFIED | Unit tests (rate-limit); console email/SMS only — real delivery **BLOCKED** |
 | Admin analytics | VERIFIED | Unit tests (date-range, aggregates); `/admin` in web build output |
-| CMS / SEO | VERIFIED | `robots.ts` / `sitemap.ts` present in web build; metadata helpers typecheck |
+| Public information architecture | IMPLEMENTED | Footer, mobile nav, about, FAQ, contact, terms, privacy, refunds, 404, error, forbidden, `MAINTENANCE_MODE` |
+| Journal | IMPLEMENTED | `Article` model, public `/journal`, owner editor, seed notes. Migration `20261107120000_articles` must be applied |
+| Catalog discovery | IMPLEMENTED | Level filter, sort, clear filters; homepage categories and paths from the API |
+| Course detail | IMPLEMENTED | Related courses, preview lessons, breadcrumbs, JSON-LD. No invented reviews or progress |
+| Student security | IMPLEMENTED | Account nav, `POST /identity/password`, session revocation |
+| Owner catalog editing | IMPLEMENTED | Course, category, chapter, and lesson create/delete UI on existing admin APIs. Lesson rename is API-only |
+| Learning-path admin | NOT_STARTED | Public paths work. No owner editor yet |
+| CMS / SEO | IMPLEMENTED | robots/sitemap include journal and info pages. Private routes stay noindex |
 | Security docs + controls | VERIFIED | Docs present; headers module in build; HSTS opt-in |
 | Performance (catalog/fonts/images) | VERIFIED | Docs + build; ISR/sitemap routes emitted |
 | Seed data | BLOCKED | Seed script present; cannot run without Postgres/Docker in this environment |
@@ -26,6 +33,18 @@ Living ledger for the Zharfa / EDU personal education platform. Update in place;
 Statuses: `NOT_STARTED` · `IN_PROGRESS` · `IMPLEMENTED` · `TESTED` · `VERIFIED` · `BLOCKED`
 
 **Honesty rule:** never use `VERIFIED_REAL_INTEGRATION` without live credentials. Missing payment/SpotPlayer/SMS credentials remain `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` / BLOCKED for live paths.
+
+## Product completion pass (2026-11-07)
+
+| Check | Result |
+| --- | --- |
+| `pnpm db:generate` | PASS |
+| `@zharfa/database` build | PASS |
+| API / web / worker / database `tsc --noEmit` | PASS |
+| `@zharfa/web` production build | PASS — 69 routes, including journal, about, FAQ, policies, account, admin editors |
+| API Vitest | PASS — 17 files / 72 tests |
+| `pnpm db:migrate` + seed + browser journeys | Not run — Postgres was not part of this session |
+| Live payment / SpotPlayer | Still `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` |
 
 ## Phase 10–11 verification matrix (agent run)
 

@@ -676,6 +676,25 @@ model CmsFaqItem {
   @@index([published, sortOrder])
 }
 
+/// Educational notes published by the instructor (not a multi-author magazine).
+model Article {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  title          String
+  summary        String?
+  /// Plain text with blank-line paragraphs, optional `##` headings and fenced code.
+  body           String
+  coverAsset     String?
+  published      Boolean   @default(false)
+  publishedAt    DateTime?
+  readingMinutes Int?
+  sortOrder      Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([published, sortOrder])
+}
+
 /// Singleton home / landing CMS copy (id = "home").
 model CmsHomeContent {
   id               String   @id @default("home")

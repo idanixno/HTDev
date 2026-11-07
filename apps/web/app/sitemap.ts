@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { fetchCourses, fetchPaths } from "../lib/catalog";
+import { fetchArticles, fetchCourses, fetchPaths } from "../lib/catalog";
 import { absoluteUrl } from "../lib/site-url";
 
 /**
@@ -23,11 +23,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    { url: absoluteUrl("/journal"), changeFrequency: "weekly", priority: 0.6 },
+    { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.4 },
+    { url: absoluteUrl("/faq"), changeFrequency: "monthly", priority: 0.4 },
+    { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.3 },
+    { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.2 },
+    { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.2 },
+    { url: absoluteUrl("/refunds"), changeFrequency: "yearly", priority: 0.2 },
   ];
 
-  const [courseList, paths] = await Promise.all([
+  const [courseList, paths, articles] = await Promise.all([
     fetchCourses({ page: 1, pageSize: 100 }),
     fetchPaths(),
+    fetchArticles(),
   ]);
 
   const courseEntries: MetadataRoute.Sitemap = courseList.items.map(
@@ -44,5 +52,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...courseEntries, ...pathEntries];
+  const articleEntries: MetadataRoute.Sitemap = articles.map((article) => ({
+    url: absoluteUrl(article.href),
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  }));
+
+  return [...staticEntries, ...courseEntries, ...pathEntries, ...articleEntries];
 }

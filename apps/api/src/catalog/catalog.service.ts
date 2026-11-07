@@ -11,7 +11,7 @@ import {
   toPublicPathDetail,
   toPublicPathSummary,
 } from "./catalog.mapper";
-import type { ListCoursesQueryDto } from "./dto/list-courses.dto";
+import type { CourseSort, ListCoursesQueryDto } from "./dto/list-courses.dto";
 
 const courseCardInclude = {
   category: true,
@@ -58,6 +58,9 @@ export class CatalogService {
     if (query.offer) {
       where.offerKind = query.offer;
     }
+    if (query.level) {
+      where.levelLabel = query.level;
+    }
     if (query.q) {
       where.OR = [
         { title: { contains: query.q, mode: "insensitive" } },
@@ -71,7 +74,7 @@ export class CatalogService {
       this.prisma.course.findMany({
         where,
         include: courseCardInclude,
-        orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+        orderBy: courseOrder(query.sort),
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
@@ -171,4 +174,104 @@ export class CatalogService {
   offerKinds(): CourseOfferKind[] {
     return Object.values(CourseOfferKind);
   }
+
+  async listLevels(): Promise<string[]> {
+    const rows = await this.prisma.course.findMany({
+      where: {
+        publicationStatus: CoursePublicationStatus.PUBLISHED,
+        levelLabel: { not: null },
+      },
+      select: { levelLabel: true },
+      distinct: ["levelLabel"],
+      orderBy: { levelLabel: "asc" },
+    });
+    return rows
+      .map((row) => row.levelLabel)
+      .filter((label): label is string => Boolean(label));
+  }
+
+  async listPublishedFaq() {
+    const rows = await this.prisma.cmsFaqItem.findMany({
+      where: { published: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      select: { id: true, question: true, answer: true },
+    });
+    return rows;
+  }
+
+  async listArticles() {
+    const rows = await this.prisma.article.findMany({
+      where: { published: true },
+      orderBy: [{ sortOrder: "asc" }, { publishedAt: "desc" }],
+    });
+    return rows.map(toPublicArticleCard);
+  }
+
+  async getArticleBySlug(slug: string) {
+    const article = await this.prisma.article.findFirst({
+      where: { slug, published: true },
+    });
+    if (!article) {
+      throw new NotFoundException("یادداشت یافت نشد.");
+    }
+    return toPublicArticle(article);
+  }
+}
+
+function courseOrder(sort?: CourseSort): Prisma.CourseOrderByWithRelationInput[] {
+  switch (sort) {
+    case "newest":
+      return [{ publishedAt: "desc" }, { title: "asc" }];
+    case "price_asc":
+      return [{ priceToman: "asc" }, { title: "asc" }];
+    case "price_desc":
+      return [{ priceToman: "desc" }, { title: "asc" }];
+    case "title":
+      return [{ title: "asc" }];
+    default:
+      return [{ sortOrder: "asc" }, { title: "asc" }];
+  }
+}
+
+function readingMinutes(body: string, explicit: number | null): number {
+  if (explicit && explicit > 0) return explicit;
+  return Math.max(1, Math.round(body.trim().length / 700));
+}
+
+function toPublicArticleCard(article: {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  body: string;
+  coverAsset: string | null;
+  publishedAt: Date | null;
+  readingMinutes: number | null;
+}) {
+  return {
+    id: article.id,
+    slug: article.slug,
+    title: article.title,
+    summary: article.summary,
+    coverAsset: article.coverAsset,
+    publishedAt: article.publishedAt?.toISOString() ?? null,
+    readingMinutes: readingMinutes(article.body, article.readingMinutes),
+    href: `/journal/${article.slug}`,
+  };
+}
+
+function toPublicArticle(article: {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  body: string;
+  coverAsset: string | null;
+  publishedAt: Date | null;
+  readingMinutes: number | null;
+}) {
+  return {
+    ...toPublicArticleCard(article),
+    body: article.body,
+  };
 }

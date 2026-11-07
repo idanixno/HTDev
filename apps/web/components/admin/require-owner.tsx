@@ -8,7 +8,7 @@ export async function requireOwner(nextPath: string): Promise<PublicUser> {
     redirect(`/login?next=${encodeURIComponent(nextPath)}`);
   }
   if (user.role !== "OWNER") {
-    redirect("/dashboard");
+    redirect("/forbidden");
   }
   return user;
 }

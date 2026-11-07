@@ -11,6 +11,19 @@ export function middleware(request: NextRequest) {
   const enableHsts = process.env.ENABLE_HSTS === "true";
 
   if (
+    process.env.MAINTENANCE_MODE === "true" &&
+    pathname !== "/maintenance" &&
+    !pathname.startsWith("/admin") &&
+    !pathname.startsWith("/api/") &&
+    pathname !== "/login" &&
+    !pathname.startsWith("/recover")
+  ) {
+    const redirect = NextResponse.redirect(new URL("/maintenance", request.url));
+    applySecurityHeaders(redirect.headers, { pathname, isDev, enableHsts });
+    return redirect;
+  }
+
+  if (
     (pathname.startsWith("/dashboard") ||
       pathname.startsWith("/admin") ||
       pathname.startsWith("/payments") ||

@@ -13,6 +13,7 @@ import { IdentityService } from "./identity.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { RecoverRequestDto, RecoverVerifyDto } from "./dto/recover.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 import {
   AuthGuard,
   extractSessionToken,
@@ -109,6 +110,21 @@ export class IdentityController {
   @UseGuards(AuthGuard)
   me(@Req() req: AuthedRequest) {
     return { user: req.user };
+  }
+
+  @Post("password")
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @RateLimitBucket("password_change")
+  async changePassword(
+    @Req() req: AuthedRequest,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.identity.changePassword(
+      req.user!.id,
+      dto.currentPassword,
+      dto.newPassword,
+    );
   }
 
   @Post("recover/request")

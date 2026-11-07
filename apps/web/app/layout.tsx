@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Vazirmatn, Inter, JetBrains_Mono } from "next/font/google";
 import { headers } from "next/headers";
+import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
 import "./globals.css";
@@ -69,6 +70,7 @@ export default async function RootLayout({
         <div className={isAdmin ? "shell shell--admin" : "shell"}>
           {isAdmin ? null : <SiteHeader />}
           <main className="shell__main">{children}</main>
+          {isAdmin ? null : <SiteFooter />}
         </div>
       </body>
     </html>
