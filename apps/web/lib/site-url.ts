@@ -5,7 +5,7 @@
 export function siteUrl(): string {
   const raw =
     process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    process.env.WEB_ORIGIN?.trim() ||
+    process.env.WEB_ORIGIN?.trim().split(",")[0]?.trim() ||
     "http://localhost:3000";
   return raw.replace(/\/$/, "");
 }
