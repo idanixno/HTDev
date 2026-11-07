@@ -9,13 +9,39 @@
 
 import { siteUrl } from "./site-url";
 
+/** Localhost and 127.0.0.1 are different browser origins; accept both in local/dev. */
+function withLoopbackAliases(origin: string): string[] {
+  try {
+    const url = new URL(origin);
+    if (url.hostname === "localhost") {
+      const alt = new URL(origin);
+      alt.hostname = "127.0.0.1";
+      return [origin, alt.origin];
+    }
+    if (url.hostname === "127.0.0.1") {
+      const alt = new URL(origin);
+      alt.hostname = "localhost";
+      return [origin, alt.origin];
+    }
+  } catch {
+    /* ignore malformed */
+  }
+  return [origin];
+}
+
 function allowedOrigins(): string[] {
   const primary = siteUrl();
+  // siteUrl may return a comma-joined WEB_ORIGIN fallback — split safely
+  const fromPrimary = primary
+    .split(",")
+    .map((s) => s.trim().replace(/\/$/, ""))
+    .filter(Boolean);
   const extras = (process.env.WEB_ORIGIN ?? "")
     .split(",")
     .map((s) => s.trim().replace(/\/$/, ""))
     .filter(Boolean);
-  return Array.from(new Set([primary, ...extras]));
+  const base = Array.from(new Set([...fromPrimary, ...extras]));
+  return Array.from(new Set(base.flatMap(withLoopbackAliases)));
 }
 
 function originFromUrl(value: string | null): string | null {
