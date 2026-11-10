@@ -9,6 +9,7 @@ import {
   Field,
   Notice,
 } from "@zharfa/ui";
+import { AddToCartButton } from "../../components/add-to-cart-button";
 
 export default function DesignSystemPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -98,28 +99,63 @@ export default function DesignSystemPage() {
           <CourseCard
             availability="publishedPaid"
             title="معماری تمیز در عمل"
-            summary="مرزهای روشن؛ کدی که با تغییر نمی‌شکند."
-            meta="پیشرفته · ۱۸ ساعت · ۴۲ درس"
+            href="/courses/clean-architecture"
+            coverSrc="/artwork/courses/clean-architecture.svg"
+            coverAlt="معماری تمیز در عمل"
             priceLabel="۲٬۴۰۰٬۰۰۰ تومان"
+            action={
+              <AddToCartButton
+                item={{
+                  id: "ds-clean-architecture",
+                  slug: "clean-architecture",
+                  title: "معماری تمیز در عمل",
+                  href: "/courses/clean-architecture",
+                  coverAsset: "/artwork/courses/clean-architecture.svg",
+                  priceToman: 2_400_000,
+                  compareAtToman: null,
+                  priceLabel: "۲٬۴۰۰٬۰۰۰ تومان",
+                  compareAtLabel: null,
+                  discountLabel: null,
+                }}
+              />
+            }
+          />
+          <CourseCard
+            availability="preorder"
+            title="امنیت API در عمل"
+            href="/courses/api-security"
+            coverSrc="/artwork/courses/api-security.svg"
+            coverAlt="امنیت API در عمل"
+            priceLabel="۱٬۹۰۰٬۰۰۰ تومان"
+            compareAtLabel="۲٬۲۰۰٬۰۰۰ تومان"
+            discountLabel="۱۴٪ تخفیف"
+            action={
+              <AddToCartButton
+                item={{
+                  id: "ds-api-security",
+                  slug: "api-security",
+                  title: "امنیت API در عمل",
+                  href: "/courses/api-security",
+                  coverAsset: "/artwork/courses/api-security.svg",
+                  priceToman: 1_900_000,
+                  compareAtToman: 2_200_000,
+                  priceLabel: "۱٬۹۰۰٬۰۰۰ تومان",
+                  compareAtLabel: "۲٬۲۰۰٬۰۰۰ تومان",
+                  discountLabel: "۱۴٪ تخفیف",
+                }}
+              />
+            }
           />
           <CourseCard
             availability="publishedFree"
-            indexLabel="۰۳"
-            diagramCode="SYSTEM LAYERS"
             title="شروع کار با Linux"
-            summary="یک شروع عملی برای کار با سیستم‌عامل."
-            meta="مقدماتی · ۳ ساعت · ۱۲ درس"
+            href="/courses/linux-intro"
+            coverSrc="/artwork/courses/linux-intro.svg"
+            coverAlt="شروع کار با Linux"
             priceLabel="رایگان"
-          />
-          <CourseCard
-            availability="comingSoon"
-            indexLabel="۰۶"
-            diagramCode="ANALYSIS PIPELINE"
-            chainNodes={["BINARY", "DISASSEMBLY", "BEHAVIOR"]}
-            title="مهندسی معکوس؛ مبانی تحلیل"
-            summary="نگاهی روشمند به رفتار یک برنامه."
-            meta="جزئیات پس از اعلام مدرس"
-            priceLabel="به‌زودی"
+            action={
+              <p className="course-access-note">شما به این دوره دسترسی کامل دارید</p>
+            }
           />
         </div>
       </section>
@@ -127,6 +163,8 @@ export default function DesignSystemPage() {
       <Dialog
         open={dialogOpen}
         title="لغو انتشار دوره؟ — Dialog"
+        indexLabel="۰۷"
+        footnote="تمرکز در dialog حبس شود؛ Escape برای خروج امن؛ بازگشت تمرکز به محرک."
         cancelLabel="لغو"
         confirmLabel="تأیید لغو انتشار"
         confirmDanger

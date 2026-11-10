@@ -1,65 +1,175 @@
-type Block =
-  | { type: "h2"; text: string }
-  | { type: "p"; text: string }
-  | { type: "ul"; items: string[] }
-  | { type: "code"; text: string };
+import { Fragment, type ReactNode } from "react";
+import {
+  parseArticleMarkdown,
+  type Block,
+  type Inline,
+} from "../lib/article-markdown";
 
-export function parseArticleBody(source: string): Block[] {
-  const chunks = source.replace(/\r\n/g, "\n").split(/```/);
-  const blocks: Block[] = [];
-
-  chunks.forEach((chunk, index) => {
-    if (index % 2 === 1) {
-      const code = chunk.replace(/^\w+\n/, "").trim();
-      if (code) blocks.push({ type: "code", text: code });
-      return;
+function Inlines({ items }: { items: Inline[] }) {
+  return items.map((item, index) => {
+    if (item.type === "text") return <Fragment key={index}>{item.text}</Fragment>;
+    if (item.type === "code") return <code key={index}>{item.text}</code>;
+    if (item.type === "strong") return <strong key={index}>{item.text}</strong>;
+    if (item.type === "em") return <em key={index}>{item.text}</em>;
+    if (item.type === "image") {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={index} src={item.src} alt={item.alt} />
+      );
     }
-    for (const part of chunk.split(/\n{2,}/)) {
-      const text = part.trim();
-      if (!text) continue;
-      if (text.startsWith("## ")) {
-        blocks.push({ type: "h2", text: text.slice(3).trim() });
-        continue;
-      }
-      const lines = text.split("\n").map((line) => line.trim());
-      if (lines.every((line) => line.startsWith("- "))) {
-        blocks.push({
-          type: "ul",
-          items: lines.map((line) => line.slice(2).trim()),
-        });
-        continue;
-      }
-      blocks.push({ type: "p", text: lines.join(" ") });
-    }
+    const external = item.href.startsWith("http");
+    return (
+      <a
+        key={index}
+        href={item.href}
+        {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      >
+        {item.text}
+      </a>
+    );
   });
-
-  return blocks;
 }
 
-export function ArticleBody({ body }: { body: string }) {
-  const blocks = parseArticleBody(body);
+function BlockView({
+  block,
+  courses,
+}: {
+  block: Block;
+  courses?: Record<string, ReactNode>;
+}) {
+  if (block.type === "h2" || block.type === "h3" || block.type === "h4") {
+    const Tag = block.type;
+    return (
+      <Tag id={block.id}>
+        <Inlines items={block.inlines} />
+      </Tag>
+    );
+  }
+  if (block.type === "p") {
+    return (
+      <p>
+        <Inlines items={block.inlines} />
+      </p>
+    );
+  }
+  if (block.type === "ul" || block.type === "ol") {
+    const Tag = block.type;
+    return (
+      <Tag>
+        {block.items.map((item, index) => (
+          <li key={index}>
+            <Inlines items={item} />
+          </li>
+        ))}
+      </Tag>
+    );
+  }
+  if (block.type === "quote") {
+    return (
+      <blockquote>
+        <Inlines items={block.inlines} />
+      </blockquote>
+    );
+  }
+  if (block.type === "code") {
+    return (
+      <div className="article-body__code">
+        {block.lang ? <p className="article-body__lang">{block.lang}</p> : null}
+        <pre>
+          <code dir="ltr">{block.text}</code>
+        </pre>
+      </div>
+    );
+  }
+  if (block.type === "image") {
+    return (
+      <figure className="article-body__media">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={block.src} alt={block.alt} />
+        {block.alt ? <figcaption>{block.alt}</figcaption> : null}
+      </figure>
+    );
+  }
+  if (block.type === "video") {
+    return (
+      <figure className="article-body__media article-body__media--video">
+        <video controls playsInline preload="metadata" src={block.src} />
+        {block.caption ? <figcaption>{block.caption}</figcaption> : null}
+      </figure>
+    );
+  }
+  if (block.type === "course") {
+    return (
+      <div className="article-body__course">
+        {courses?.[block.slug] ?? (
+          <p>
+            <a href={`/courses/${block.slug}`}>دورهٔ {block.slug}</a>
+          </p>
+        )}
+      </div>
+    );
+  }
+  if (block.type === "table") {
+    return (
+      <div className="article-table">
+        <table>
+          <thead>
+            <tr>
+              {block.headers.map((cell, index) => (
+                <th key={index} scope="col">
+                  <Inlines items={cell} />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {block.rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {block.headers.map((_, cellIndex) => (
+                  <td key={cellIndex}>
+                    <Inlines items={row[cellIndex] ?? []} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+  if (block.type === "faq") {
+    return (
+      <details className="article-faq">
+        <summary className="article-faq__q">
+          <span>
+            <Inlines items={block.question} />
+          </span>
+          <span className="article-faq__mark" aria-hidden="true" />
+        </summary>
+        <div className="article-faq__a">
+          {block.answer.map((part, index) => (
+            <BlockView key={index} block={part} courses={courses} />
+          ))}
+        </div>
+      </details>
+    );
+  }
+  return <hr />;
+}
+
+export function ArticleBody({
+  body,
+  courses,
+}: {
+  body: string;
+  courses?: Record<string, ReactNode>;
+}) {
+  const blocks = parseArticleMarkdown(body);
   return (
     <div className="article-body">
-      {blocks.map((block, index) => {
-        if (block.type === "h2") return <h2 key={index}>{block.text}</h2>;
-        if (block.type === "ul") {
-          return (
-            <ul key={index}>
-              {block.items.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          );
-        }
-        if (block.type === "code") {
-          return (
-            <pre key={index}>
-              <code dir="ltr">{block.text}</code>
-            </pre>
-          );
-        }
-        return <p key={index}>{block.text}</p>;
-      })}
+      {blocks.map((block, index) => (
+        <BlockView key={index} block={block} courses={courses} />
+      ))}
     </div>
   );
 }

@@ -93,7 +93,7 @@ export default function RecoverPage() {
         <form className="auth-form" onSubmit={onConfirm} noValidate>
           {message ? (
             <Notice tone="information" title="درخواست ثبت شد">
-              {message} در محیط توسعه، کد در لاگ API چاپ می‌شود.
+              {message}
             </Notice>
           ) : null}
           {error ? (

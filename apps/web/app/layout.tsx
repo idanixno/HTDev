@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Vazirmatn, Inter, JetBrains_Mono } from "next/font/google";
-import { headers } from "next/headers";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
+import { SiteShell } from "../components/site-shell";
 import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
 import "./globals.css";
 
@@ -39,15 +39,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headerList = await headers();
-  const pathname = headerList.get("x-pathname") ?? "";
-  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
-
   return (
     <html
       lang="fa"
@@ -67,11 +63,9 @@ export default async function RootLayout({
           } as React.CSSProperties
         }
       >
-        <div className={isAdmin ? "shell shell--admin" : "shell"}>
-          {isAdmin ? null : <SiteHeader />}
-          <main className="shell__main">{children}</main>
-          {isAdmin ? null : <SiteFooter />}
-        </div>
+        <SiteShell header={<SiteHeader />} footer={<SiteFooter />}>
+          {children}
+        </SiteShell>
       </body>
     </html>
   );

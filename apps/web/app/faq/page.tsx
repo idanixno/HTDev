@@ -20,7 +20,7 @@ export default async function FaqPage() {
         بعد از ورود تیکت بسازید.
       </p>
       {items.length === 0 ? (
-        <p>هنوز پرسش منتشرشده‌ای در دسترس نیست.</p>
+        <p className="empty-note">هنوز پرسش منتشرشده‌ای در دسترس نیست.</p>
       ) : (
         <div className="faq-list">
           {items.map((item) => (

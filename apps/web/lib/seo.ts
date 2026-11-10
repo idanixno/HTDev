@@ -16,6 +16,7 @@ export function buildPageMetadata(input: {
   path: string;
   noIndex?: boolean;
   imagePath?: string | null;
+  kind?: "website" | "article";
 }): Metadata {
   const url = absoluteUrl(input.path);
   const image = input.imagePath
@@ -23,27 +24,29 @@ export function buildPageMetadata(input: {
       ? input.imagePath
       : absoluteUrl(input.imagePath)
     : absoluteUrl("/artwork/courses/clean-architecture.svg");
+  const description =
+    input.description.trim() || siteMetadataBase.description;
 
   return {
     title: input.title,
-    description: input.description,
+    description,
     alternates: input.noIndex ? undefined : { canonical: url },
     robots: input.noIndex
       ? { index: false, follow: false, nocache: true }
       : { index: true, follow: true },
     openGraph: {
-      type: "website",
+      type: input.kind === "article" ? "article" : "website",
       locale: "fa_IR",
       url,
       siteName: "ژرفا",
       title: input.title,
-      description: input.description,
+      description,
       images: [{ url: image, alt: input.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: input.title,
-      description: input.description,
+      description,
       images: [image],
     },
     metadataBase: new URL(siteUrl()),

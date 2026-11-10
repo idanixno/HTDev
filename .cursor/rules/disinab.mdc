@@ -1,0 +1,27 @@
+---
+description: دیسیناب / Disinab design system — apply when user says دیسیناب or Disinab
+alwaysApply: true
+---
+
+# دیسیناب (Disinab)
+
+When the user writes **دیسیناب** or **Disinab**, design that section with this system. Source of truth: dashboard `presence__plate`, `/dashboard` (`.disinab-folio`), `/paths`, home (`.disinab-home-catalog`, `.disinab-home-notes`), courses catalog (`.disinab-catalog`), course related carousel (`.disinab-related` / `DisinabCourseCarousel`), tickets (`.disinab-tickets`), cart (`.disinab-cart`), logout confirm (`.disinab-dialog`), 404 (`.disinab-not-found`), and primitives in `apps/web/components/disinab.tsx` + `.disinab*` CSS.
+
+## Visual language
+- Dark navy/slate plate; soft primary radial glow; hairline border mixed with `--zharfa-action-primary`
+- Radius ~22–24px plate, ~12px controls, pill tabs `999px`
+- Inset highlight + deep soft drop shadow (no neon, no multi-layer chrome)
+- RTL Persian; Vazirmatn via `--zharfa-font-persian`
+- Hierarchy: brand kicker → rank → bold H1 → muted line → actions
+- Segmented pill tabs; fact grid with hairline column rules
+- Docs/API surfaces: capsule badges, method chip, endpoint card, green live status dot
+
+## Use these building blocks
+- `DisinabPlate`, `DisinabMark`, `DisinabBadge`, `DisinabTabs`, `DisinabFacts`, `DisinabEndpoint`, `DisinabStatus`
+- Prefer existing `--zharfa-*` tokens; do not invent purple-on-white themes
+- Motion: short `admin-kpi-in`-style entrance only; no decorative noise
+
+## Do not
+- Generic dashboard card grids in the hero of a Disinab surface
+- Flat single-color cards without aura/gradient plate
+- Default Inter/system stacks or cream/terracotta AI clichés

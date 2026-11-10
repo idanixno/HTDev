@@ -2,13 +2,30 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@zharfa/ui";
-import { CourseCardLink } from "../../../components/course-card-link";
-import { FreeAccessButton } from "../../../components/free-access-button";
-import { fetchCourse, fetchCourses } from "../../../lib/catalog";
+import { AddToCartButton } from "../../../components/add-to-cart-button";
+import { CourseStickyBar } from "../../../components/course-sticky-bar";
+import { CourseSyllabus } from "../../../components/course-syllabus";
+import { CourseWaitlistForm } from "../../../components/course-waitlist-form";
+import { DisinabBadge, DisinabPlate } from "../../../components/disinab";
+import { DisinabCourseCarousel } from "../../../components/disinab-course-carousel";
+import {
+  canAddCourseToCart,
+  courseDiscount,
+  formatCourseDuration,
+  fetchCourse,
+  fetchCourses,
+  fetchRelatedArticles,
+  toCartItem,
+} from "../../../lib/catalog";
 import { absoluteUrl } from "../../../lib/site-url";
 import { fetchCheckoutOptions } from "../../../lib/commerce";
+import { userOwnsCourse } from "../../../lib/enrollment";
 import { buildPageMetadata } from "../../../lib/seo";
 import { fetchCurrentUser } from "../../../lib/session";
+import {
+  breadcrumbJsonLd,
+  courseJsonLd,
+} from "../../../lib/structured-data";
 
 type Params = Promise<{ slug: string }>;
 
@@ -28,10 +45,15 @@ export async function generateMetadata({
     });
   }
   return buildPageMetadata({
-    title: course.title,
-    description: course.summary ?? course.description ?? course.title,
+    title: course.seoTitle || course.title,
+    description:
+      course.seoDescription ||
+      course.summary ||
+      course.description ||
+      course.title,
     path: course.href,
-    imagePath: course.coverAsset,
+    imagePath: course.ogImage || course.coverAsset,
+    noIndex: Boolean(course.noIndex),
   });
 }
 
@@ -45,30 +67,41 @@ export default async function CourseDetailPage({
   if (!course) notFound();
 
   const user = await fetchCurrentUser();
-  const related = course.category
-    ? (await fetchCourses({
-        category: course.category.slug,
-        pageSize: 4,
-      })).items.filter((item) => item.slug !== course.slug).slice(0, 3)
-    : [];
-  const previews = course.modules.flatMap((mod) =>
-    mod.lessons
-      .filter((lesson) => lesson.isPreview)
-      .map((lesson) => ({ ...lesson, moduleTitle: mod.title })),
-  );
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Course",
-    name: course.title,
-    description: course.summary ?? course.description ?? course.title,
-    inLanguage: "fa",
+  const enrolled = user ? await userOwnsCourse(slug) : false;
+  const [related, relatedArticles] = await Promise.all([
+    course.category
+      ? fetchCourses({
+          category: course.category.slug,
+          pageSize: 12,
+        }).then((result) =>
+          result.items
+            .filter((item) => item.slug !== course.slug)
+            .slice(0, 8),
+        )
+      : Promise.resolve([]),
+    fetchRelatedArticles(slug),
+  ]);
+  const isFree = course.offerKind === "FREE";
+  const shareImage = course.ogImage || course.coverAsset;
+  const jsonLd = courseJsonLd({
+    name: course.seoTitle || course.title,
+    description:
+      course.seoDescription ||
+      course.summary ||
+      course.description ||
+      course.title,
     url: absoluteUrl(course.href),
-    provider: {
-      "@type": "Organization",
-      name: "ژرفا",
-      url: absoluteUrl("/"),
-    },
-  };
+    image: shareImage
+      ? shareImage.startsWith("http")
+        ? shareImage
+        : absoluteUrl(shareImage)
+      : null,
+  });
+  const crumbsLd = breadcrumbJsonLd([
+    { name: "خانه", path: "/" },
+    { name: "دوره‌ها", path: "/courses" },
+    { name: course.title, path: course.href },
+  ]);
   const isPaidOffer =
     course.offerKind === "PAID" || course.offerKind === "PRE_SALE";
   const checkout = isPaidOffer ? await fetchCheckoutOptions(slug) : null;
@@ -76,178 +109,313 @@ export default async function CourseDetailPage({
   const purchaseHref = user
     ? `/courses/${slug}/purchase`
     : `/login?next=/courses/${encodeURIComponent(slug)}/purchase`;
+  const discount = courseDiscount(course);
+  const offerTone =
+    course.offerKind === "FREE"
+      ? "free"
+      : course.offerKind === "PRE_SALE"
+        ? "presale"
+        : course.offerKind === "COMING_SOON"
+          ? "soon"
+          : "sale";
+
+  const sticky = enrolled
+    ? {
+        href: "/dashboard#courses",
+        label: "مشاهده در حساب من",
+        priceLabel: "دسترسی فعال",
+      }
+    : isFree
+      ? {
+          href: user
+            ? `/api/courses/${encodeURIComponent(slug)}/download`
+            : `/login?next=/courses/${encodeURIComponent(slug)}`,
+          label: user
+            ? "دانلود تمام ویدیوها"
+            : "ورود برای دانلود",
+          priceLabel: "رایگان",
+        }
+      : isPaidOffer
+        ? purchaseEnabled
+          ? {
+              href: purchaseHref,
+              label: user ? "ثبت‌نام در این دوره" : "ورود و ثبت‌نام",
+              priceLabel: course.priceLabel,
+              secondaryHref: canAddCourseToCart(course)
+                ? "#course-buy"
+                : undefined,
+              secondaryLabel: canAddCourseToCart(course)
+                ? "سبد خرید"
+                : undefined,
+            }
+          : {
+              href: "#course-buy",
+              label: canAddCourseToCart(course)
+                ? "افزودن به سبد"
+                : "مشاهده دوره",
+              priceLabel: course.priceLabel,
+            }
+        : {
+            href: "#course-buy",
+            label: "پیش‌ثبت‌نام",
+            priceLabel: course.priceLabel,
+          };
+
+  const buyBox = (
+    <aside
+      id="course-buy"
+      className={enrolled ? "course-buy course-buy--owned" : "course-buy"}
+    >
+      {enrolled ? (
+        <div className="course-enrolled">
+          <p className="course-buy__label">دسترسی شما</p>
+          <p className="course-enrolled__title">شما دانشجوی این دوره هستید.</p>
+          <p>کلید لایسنس در حساب شماست و خرید دوباره لازم نیست.</p>
+        </div>
+      ) : (
+        <>
+          <p className="course-buy__label">قیمت این دوره</p>
+          <p className="course-detail__price">
+            <span>{course.priceLabel}</span>
+            {discount ? (
+              <>
+                <s>{discount.compareLabel}</s>
+                <em>{discount.badge}</em>
+              </>
+            ) : null}
+          </p>
+        </>
+      )}
+      <ul className="course-buy__facts">
+        <li>
+          <span>مدرس</span>
+          <strong>آرمان راد</strong>
+        </li>
+        {formatCourseDuration(course.durationHours) ? (
+          <li>
+            <span>مدت</span>
+            <strong>{formatCourseDuration(course.durationHours)}</strong>
+          </li>
+        ) : null}
+        {course.levelLabel ? (
+          <li>
+            <span>سطح</span>
+            <strong>{course.levelLabel}</strong>
+          </li>
+        ) : null}
+        <li>
+          <span>درس</span>
+          <strong>{course.lessonCount.toLocaleString("fa-IR")}</strong>
+        </li>
+        <li>
+          <span>وضعیت</span>
+          <strong className="course-status">{course.statusLabel}</strong>
+        </li>
+      </ul>
+      {enrolled ? (
+        <div className="course-detail__actions">
+          <Button href="/dashboard#courses" variant="secondary">
+            مشاهده در حساب من
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="course-detail__actions">
+            {isFree ? (
+              <p className="course-access-note">شما به این دوره دسترسی کامل دارید</p>
+            ) : canAddCourseToCart(course) ? (
+              <AddToCartButton item={toCartItem(course)} />
+            ) : null}
+            {isFree ? (
+              <Button
+                href={
+                  user
+                    ? `/api/courses/${encodeURIComponent(slug)}/download`
+                    : `/login?next=/courses/${encodeURIComponent(slug)}`
+                }
+                {...(user ? { download: true } : {})}
+              >
+                دانلود تمام ویدیوهای دوره (نیاز به ورود)
+              </Button>
+            ) : isPaidOffer ? (
+              purchaseEnabled ? (
+                <Button href={purchaseHref}>
+                  {user ? "ثبت‌نام در این دوره" : "ورود و ثبت‌نام"}
+                </Button>
+              ) : null
+            ) : (
+              <CourseWaitlistForm
+                slug={slug}
+                defaultPhone={user?.phone ?? ""}
+              />
+            )}
+          </div>
+        </>
+      )}
+    </aside>
+  );
 
   return (
-    <article className="course-detail">
+    <article
+      className="course-detail course-page course-page--dock course-page--live"
+      data-offer={offerTone}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <nav className="crumbs" aria-label="مسیر">
-        <Link href="/">خانه</Link>
-        <span aria-hidden="true">/</span>
-        <Link href="/courses">دوره‌ها</Link>
-        {course.category ? (
-          <>
-            <span aria-hidden="true">/</span>
-            <Link href={`/courses?category=${course.category.slug}`}>
-              {course.category.title}
-            </Link>
-          </>
-        ) : null}
-      </nav>
-      <header className="course-detail__hero">
-        <div className="course-detail__artwork">
-          {course.coverAsset ? (
-            // Local SVG artwork — native img avoids next/image SVG optimizer gaps.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={course.coverAsset}
-              alt=""
-              className="course-detail__artwork-img"
-              decoding="async"
-              fetchPriority="high"
-            />
-          ) : null}
-          <span className="visually-hidden">{course.title}</span>
-        </div>
-        <div className="course-detail__intro">
-          <p className="course-detail__status">{course.statusLabel}</p>
-          {course.category ? (
-            <p className="course-detail__category">{course.category.title}</p>
-          ) : null}
-          <h1 className="course-detail__title">{course.title}</h1>
-          <p className="course-detail__summary">{course.summary}</p>
-          {course.meta ? (
-            <p className="course-detail__meta">{course.meta}</p>
-          ) : null}
-          <p className="course-detail__price">{course.priceLabel}</p>
-          <div className="course-detail__actions">
-            <Button href="/courses" variant="secondary">
-              بازگشت به کاتالوگ
-            </Button>
-            {course.offerKind === "FREE" ? (
-              user ? (
-                <FreeAccessButton courseSlug={slug} />
-              ) : (
-                <Button
-                  href={`/login?next=/courses/${encodeURIComponent(slug)}`}
-                  variant="primary"
-                >
-                  ورود برای دسترسی رایگان
-                </Button>
-              )
-            ) : isPaidOffer ? (
-              purchaseEnabled ? (
-                <Button href={purchaseHref} variant="primary">
-                  {user ? "ادامه خرید" : "ورود برای خرید"}
-                </Button>
-              ) : (
-                <Button href={purchaseHref} variant="secondary">
-                  وضعیت درگاه خرید
-                </Button>
-              )
-            ) : (
-              <Button href="/paths" variant="primary">
-                مشاهده مسیرهای مرتبط
-              </Button>
-            )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+      />
+      <div className="course-page__hero course-page__hero--story">
+        <div className="course-story">
+          <div className="course-story__split">
+            {buyBox}
+            <div className="course-story__main">
+              <header className="course-story__intro">
+                <nav className="crumbs" aria-label="مسیر">
+                  <Link href="/">خانه</Link>
+                  <span aria-hidden="true">/</span>
+                  <Link href="/courses">دوره‌ها</Link>
+                  {course.category ? (
+                    <>
+                      <span aria-hidden="true">/</span>
+                      <Link href={`/courses?category=${course.category.slug}`}>
+                        {course.category.title}
+                      </Link>
+                    </>
+                  ) : null}
+                </nav>
+                <p className="course-story__kicker">{course.statusLabel}</p>
+                <h1>{course.title}</h1>
+                {course.summary ? (
+                  <p className="course-story__lead">{course.summary}</p>
+                ) : null}
+                {course.previewAsset || course.coverAsset ? (
+                  <figure className="course-plate">
+                    {course.previewAsset ? (
+                      <video
+                        controls
+                        playsInline
+                        preload="metadata"
+                        src={course.previewAsset}
+                        poster={course.coverAsset ?? undefined}
+                        aria-label={`ویدیوی معرفی «${course.title}»`}
+                      />
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={course.coverAsset!}
+                        alt=""
+                        decoding="async"
+                        fetchPriority="high"
+                      />
+                    )}
+                  </figure>
+                ) : null}
+              </header>
+
+              {course.description ? (
+                <section className="course-about">
+                  <p className="course-section__eyebrow">معرفی</p>
+                  <h2>دربارهٔ این دوره</h2>
+                  <p>{course.description}</p>
+                </section>
+              ) : null}
+
+              <CourseSyllabus
+                modules={course.modules}
+                isFree={isFree}
+                spotPlayerProtected={Boolean(course.spotPlayerProtected)}
+              />
+            </div>
           </div>
-          <p className="course-detail__note">
-            {course.offerKind === "FREE"
-              ? "این دوره رایگان است و از درگاه پرداخت عبور نمی‌کند. لایسنس ویدیو فقط بعد از پاسخ اسپات‌پلیر صادر می‌شود."
-              : isPaidOffer && !purchaseEnabled
-                ? "خرید این دوره تا وقتی درگاه پرداخت پیکربندی نشده باشد شروع نمی‌شود. وضعیت دقیق در صفحه خرید نوشته شده است."
-                : "پرداخت فقط بعد از تأیید سرور با درگاه ثبت می‌شود. ساخت لایسنس اسپات‌پلیر مرحله جداگانه‌ای است."}
-          </p>
         </div>
-      </header>
+      </div>
 
-      {course.description ? (
-        <section className="course-detail__section">
-          <h2>درباره دوره</h2>
-          <p>{course.description}</p>
-        </section>
-      ) : null}
-
-      {previews.length > 0 ? (
-        <section className="course-detail__section" aria-labelledby="previews">
-          <h2 id="previews">پیش‌نمایش رایگان</h2>
-          <ul className="course-detail__lessons">
-            {previews.map((lesson) => (
-              <li key={lesson.id}>
-                <span>{lesson.title}</span>
-                <span className="course-detail__lesson-meta">
-                  {lesson.moduleTitle}
-                  {lesson.durationMinutes != null
-                    ? ` · ${lesson.durationMinutes.toLocaleString("fa-IR")} دقیقه`
-                    : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p>تماشای ویدیو داخل همین سایت انجام نمی‌شود و از اسپات‌پلیر است.</p>
-        </section>
-      ) : null}
-
-      <section className="course-detail__section" aria-labelledby="curriculum">
-        <h2 id="curriculum">محتوای دوره</h2>
-        {course.modules.length === 0 ? (
-          <p>سرفصل هنوز منتشر نشده است.</p>
-        ) : (
-          <ol className="course-detail__modules">
-            {course.modules.map((mod) => (
-              <li key={mod.id} className="course-detail__module">
-                <h3>{mod.title}</h3>
-                {mod.summary ? <p>{mod.summary}</p> : null}
-                <ul className="course-detail__lessons">
-                  {mod.lessons.map((lesson) => (
-                    <li key={lesson.id}>
-                      <span>{lesson.title}</span>
-                      <span className="course-detail__lesson-meta">
-                        {lesson.isPreview ? "پیش‌نمایش · " : ""}
-                        {lesson.durationMinutes != null
-                          ? `${lesson.durationMinutes.toLocaleString("fa-IR")} دقیقه`
-                          : ""}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
-
-      {related.length > 0 ? (
-        <section className="course-detail__section" aria-labelledby="related">
-          <h2 id="related">دوره‌های همین موضوع</h2>
-          <ul className="related-list">
-            {related.map((item) => (
-              <li key={item.id}>
-                <CourseCardLink course={item} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <section className="course-detail__section">
-        <h2>قبل از خرید</h2>
+      <section className="course-notes" aria-labelledby="before-buy">
+        <p className="course-section__eyebrow">نکته</p>
+        <h2 id="before-buy">قبل از خرید</h2>
         <ul>
           <li>قیمت به تومان است و تخفیف فقط روی سرور حساب می‌شود.</li>
           <li>
-            شرایط بازپرداخت در <Link href="/refunds">صفحه بازپرداخت</Link> است.
-          </li>
-          <li>
-            پرسش‌های عمومی در <Link href="/faq">پرسش‌های رایج</Link> جمع شده‌اند.
+            پرسش‌های عمومی در <Link href="/faq">پرسش‌های رایج</Link> جمع
+            شده‌اند.
           </li>
         </ul>
       </section>
 
-      <p className="course-detail__back">
-        <Link href="/courses">همه دوره‌ها</Link>
-      </p>
+      {related.length > 0 ? (
+        <DisinabPlate
+          className="course-related disinab-related"
+          aria-labelledby="related"
+        >
+          <header className="disinab-related__head">
+            <div>
+              <h2 id="related">همین موضوع</h2>
+              <p className="disinab__line">
+                دوره‌های هم‌قلمرو برای ادامهٔ مسیر یادگیری.
+              </p>
+            </div>
+            <DisinabBadge tone="accent">پیشنهاد</DisinabBadge>
+          </header>
+          <DisinabCourseCarousel
+            courses={related}
+            ariaLabel="دوره‌های پیشنهادی هم‌موضوع"
+          />
+        </DisinabPlate>
+      ) : null}
+
+      {relatedArticles.length > 0 ? (
+        <section
+          className="course-related course-articles"
+          aria-labelledby="related-articles"
+        >
+          <p className="course-section__eyebrow">مقاله</p>
+          <h2 id="related-articles">مرتبط با این موضوع</h2>
+          <ul className="note-grid course-articles__grid">
+            {relatedArticles.map((article) => (
+              <li key={article.id}>
+                <article className="note-card">
+                  <Link href={article.href} className="note-card__media">
+                    {article.coverAsset ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={article.coverAsset} alt="" />
+                    ) : (
+                      <span>ژرفا</span>
+                    )}
+                  </Link>
+                  <div className="note-card__body">
+                    <p>
+                      {article.readingMinutes.toLocaleString("fa-IR")} دقیقه
+                      مطالعه
+                    </p>
+                    <h3>
+                      <Link href={article.href}>{article.title}</Link>
+                    </h3>
+                    {article.summary ? (
+                      <p className="note-card__summary">{article.summary}</p>
+                    ) : null}
+                    <Link className="note-card__read" href={article.href}>
+                      خواندن مقاله
+                    </Link>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <CourseStickyBar
+        title={course.title}
+        priceLabel={sticky.priceLabel}
+        href={sticky.href}
+        label={sticky.label}
+        secondaryHref={sticky.secondaryHref}
+        secondaryLabel={sticky.secondaryLabel}
+      />
     </article>
   );
 }

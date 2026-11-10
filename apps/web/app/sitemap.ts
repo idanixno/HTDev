@@ -1,35 +1,49 @@
 import type { MetadataRoute } from "next";
-import { fetchArticles, fetchCourses, fetchPaths } from "../lib/catalog";
+import { fetchArticles, fetchCourses, fetchPath, fetchPaths } from "../lib/catalog";
 import { absoluteUrl } from "../lib/site-url";
 
 /**
- * Sitemap lists public catalog surfaces only (home, courses, paths).
- * Admin, student dashboard, auth, and payments are intentionally omitted.
+ * Public indexable URLs only. Admin, auth, cart, payments omitted.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
   const staticEntries: MetadataRoute.Sitemap = [
     {
       url: absoluteUrl("/"),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
     },
     {
       url: absoluteUrl("/courses"),
+      lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
       url: absoluteUrl("/paths"),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
     },
-    { url: absoluteUrl("/journal"), changeFrequency: "weekly", priority: 0.6 },
-    { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.4 },
-    { url: absoluteUrl("/faq"), changeFrequency: "monthly", priority: 0.4 },
-    { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.3 },
-    { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.2 },
-    { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.2 },
-    { url: absoluteUrl("/refunds"), changeFrequency: "yearly", priority: 0.2 },
+    {
+      url: absoluteUrl("/journal"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    {
+      url: absoluteUrl("/faq"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: absoluteUrl("/terms"),
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
   ];
 
   const [courseList, paths, articles] = await Promise.all([
@@ -38,13 +52,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchArticles(),
   ]);
 
-  const courseEntries: MetadataRoute.Sitemap = courseList.items.map(
-    (course) => ({
+  const courseEntries: MetadataRoute.Sitemap = courseList.items
+    .filter((course) => !course.noIndex)
+    .map((course) => ({
       url: absoluteUrl(course.href),
+      lastModified: course.updatedAt ? new Date(course.updatedAt) : now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
-    }),
-  );
+    }));
+
+  const pathDetails = await Promise.all(paths.map((path) => fetchPath(path.slug)));
 
   const pathEntries: MetadataRoute.Sitemap = paths.map((path) => ({
     url: absoluteUrl(path.href),
@@ -52,11 +69,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const articleEntries: MetadataRoute.Sitemap = articles.map((article) => ({
-    url: absoluteUrl(article.href),
-    changeFrequency: "monthly" as const,
-    priority: 0.5,
-  }));
+  const stepEntries: MetadataRoute.Sitemap = pathDetails.flatMap((path) =>
+    (path?.steps ?? [])
+      .filter((step) => !step.noIndex)
+      .map((step) => ({
+        url: absoluteUrl(step.href),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      })),
+  );
 
-  return [...staticEntries, ...courseEntries, ...pathEntries, ...articleEntries];
+  const articleEntries: MetadataRoute.Sitemap = articles
+    .filter((article) => !article.noIndex)
+    .map((article) => ({
+      url: absoluteUrl(article.href),
+      lastModified: article.publishedAt
+        ? new Date(article.publishedAt)
+        : now,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    }));
+
+  return [
+    ...staticEntries,
+    ...courseEntries,
+    ...pathEntries,
+    ...stepEntries,
+    ...articleEntries,
+  ];
 }

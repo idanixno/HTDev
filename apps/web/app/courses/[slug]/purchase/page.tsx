@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Notice } from "@zharfa/ui";
 import { CheckoutForm } from "../../../../components/checkout-form";
 import { fetchCheckoutOptions } from "../../../../lib/commerce";
 import { privateMetadata } from "../../../../lib/seo";
@@ -22,13 +21,19 @@ export default async function PurchasePage({ params }: { params: Params }) {
   if (!options) notFound();
 
   return (
-    <section className="purchase" aria-labelledby="purchase-heading">
-      <header className="purchase__header">
-        <p className="purchase__eyebrow">تسویه‌حساب</p>
-        <h1 id="purchase-heading" className="purchase__title">
-          خرید «{options.course.title}»
-        </h1>
-        <p className="purchase__subtitle">
+    <section
+      className="purchase purchase--live"
+      aria-labelledby="purchase-heading"
+    >
+      <header className="purchase-mast">
+        <p className="purchase-mast__eyebrow">تسویه‌حساب</p>
+        <div className="purchase-mast__head">
+          <h1 id="purchase-heading" className="purchase-mast__title">
+            خرید آموزش «{options.course.title}»
+          </h1>
+          <span className="purchase-mast__badge">۱ دوره</span>
+        </div>
+        <p className="purchase-mast__lead">
           مبلغ روی سرور محاسبه می‌شود. تا تأیید واقعی درگاه، سفارش پرداخت‌شده
           نمی‌شود.
         </p>
@@ -36,13 +41,10 @@ export default async function PurchasePage({ params }: { params: Params }) {
 
       <CheckoutForm options={options} courseSlug={slug} />
 
-      <Notice tone="information" title="بدون موفقیت ساختگی">
-        بازگشت از مرورگر به‌تنهایی دسترسی نمی‌دهد — فقط پس از verify سمت سرور.
-        SpotPlayer هنوز در فاز ۶ است.
-      </Notice>
-
       <p className="purchase__back">
-        <Link href={`/courses/${slug}`}>← بازگشت به صفحه دوره</Link>
+        <Link href={`/courses/${slug}`}>بازگشت به صفحه دوره</Link>
+        <span aria-hidden="true">·</span>
+        <Link href="/cart">مشاهده سبد خرید</Link>
       </p>
     </section>
   );

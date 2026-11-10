@@ -32,25 +32,38 @@ export type PublicCourseCard = {
   diagramKind: "boundary" | "chain";
   chainNodes: string[];
   href: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: string | null;
+  noIndex?: boolean;
+  updatedAt?: string;
+};
+
+export type PublicCourseLesson = {
+  id: string;
+  title: string;
+  summary: string | null;
+  sortOrder: number;
+  durationMinutes: number | null;
+  isPreview: boolean;
+  previewAsset: string | null;
+  videoAsset: string | null;
+};
+
+export type PublicCourseModule = {
+  id: string;
+  title: string;
+  summary: string | null;
+  sortOrder: number;
+  lessons: PublicCourseLesson[];
 };
 
 export type PublicCourseDetail = PublicCourseCard & {
   description: string | null;
+  previewAsset: string | null;
+  spotPlayerProtected: boolean;
   publishedAt: string | null;
-  modules: {
-    id: string;
-    title: string;
-    summary: string | null;
-    sortOrder: number;
-    lessons: {
-      id: string;
-      title: string;
-      summary: string | null;
-      sortOrder: number;
-      durationMinutes: number | null;
-      isPreview: boolean;
-    }[];
-  }[];
+  modules: PublicCourseModule[];
 };
 
 export type PublicCategory = {
@@ -73,11 +86,39 @@ export type PublicPath = {
   stepCount: number;
   steps?: {
     id: string;
+    slug: string;
     title: string;
     summary: string | null;
     sortOrder: number;
+    href: string;
+    noIndex: boolean;
     course: PublicCourseCard | null;
   }[];
+};
+
+export type PublicPathStepPage = {
+  path: {
+    title: string;
+    slug: string;
+    href: string;
+    coverAsset: string | null;
+  };
+  step: {
+    id: string;
+    slug: string;
+    title: string;
+    summary: string | null;
+    sortOrder: number;
+    href: string;
+    body: string;
+    seoTitle: string | null;
+    seoDescription: string | null;
+    ogImage: string | null;
+    noIndex: boolean;
+    course: PublicCourseCard | null;
+  };
+  previous: { title: string; href: string } | null;
+  next: { title: string; href: string } | null;
 };
 
 export type CourseListResult = {
@@ -133,9 +174,16 @@ export type PublicArticleCard = {
   publishedAt: string | null;
   readingMinutes: number;
   href: string;
+  noIndex?: boolean;
 };
 
-export type PublicArticle = PublicArticleCard & { body: string };
+export type PublicArticle = PublicArticleCard & {
+  body: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  ogImage: string | null;
+  noIndex: boolean;
+};
 
 export async function fetchCourses(params: {
   q?: string;
@@ -174,6 +222,15 @@ export async function fetchPaths(): Promise<PublicPath[]> {
   return (await catalogFetch<PublicPath[]>("/catalog/paths")) ?? [];
 }
 
+export async function fetchPathStep(
+  pathSlug: string,
+  stepSlug: string,
+): Promise<PublicPathStepPage | null> {
+  return catalogFetch<PublicPathStepPage>(
+    `/catalog/paths/${encodeURIComponent(pathSlug)}/steps/${encodeURIComponent(stepSlug)}`,
+  );
+}
+
 export async function fetchPath(slug: string): Promise<PublicPath | null> {
   return catalogFetch<PublicPath>(
     `/catalog/paths/${encodeURIComponent(slug)}`,
@@ -188,8 +245,32 @@ export async function fetchFaq(): Promise<PublicFaq[]> {
   return (await catalogFetch<PublicFaq[]>("/catalog/faq")) ?? [];
 }
 
+export type PublicFooterTrusts = {
+  enamadHtml: string | null;
+  paymentGatewayHtml: string | null;
+};
+
+export async function fetchFooterTrusts(): Promise<PublicFooterTrusts> {
+  return (
+    (await catalogFetch<PublicFooterTrusts>("/catalog/footer-trusts")) ?? {
+      enamadHtml: null,
+      paymentGatewayHtml: null,
+    }
+  );
+}
+
 export async function fetchArticles(): Promise<PublicArticleCard[]> {
   return (await catalogFetch<PublicArticleCard[]>("/catalog/articles")) ?? [];
+}
+
+export async function fetchRelatedArticles(
+  courseSlug: string,
+): Promise<PublicArticleCard[]> {
+  return (
+    (await catalogFetch<PublicArticleCard[]>(
+      `/catalog/courses/${encodeURIComponent(courseSlug)}/related-articles`,
+    )) ?? []
+  );
 }
 
 export async function fetchArticle(slug: string): Promise<PublicArticle | null> {
@@ -198,27 +279,126 @@ export async function fetchArticle(slug: string): Promise<PublicArticle | null> 
   );
 }
 
-export function courseCardProps(course: PublicCourseCard) {
-  const chain =
-    course.chainNodes.length >= 3
-      ? ([
-          course.chainNodes[0]!,
-          course.chainNodes[1]!,
-          course.chainNodes[2]!,
-        ] as [string, string, string])
-      : undefined;
+export function formatCourseDuration(hours: number | null): string | null {
+  if (hours == null || hours <= 0) return null;
+  const totalMinutes = Math.round(hours * 60);
+  const wholeHours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (wholeHours > 0 && minutes > 0) {
+    return `${wholeHours.toLocaleString("fa-IR")} ساعت و ${minutes.toLocaleString("fa-IR")} دقیقه`;
+  }
+  if (wholeHours > 0) return `${wholeHours.toLocaleString("fa-IR")} ساعت`;
+  return `${minutes.toLocaleString("fa-IR")} دقیقه`;
+}
 
+export function canAddCourseToCart(course: PublicCourseCard) {
+  return (
+    course.offerKind !== "FREE" &&
+    (course.availability === "publishedPaid" ||
+      course.availability === "preorder")
+  );
+}
+
+export function courseDiscount(course: PublicCourseCard): {
+  percent: number;
+  compareLabel: string;
+  badge: string;
+} | null {
+  if (course.offerKind === "FREE" || course.offerKind === "COMING_SOON") {
+    return null;
+  }
+  const compare = course.compareAtToman;
+  if (compare == null || compare <= course.priceToman) return null;
+  const percent = Math.round(((compare - course.priceToman) / compare) * 100);
+  if (percent < 1) return null;
+  const compareLabel = `${compare.toLocaleString("fa-IR")} تومان`;
   return {
-    availability: course.availability,
-    indexLabel: course.indexLabel ?? undefined,
-    diagramCode: course.diagramCode ?? undefined,
-    diagramKind: course.diagramKind,
-    chainNodes: chain,
-    statusLabel: course.statusLabel,
+    percent,
+    compareLabel,
+    badge: `${percent.toLocaleString("fa-IR")}٪ تخفیف`,
+  };
+}
+
+export type CartCourseItem = {
+  id: string;
+  slug: string;
+  title: string;
+  href: string;
+  coverAsset: string | null;
+  priceToman: number;
+  compareAtToman: number | null;
+  priceLabel: string;
+  compareAtLabel: string | null;
+  discountLabel: string | null;
+};
+
+export function formatTomanLabel(n: number): string {
+  if (!Number.isFinite(n) || n <= 0) return "۰ تومان";
+  return `${Math.round(n).toLocaleString("fa-IR")} تومان`;
+}
+
+export function parseTomanLabel(label: string | null | undefined): number {
+  if (!label) return 0;
+  const normalized = label
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/[^\d]/g, "");
+  if (!normalized) return 0;
+  const value = Number(normalized);
+  return Number.isFinite(value) ? value : 0;
+}
+
+export function cartItemPayable(item: CartCourseItem): number {
+  if (typeof item.priceToman === "number" && Number.isFinite(item.priceToman)) {
+    return Math.max(0, item.priceToman);
+  }
+  return parseTomanLabel(item.priceLabel);
+}
+
+export function cartItemCompare(item: CartCourseItem): number {
+  if (
+    typeof item.compareAtToman === "number" &&
+    Number.isFinite(item.compareAtToman) &&
+    item.compareAtToman > 0
+  ) {
+    return item.compareAtToman;
+  }
+  return parseTomanLabel(item.compareAtLabel);
+}
+
+export function summarizeCart(items: CartCourseItem[]) {
+  let payable = 0;
+  let compare = 0;
+  for (const item of items) {
+    const price = cartItemPayable(item);
+    const listed = cartItemCompare(item);
+    payable += price;
+    compare += listed > price ? listed : price;
+  }
+  const savings = Math.max(0, compare - payable);
+  return {
+    count: items.length,
+    payable,
+    compare,
+    savings,
+    payableLabel: formatTomanLabel(payable),
+    compareLabel: formatTomanLabel(compare),
+    savingsLabel: formatTomanLabel(savings),
+  };
+}
+
+export function toCartItem(course: PublicCourseCard): CartCourseItem {
+  const discount = courseDiscount(course);
+  return {
+    id: course.id,
+    slug: course.slug,
     title: course.title,
-    summary: course.summary ?? "",
-    meta: course.meta ?? undefined,
-    priceLabel: course.priceLabel,
     href: course.href,
+    coverAsset: course.coverAsset,
+    priceToman: course.priceToman,
+    compareAtToman: course.compareAtToman,
+    priceLabel: course.priceLabel,
+    compareAtLabel: discount?.compareLabel ?? null,
+    discountLabel: discount?.badge ?? null,
   };
 }

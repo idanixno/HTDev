@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 import { siteUrl } from "../lib/site-url";
 
 /**
- * Public crawl rules only. Private surfaces are disallowed here and also
- * emit X-Robots-Tag / metadata robots=noindex.
+ * Crawl policy only — not a security boundary.
+ * Private routes are also gated by auth + X-Robots-Tag.
  */
 export default function robots(): MetadataRoute.Robots {
   const origin = siteUrl();
@@ -11,21 +11,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: [
-          "/",
-          "/courses",
-          "/courses/",
-          "/paths",
-          "/paths/",
-          "/journal",
-          "/journal/",
-          "/about",
-          "/faq",
-          "/contact",
-          "/terms",
-          "/privacy",
-          "/refunds",
-        ],
+        allow: ["/", "/artwork/", "/courses", "/paths", "/journal", "/faq", "/terms"],
         disallow: [
           "/admin",
           "/admin/",
@@ -34,13 +20,15 @@ export default function robots(): MetadataRoute.Robots {
           "/login",
           "/register",
           "/recover",
+          "/cart",
           "/payments",
           "/payments/",
+          "/*/purchase",
           "/api/",
           "/design-system",
           "/design-system/",
           "/maintenance",
-          "/forbidden",
+          "/internal-missing",
         ],
       },
     ],

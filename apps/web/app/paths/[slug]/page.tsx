@@ -1,9 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CourseCardLink } from "../../../components/course-card-link";
-import { fetchPath } from "../../../lib/catalog";
+import type { CSSProperties } from "react";
+import { DisinabBadge, DisinabPlate } from "../../../components/disinab";
+import {
+  fetchPath,
+  formatCourseDuration,
+  type PublicCourseCard,
+} from "../../../lib/catalog";
 import { buildPageMetadata } from "../../../lib/seo";
+
+function offerTone(kind: PublicCourseCard["offerKind"]) {
+  if (kind === "FREE") return "free";
+  if (kind === "PRE_SALE") return "presale";
+  if (kind === "COMING_SOON") return "soon";
+  return "sale";
+}
 
 type Params = Promise<{ slug: string }>;
 
@@ -38,41 +50,112 @@ export default async function PathDetailPage({
   const { slug } = await params;
   const path = await fetchPath(slug);
   if (!path) notFound();
+  const steps = path.steps ?? [];
 
   return (
-    <article className="path-detail">
-      <header className="path-detail__intro">
-        <p className="path-detail__eyebrow">مسیر یادگیری</p>
-        <h1 className="path-detail__title">{path.title}</h1>
-        {path.summary ? <p className="path-detail__summary">{path.summary}</p> : null}
-        {path.description ? (
-          <p className="path-detail__description">{path.description}</p>
-        ) : null}
-      </header>
+    <article className="path-detail path-detail--live disinab-path-detail">
+      <DisinabPlate
+        className="disinab-path-detail__hero"
+        aria-labelledby="path-detail-title"
+      >
+        <nav className="crumbs disinab-path-detail__crumbs" aria-label="مسیر">
+          <Link href="/">خانه</Link>
+          <span aria-hidden="true">/</span>
+          <Link href="/paths">مسیرها</Link>
+          <span aria-hidden="true">/</span>
+          <span>{path.title}</span>
+        </nav>
+        <div className="disinab-path-detail__intro">
+          <div>
+            <p className="disinab__brand">مسیر یادگیری</p>
+            <h1 id="path-detail-title">{path.title}</h1>
+            {path.summary ? (
+              <p className="disinab__line">{path.summary}</p>
+            ) : null}
+            {path.description ? (
+              <p className="disinab-path-detail__note">{path.description}</p>
+            ) : null}
+          </div>
+          <div className="disinab-path-detail__meta">
+            <DisinabBadge tone="accent">
+              {steps.length.toLocaleString("fa-IR")} گام
+            </DisinabBadge>
+            <DisinabBadge tone="muted">نقشهٔ راه ژرفا</DisinabBadge>
+          </div>
+        </div>
+      </DisinabPlate>
 
-      <ol className="path-detail__steps">
-        {(path.steps ?? []).map((step) => (
-          <li key={step.id} className="path-detail__step">
-            <div className="path-detail__step-copy">
-              <p className="path-detail__step-index">
-                گام {step.sortOrder.toLocaleString("fa-IR")}
-              </p>
-              <h2>{step.title}</h2>
-              {step.summary ? <p>{step.summary}</p> : null}
-              {step.course ? (
-                <p>
-                  <Link href={step.course.href}>مشاهده دوره ←</Link>
-                </p>
-              ) : null}
-            </div>
-            {step.course ? <CourseCardLink course={step.course} /> : null}
-          </li>
-        ))}
-      </ol>
-
-      <p className="path-detail__back">
-        <Link href="/paths">← همه مسیرها</Link>
-      </p>
+      {steps.length === 0 ? (
+        <DisinabPlate className="disinab-path-detail__empty" aura={false}>
+          <p className="disinab__line">گامی برای این مسیر ثبت نشده است.</p>
+        </DisinabPlate>
+      ) : (
+        <ol className="path-rail disinab-path-detail__rail">
+          {steps.map((step, index) => {
+            const course = step.course;
+            const duration = course
+              ? formatCourseDuration(course.durationHours)
+              : null;
+            return (
+              <li
+                key={step.id}
+                style={{ "--path-i": index } as CSSProperties}
+              >
+                <span className="path-rail__mark">
+                  {step.sortOrder.toLocaleString("fa-IR")}
+                </span>
+                <div className="path-rail__card disinab-path-detail__card">
+                  <p className="path-rail__kicker disinab__brand">
+                    گام {(index + 1).toLocaleString("fa-IR")}
+                  </p>
+                  <h2>
+                    <Link href={step.href}>{step.title}</Link>
+                  </h2>
+                  {step.summary ? <p>{step.summary}</p> : null}
+                  {course ? (
+                    <Link
+                      className="path-course disinab-path-detail__course"
+                      href={course.href}
+                      data-offer={offerTone(course.offerKind)}
+                    >
+                      {course.coverAsset ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={course.coverAsset} alt="" />
+                      ) : (
+                        <span
+                          className="path-course__fallback"
+                          aria-hidden="true"
+                        >
+                          ژرفا
+                        </span>
+                      )}
+                      <span className="path-course__copy">
+                        <strong>{course.title}</strong>
+                        <span>
+                          {duration ? <span>{duration}</span> : null}
+                          <span className="path-course__price">
+                            {course.priceLabel}
+                          </span>
+                        </span>
+                      </span>
+                    </Link>
+                  ) : (
+                    <p className="path-rail__missing">
+                      دوره‌ای به این گام وصل نیست.
+                    </p>
+                  )}
+                  <Link
+                    className="path-rail__more disinab-path-detail__more"
+                    href={step.href}
+                  >
+                    شرح این گام
+                  </Link>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
     </article>
   );
 }

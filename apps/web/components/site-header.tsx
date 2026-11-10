@@ -1,21 +1,13 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import { Button } from "@zharfa/ui";
+import { CartLink } from "./cart-link";
 import { MobileNav } from "./mobile-nav";
+import { SiteHeaderNav } from "./site-header-nav";
 import { ThemeToggle } from "./theme-toggle";
 import { fetchCurrentUser } from "../lib/session";
 
-const NAV_LINKS = [
-  { href: "/courses", label: "دوره‌ها", match: "/courses" },
-  { href: "/paths", label: "مسیرها", match: "/paths" },
-  { href: "/journal", label: "یادداشت‌ها", match: "/journal" },
-  { href: "/about", label: "درباره", match: "/about" },
-] as const;
-
 export async function SiteHeader() {
   const user = await fetchCurrentUser();
-  const headerList = await headers();
-  const pathname = headerList.get("x-pathname") ?? "";
 
   return (
     <header className="site-header">
@@ -25,27 +17,10 @@ export async function SiteHeader() {
           <span className="site-brand__tag">اطلس یادگیری عمیق</span>
         </Link>
 
-        <nav className="site-header__nav" aria-label="ناوبری اصلی">
-          {NAV_LINKS.map((link) => {
-            const current =
-              pathname === link.match || pathname.startsWith(`${link.match}/`);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={
-                  "site-header__link" +
-                  (current ? " site-header__link--current" : "")
-                }
-                aria-current={current ? "page" : undefined}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <SiteHeaderNav />
 
         <div className="site-header__actions">
+          <CartLink />
           <ThemeToggle />
           <MobileNav authed={Boolean(user)} />
           {user ? (
@@ -53,9 +28,7 @@ export async function SiteHeader() {
               حساب من
             </Button>
           ) : (
-            <Button href="/login" variant="secondary">
-              ورود / حساب من
-            </Button>
+            <Button href="/login">ورود</Button>
           )}
         </div>
       </div>
