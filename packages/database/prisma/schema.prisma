@@ -58,6 +58,10 @@ model User {
   /// E.164-ish Iranian local form (09XXXXXXXXX) when present.
   phone              String?   @unique
   displayName        String
+  /// Telegram @handle without leading @ when set.
+  telegramHandle     String?
+  /// GitHub username when set.
+  githubHandle       String?
   role               UserRole  @default(STUDENT)
   passwordHash       String
   emailVerifiedAt    DateTime?
@@ -147,11 +151,18 @@ model Course {
   sortOrder         Int                     @default(0)
   /// Local public asset path for cover/artwork placeholder (e.g. /artwork/courses/…).
   coverAsset        String?
+  /// Optional public intro/preview video for the course detail hero (poster = coverAsset).
+  previewAsset      String?
   indexLabel        String?
   diagramCode       String?
   diagramKind       CourseDiagramKind       @default(BOUNDARY)
   /// Up to three chain-node labels for CourseCard chain diagrams.
   chainNodes        String[]                @default([])
+  /// Optional SEO overrides (fall back to title/summary when null).
+  seoTitle          String?
+  seoDescription    String?
+  ogImage           String?
+  noIndex           Boolean                 @default(false)
   publishedAt       DateTime?
   createdAt         DateTime                @default(now())
   updatedAt         DateTime                @updatedAt
@@ -165,10 +176,26 @@ model Course {
   spotPlayerMapping     SpotPlayerCourseMapping?
   spotPlayerLicenses    SpotPlayerLicense[]
   tickets               Ticket[]
+  waitlistEntries       CourseWaitlistEntry[]
 
   @@index([publicationStatus, offerKind])
   @@index([categoryId])
   @@index([featured, sortOrder])
+}
+
+/// Phone interest for COMING_SOON courses. SMS is console/dev until a real gateway exists.
+model CourseWaitlistEntry {
+  id         String    @id @default(cuid())
+  courseId   String
+  /// Normalized Iranian mobile 09XXXXXXXXX.
+  phone      String
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, phone])
+  @@index([courseId, notifiedAt])
 }
 
 /// Curriculum section within a course (ordered chapters).
@@ -196,6 +223,10 @@ model Lesson {
   sortOrder       Int      @default(0)
   durationMinutes Int?
   isPreview       Boolean  @default(false)
+  /// Public sample file. Exposed only while isPreview is true. Paid lessons stay in SpotPlayer.
+  previewAsset    String?
+  /// Lesson video. Every syllabus lesson can be watched on the course page.
+  videoAsset      String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -225,18 +256,27 @@ model LearningPath {
 }
 
 model LearningPathStep {
-  id        String   @id @default(cuid())
-  pathId    String
-  courseId  String?
-  title     String
-  summary   String?
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  pathId         String
+  courseId       String?
+  /// Unique inside the path. Public URL is /paths/{path}/{slug}.
+  slug           String
+  title          String
+  summary        String?
+  /// Same markdown as journal notes: headings, tables, images, video, code, !course[slug].
+  body           String   @default("")
+  seoTitle       String?
+  seoDescription String?
+  ogImage        String?
+  noIndex        Boolean  @default(false)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   path   LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
   course Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
+  @@unique([pathId, slug])
   @@index([pathId, sortOrder])
 }
 
@@ -682,13 +722,17 @@ model Article {
   slug           String    @unique
   title          String
   summary        String?
-  /// Plain text with blank-line paragraphs, optional `##` headings and fenced code.
-  body           String
-  coverAsset     String?
-  published      Boolean   @default(false)
-  publishedAt    DateTime?
-  readingMinutes Int?
-  sortOrder      Int       @default(0)
+  /// Markdown: headings, lists, links, images, !video, and fenced code.
+  body            String
+  coverAsset      String?
+  seoTitle        String?
+  seoDescription  String?
+  ogImage         String?
+  noIndex         Boolean   @default(false)
+  published       Boolean   @default(false)
+  publishedAt     DateTime?
+  readingMinutes  Int?
+  sortOrder       Int       @default(0)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -707,4 +751,93 @@ model CmsHomeContent {
   secondaryCtaHref String?
   updatedAt        DateTime @updatedAt
   createdAt        DateTime @default(now())
+}
+
+/// Singleton footer trust badges (id = "footer"). Raw HTML snippets from admin.
+model CmsFooterContent {
+  id                   String   @id @default("footer")
+  /// Enamad / e-namad seal embed HTML (anchor + img).
+  enamadHtml           String?
+  /// Payment gateway trust badge embed HTML.
+  paymentGatewayHtml   String?
+  updatedAt            DateTime @updatedAt
+  createdAt            DateTime @default(now())
+}
+
+enum IntegrationProvider {
+  OPENAI
+  ANTHROPIC
+  GOOGLE_OAUTH
+}
+
+/// Encrypted third-party credentials managed from admin Integrations.
+/// Never return decrypted secrets to the client — only masked previews + status.
+model IntegrationCredential {
+  id                 String                    @id @default(cuid())
+  provider           IntegrationProvider       @unique
+  /// AES-GCM ciphertext for primary secret (API key or OAuth client secret).
+  secretEncrypted    String?
+  /// Non-secret companion fields (e.g. Google OAuth client id) as JSON.
+  configJson         Json?
+  credentialsStatus  GatewayCredentialsStatus  @default(MISSING)
+  /// Last 4 chars of secret for admin UI mask.
+  secretLast4        String?
+  /// OAuth refresh token ciphertext when Google is connected (null until connect).
+  oauthRefreshEncrypted String?
+  oauthAccessEncrypted  String?
+  oauthAccessExpiresAt  DateTime?
+  connectedAt        DateTime?
+  lastTestedAt       DateTime?
+  lastError          String?
+  updatedAt          DateTime                  @updatedAt
+  createdAt          DateTime                  @default(now())
+}
+
+enum SeoEntityType {
+  COURSE
+  ARTICLE
+  PATH_STEP
+}
+
+enum SeoSuggestionDecision {
+  ACCEPTED
+  REJECTED
+  EDITED
+}
+
+model SeoSuggestionLog {
+  id         String                 @id @default(cuid())
+  entityType SeoEntityType
+  entityId   String?
+  action     String
+  decision   SeoSuggestionDecision?
+  actorId    String?
+  summary    String?
+  createdAt  DateTime               @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+enum SecurityEventType {
+  SUSPICIOUS_PATH
+  RATE_LIMIT
+  UNAUTHORIZED_ADMIN
+  AUTH_FAILURE
+  API_ABUSE
+}
+
+model SecurityEvent {
+  id        String            @id @default(cuid())
+  type      SecurityEventType
+  path      String
+  method    String?
+  /// SHA-256 hex of IP (never store raw IP in this table).
+  ipHash    String?
+  userAgent String?
+  metaJson  Json?
+  createdAt DateTime          @default(now())
+
+  @@index([type, createdAt])
+  @@index([createdAt])
 }

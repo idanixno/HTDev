@@ -27,6 +27,16 @@ import {
   UserRole,
 } from "@prisma/client";
 import * as argon2 from "argon2";
+import {
+  EXTRA_ARTICLES,
+  EXTRA_CATEGORIES,
+  EXTRA_COURSES,
+  EXTRA_FAQS,
+  EXTRA_PATHS,
+  EXTRA_STUDENTS,
+  type SeedCourse,
+  type SeedPath,
+} from "./sample-catalog";
 
 const prisma = new PrismaClient();
 
@@ -80,34 +90,6 @@ async function upsertUser(input: {
   });
 }
 
-type SeedCourse = {
-  slug: string;
-  title: string;
-  summary: string;
-  description: string;
-  categorySlug: string;
-  publicationStatus: CoursePublicationStatus;
-  offerKind: CourseOfferKind;
-  priceToman: string;
-  compareAtToman?: string;
-  levelLabel: string;
-  durationHours: string;
-  lessonCount: number;
-  featured: boolean;
-  sortOrder: number;
-  coverAsset: string;
-  indexLabel: string;
-  diagramCode: string;
-  diagramKind: CourseDiagramKind;
-  chainNodes: string[];
-  publishedAt?: Date;
-  modules: {
-    title: string;
-    summary?: string;
-    lessons: { title: string; summary?: string; durationMinutes?: number; isPreview?: boolean }[];
-  }[];
-};
-
 const CATEGORIES = [
   {
     slug: "fundamentals",
@@ -127,6 +109,7 @@ const CATEGORIES = [
     summary: "سیستم‌عامل، اعتماد در مرزها، و عادت‌های دفاعی.",
     sortOrder: 3,
   },
+  ...EXTRA_CATEGORIES,
 ] as const;
 
 const COURSES: SeedCourse[] = [
@@ -351,9 +334,40 @@ const COURSES: SeedCourse[] = [
       },
     ],
   },
+  ...EXTRA_COURSES,
 ];
 
-const PATHS = [
+const LINUX_STEP_BODY = [
+  "## محیط اجرا را بشناس",
+  "",
+  "قبل از معماری، باید بدانی برنامه کجا اجرا می‌شود. این صفحه شرح گام است. درس کامل دوره، بعد از خرید، در اسپات‌پلیر باز می‌شود.",
+  "",
+  "### سه کار اول",
+  "",
+  "- ترمینال را باز کن",
+  "- مسیر فعلی را ببین",
+  "- یک فایل را جابه‌جا کن",
+  "",
+  "| کار | دستور | چرا |",
+  "| --- | --- | --- |",
+  "| مسیر | pwd | بدانی کجایی |",
+  "| فهرست | ls | فایل‌ها را ببینی |",
+  "| جابه‌جایی | mv | بدون کپی اضافه |",
+  "",
+  "!video[نمونهٔ کوتاه و عمومی](/previews/lesson-preview.mp4)",
+  "",
+  "![طرح دورهٔ لینوکس](/artwork/courses/linux-intro.svg)",
+  "",
+  "```bash",
+  "pwd",
+  "ls",
+  "```",
+  "",
+  "!course[linux-intro]",
+  "",
+].join("\n");
+
+const PATHS: SeedPath[] = [
   {
     slug: "from-first-problem",
     title: "از اولین مسئله تا معماری",
@@ -366,8 +380,13 @@ const PATHS = [
     steps: [
       {
         courseSlug: "linux-intro",
+        slug: "linux-intro",
         title: "شروع با سیستم",
         summary: "آشنایی عملی با محیط اجرا.",
+        seoTitle: "شروع با سیستم | گام اول مسیر مهندسی",
+        seoDescription:
+          "گام اول نقشهٔ راه: محیط اجرا، جدول دستورها، فیلم نمونه و دورهٔ لینوکس. هر دوره جدا خریده می‌شود.",
+        body: LINUX_STEP_BODY,
       },
       {
         courseSlug: "typescript-depth",
@@ -403,7 +422,23 @@ const PATHS = [
       },
     ],
   },
+  ...EXTRA_PATHS,
 ];
+
+function measuredCourse(course: SeedCourse) {
+  const lessons = course.modules.flatMap((mod) => mod.lessons);
+  const minutes = lessons.reduce(
+    (sum, lesson) => sum + (lesson.durationMinutes ?? 0),
+    0,
+  );
+  return {
+    lessonCount: lessons.length,
+    durationHours:
+      minutes > 0
+        ? new Prisma.Decimal((minutes / 60).toFixed(1))
+        : new Prisma.Decimal(course.durationHours),
+  };
+}
 
 async function seedCatalog() {
   const categoryBySlug = new Map<string, string>();
@@ -434,6 +469,7 @@ async function seedCatalog() {
       throw new Error(`Missing category ${course.categorySlug}`);
     }
 
+    const measured = measuredCourse(course);
     const row = await prisma.course.upsert({
       where: { slug: course.slug },
       create: {
@@ -449,8 +485,8 @@ async function seedCatalog() {
           ? new Prisma.Decimal(course.compareAtToman)
           : null,
         levelLabel: course.levelLabel,
-        durationHours: new Prisma.Decimal(course.durationHours),
-        lessonCount: course.lessonCount,
+        durationHours: measured.durationHours,
+        lessonCount: measured.lessonCount,
         featured: course.featured,
         sortOrder: course.sortOrder,
         coverAsset: course.coverAsset,
@@ -472,8 +508,8 @@ async function seedCatalog() {
           ? new Prisma.Decimal(course.compareAtToman)
           : null,
         levelLabel: course.levelLabel,
-        durationHours: new Prisma.Decimal(course.durationHours),
-        lessonCount: course.lessonCount,
+        durationHours: measured.durationHours,
+        lessonCount: measured.lessonCount,
         featured: course.featured,
         sortOrder: course.sortOrder,
         coverAsset: course.coverAsset,
@@ -510,6 +546,10 @@ async function seedCatalog() {
             sortOrder: lessonSort,
             durationMinutes: lesson.durationMinutes ?? null,
             isPreview: lesson.isPreview ?? false,
+            previewAsset: lesson.isPreview
+              ? lesson.previewAsset?.trim() || "/previews/lesson-preview.mp4"
+              : null,
+            videoAsset: "/previews/lesson-preview.mp4",
           },
         });
       }
@@ -549,8 +589,14 @@ async function seedCatalog() {
         data: {
           pathId: pathRow.id,
           courseId,
+          slug: step.slug ?? step.courseSlug,
           title: step.title,
           summary: step.summary,
+          body: step.body ?? "",
+          seoTitle: step.seoTitle ?? null,
+          seoDescription: step.seoDescription ?? null,
+          ogImage: step.ogImage ?? null,
+          noIndex: step.noIndex ?? false,
           sortOrder: i + 1,
         },
       });
@@ -609,6 +655,7 @@ async function main() {
       phone: null,
       displayName: "امیر حسینی",
     },
+    ...EXTRA_STUDENTS,
   ];
 
   const createdStudents = [];
@@ -901,6 +948,7 @@ async function seedCms(admin: { id: string }) {
         "از پنل دانشجو تیکت داخلی بسازید. تلگرام فقط مرجع تکمیلی است.",
       sortOrder: 3,
     },
+    ...EXTRA_FAQS,
   ];
 
   for (const f of faqs) {
@@ -948,6 +996,7 @@ async function seedJournal(admin: { id: string }) {
       title: "قبل از خرید، سرفصل را چطور بخوانیم",
       summary:
         "سرفصل، سطح و پیش‌نمایش رایگان باید به سؤال «این دوره برای من است؟» جواب بدهند.",
+      coverAsset: "/artwork/journal/read-the-syllabus.svg",
       sortOrder: 1,
       readingMinutes: 4,
       body: `خرید یک دوره تصمیم محصولی است، نه فقط یک پرداخت.
@@ -968,6 +1017,7 @@ async function seedJournal(admin: { id: string }) {
       title: "پرداخت موفق با دسترسی ویدیو یکی نیست",
       summary:
         "وضعیت سفارش و وضعیت لایسنس اسپات‌پلیر دو مرحله جدا هستند.",
+      coverAsset: "/artwork/journal/payment-and-access.svg",
       sortOrder: 2,
       readingMinutes: 3,
       body: `بعد از بازگشت از درگاه، مرورگر به‌تنهایی سفارش را پرداخت‌شده نمی‌کند. سرور نتیجه را با درگاه تطبیق می‌دهد و فقط همان پاسخ معتبر، وضعیت سفارش را عوض می‌کند.
@@ -988,6 +1038,7 @@ async function seedJournal(admin: { id: string }) {
       title: "این کاتالوگ بازار مدرس‌ها نیست",
       summary:
         "ژرفا آموزش یک مدرس است و موضوع دوره‌ها به یک زبان یا فریم‌ورک محدود نمی‌شود.",
+      coverAsset: "/artwork/journal/one-instructor.svg",
       sortOrder: 3,
       readingMinutes: 3,
       body: `هر دوره در ژرفا متعلق به همین مجموعه است. دسته‌ها موضوع را جدا می‌کنند — معماری، سیستم، امنیت، یا هر قلمرو دیگری که بعداً منتشر شود — ولی فروشنده و پشتیبانی چندمدرسه نیست.
@@ -998,6 +1049,44 @@ async function seedJournal(admin: { id: string }) {
 
 وقتی دوره تازه‌ای منتشر یا پیش‌فروش می‌شود، همان وضعیت روی کارت و صفحه دوره دیده می‌شود. عدد دانشجو، امتیاز ساختگی، یا وعده نتیجه شغلی در این صفحات جایی ندارد.`,
     },
+    {
+      id: "seed_article_format",
+      slug: "note-format",
+      title: "قالب مقاله: تصویر، فیلم و کد",
+      summary: "یک مقاله می‌تواند تیتر، فهرست، تصویر، فیلم و قطعهٔ کد داشته باشد.",
+      seoTitle: "قالب مقاله ژرفا | تصویر، فیلم و کد",
+      seoDescription:
+        "در مقاله ژرفا می‌توان تیتر، تصویر، فیلم کوتاه و کد را کنار متن نوشت. عنوان صفحه همان h1 است.",
+      sortOrder: 20,
+      readingMinutes: 3,
+      body: `عنوان مقاله، h1 صفحه است. تیترهای داخل متن از سطح بخش شروع می‌شوند.
+
+## بخش
+
+یک جمله با **تأکید**، یک \`نمونه\` و لینک [دوره‌ها](/courses).
+
+### زیربخش
+
+- تصویر و فیلم فایل عمومی هستند
+- درس خریده‌شده همچنان در اسپات‌پلیر باز می‌شود
+
+> نقل یک جمله، جدا از پاراگراف.
+
+![جلد نمونه](/artwork/courses/clean-architecture.svg)
+
+!video[نمونهٔ کوتاه](/previews/lesson-preview.mp4)
+
+\`\`\`python
+def boundary(entity):
+    return entity.rules
+\`\`\`
+
+#### جزئیات
+
+1. عنوان سئو می‌تواند با عنوان صفحه فرق داشته باشد
+2. اگر عنوان سئو خالی باشد، عنوان مقاله استفاده می‌شود`,
+    },
+    ...EXTRA_ARTICLES,
   ];
 
   for (const note of notes) {
@@ -1015,6 +1104,14 @@ async function seedJournal(admin: { id: string }) {
         body: note.body,
         sortOrder: note.sortOrder,
         readingMinutes: note.readingMinutes,
+        coverAsset:
+          "coverAsset" in note && note.coverAsset ? note.coverAsset : null,
+        ...("seoTitle" in note ? { seoTitle: note.seoTitle ?? null } : {}),
+        ...("seoDescription" in note
+          ? { seoDescription: note.seoDescription ?? null }
+          : {}),
+        ...("ogImage" in note ? { ogImage: note.ogImage ?? null } : {}),
+        ...("noIndex" in note ? { noIndex: Boolean(note.noIndex) } : {}),
         published: true,
       },
     });
@@ -1029,10 +1126,10 @@ async function seedJournal(admin: { id: string }) {
       action: "article.create",
       entityType: "Article",
       entityId: "seed_article_syllabus",
-      summary: "انتشار یادداشت‌های آموزشی اولیه",
+      summary: "انتشار مقالات آموزشی اولیه",
       metadata: { seed: true, count: notes.length },
     },
-    update: { summary: "انتشار یادداشت‌های آموزشی اولیه" },
+    update: { summary: "انتشار مقالات آموزشی اولیه" },
   });
 
   return { articles: notes.length };
@@ -1212,7 +1309,11 @@ async function seedCommerce(
   students: { id: string; username: string }[],
 ) {
   const zarinpalCreds = Boolean(process.env.ZARINPAL_MERCHANT_ID?.trim());
-  const aqayeCreds = Boolean(process.env.AQAYE_PARDAKHT_PIN?.trim());
+  // Sandbox pin `sandbox` is usable without a merchant PIN (docs).
+  const aqayeSandbox =
+    (process.env.AQAYE_PARDAKHT_SANDBOX ?? "true").toLowerCase() !== "false";
+  const aqayeCreds =
+    Boolean(process.env.AQAYE_PARDAKHT_PIN?.trim()) || aqayeSandbox;
 
   for (const provider of [
     PaymentProvider.ZARINPAL,
@@ -1226,7 +1327,7 @@ async function seedCommerce(
         provider,
         technicalEnabled: true,
         checkoutVisible: true,
-        isDefault: provider === PaymentProvider.ZARINPAL,
+        isDefault: provider === PaymentProvider.AQAYE_PARDAKHT,
         sandboxMode: true,
         credentialsStatus: present
           ? GatewayCredentialsStatus.PRESENT
