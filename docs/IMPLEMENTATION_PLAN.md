@@ -5,7 +5,7 @@ Order used for this pass, then what remains.
 ## Done in this pass
 
 1. Audit recorded in `docs/PROJECT_AUDIT.md`.
-2. Public shell: footer, mobile menu, about, FAQ (published CMS rows), contact, terms, privacy, refunds, 404, error, forbidden, maintenance flag.
+2. Public shell: footer, mobile menu, FAQ (published CMS rows), terms, 404, error, forbidden, maintenance flag.
 3. Journal: `Article` model and migration, public `/journal`, owner editor, three seeded notes.
 4. Catalog: level filter, sort, clear filters. Homepage shows real categories and paths.
 5. Course page: breadcrumbs, free-preview list from lessons, related courses in the same category, Course JSON-LD, plain-language purchase note.

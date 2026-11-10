@@ -17,7 +17,7 @@ Living ledger for the Zharfa / EDU personal education platform. Update in place;
 | Support tickets | VERIFIED | Unit tests (status transitions, attachment rules/magic bytes); web client/server import split fixed for build |
 | Notifications | VERIFIED | Unit tests (rate-limit); console email/SMS only — real delivery **BLOCKED** |
 | Admin analytics | VERIFIED | Unit tests (date-range, aggregates); `/admin` in web build output |
-| Public information architecture | IMPLEMENTED | Footer, mobile nav, about, FAQ, contact, terms, privacy, refunds, 404, error, forbidden, `MAINTENANCE_MODE` |
+| Public information architecture | IMPLEMENTED | Footer, mobile nav, FAQ, terms, 404, error, forbidden, `MAINTENANCE_MODE` |
 | Journal | IMPLEMENTED | `Article` model, public `/journal`, owner editor, seed notes. Migration `20261107120000_articles` must be applied |
 | Catalog discovery | IMPLEMENTED | Level filter, sort, clear filters; homepage categories and paths from the API |
 | Course detail | IMPLEMENTED | Related courses, preview lessons, breadcrumbs, JSON-LD. No invented reviews or progress |
@@ -41,7 +41,7 @@ Statuses: `NOT_STARTED` · `IN_PROGRESS` · `IMPLEMENTED` · `TESTED` · `VERIFI
 | `pnpm db:generate` | PASS |
 | `@zharfa/database` build | PASS |
 | API / web / worker / database `tsc --noEmit` | PASS |
-| `@zharfa/web` production build | PASS — 69 routes, including journal, about, FAQ, policies, account, admin editors |
+| `@zharfa/web` production build | PASS — 69 routes, including journal, FAQ, terms, account, admin editors |
 | API Vitest | PASS — 17 files / 72 tests |
 | `pnpm db:migrate` + seed + browser journeys | Not run — Postgres was not part of this session |
 | Live payment / SpotPlayer | Still `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` |

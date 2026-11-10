@@ -1,51 +1,303 @@
-# Deployment
+# راه‌اندازی ژرفا روی سرور (صفر تا صد)
 
-## Current scope
+این راهنما برای کسی نوشته شده که می‌خواهد ژرفا را روی یک سرور لینوکس (مثلاً Ubuntu) بالا بیاورد. زبان ساده است؛ اگر جایی گیر کردید، همان قدم را دوباره بخوانید.
 
-Zharfa is **local-first**. Production hosting, TLS termination, managed Postgres/Redis, secret managers, and CI deploy pipelines are **out of scope** for Phases 10–11. This document describes what exists today and what operators must supply later.
+---
 
-## Local runtime topology
+## ژرفا چیست و روی سرور چه چیزهایی لازم است؟
 
+ژرفا سه برنامه اصلی دارد:
+
+| برنامه | کار | پورت معمول |
+|--------|-----|------------|
+| **وب** (`apps/web`) | سایت و پنل | `3000` |
+| **API** (`apps/api`) | منطق سرور، پرداخت، لاگین | `4000` |
+| **Worker** (`apps/worker`) | کارهای پس‌زمینه (مثلاً لایسنس اسپات‌پلیر) | سلامت: `4001` |
+
+و دو سرویس کمکی:
+
+- **PostgreSQL** — دیتابیس
+- **Redis** — صف و محدودیت نرخ
+
+در توسعهٔ محلی، Postgres و Redis با Docker بالا می‌آیند. روی سرور می‌توانید همان Docker را نگه دارید یا Postgres/Redis جدا بگذارید.
+
+---
+
+## پیش‌نیازها (قبل از هر چیز)
+
+روی سرور این‌ها را نصب کنید:
+
+1. **Node.js 20 یا بالاتر**
+2. **pnpm** (نسخهٔ پروژه در `package.json` آمده؛ الان حدود `10.x`)
+3. **Docker** و **Docker Compose** (اگر می‌خواهید Postgres/Redis را با Compose بیاورید)
+4. **Git**
+5. یک دامنه (اختیاری ولی برای پرداخت واقعی لازم است) که به IP سرور اشاره کند
+
+نمونه نصب Node با nvm (پیشنهادی):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+# ترمینال را ببندید و دوباره باز کنید
+nvm install 20
+nvm use 20
+corepack enable
+corepack prepare pnpm@10.33.4 --activate
 ```
-browser → apps/web (:3000)
-            └─ BFF /api/* → apps/api (:4000)
-apps/worker (:4001 health) ← Redis BullMQ ← apps/api enqueue
-apps/api + worker → PostgreSQL (:5432)
-optional: MinIO (:9000 / :9001) for future object storage
+
+---
+
+## قدم ۱ — گرفتن کد
+
+```bash
+cd /opt   # یا هر مسیری که دوست دارید
+git clone https://github.com/idanixno/htdev.git zharfa
+cd zharfa
 ```
 
-Compose file: [`docker-compose.yml`](../docker-compose.yml) (Postgres 16, Redis 7, MinIO).
+---
 
-## Environment
+## قدم ۲ — فایل تنظیمات (`.env`)
 
-Copy [`.env.example`](../.env.example) → `.env` at the repo root. Prisma scripts (`db:generate`, `db:migrate`, `db:seed`, `db:studio`) load that file via `dotenv-cli`.
+```bash
+cp .env.example .env
+nano .env   # یا ویرایشگر دیگر
+```
 
-Critical groups:
+### چیزهایی که روی سرور حتماً عوض کنید
 
-| Group | Keys | Notes |
-|-------|------|-------|
-| Origins / SEO | `WEB_ORIGIN`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_API_URL`, `API_INTERNAL_URL`, `API_PUBLIC_URL` | Local defaults use localhost |
-| Data | `DATABASE_URL`, `REDIS_URL`, `S3_*` | Compose defaults match `.env.example` |
-| Auth | `SESSION_SECRET`, `OTP_PEPPER`, `AUTH_RATE_*` | Change before any shared host |
-| Seed | `SEED_ADMIN_PASSWORD`, `SEED_STUDENT_PASSWORD` | Demo only |
-| Payments | `ZARINPAL_*`, `AQAYE_PARDAKHT_*`, `PAYMENT_MOCK_HOOKS` | Empty = credentials required |
-| SpotPlayer | `SPOTPLAYER_*` | Empty = credentials required |
-| Security | `ENABLE_HSTS` | Keep `false` on local HTTP |
-| Tickets / notify | `TICKET_ATTACHMENT_ROOT`, `NOTIFY_RATE_*` | Attachments on private local disk |
+| کلید | چه بگذارید |
+|------|------------|
+| `NODE_ENV` | `production` |
+| `WEB_ORIGIN` | آدرس عمومی سایت، مثل `https://zharfa.example.com` |
+| `NEXT_PUBLIC_SITE_URL` | همان آدرس عمومی سایت |
+| `NEXT_PUBLIC_API_URL` | آدرس عمومی API، مثل `https://api.zharfa.example.com` یا `https://zharfa.example.com` اگر پشت یک دامنه پروکسی شده |
+| `API_INTERNAL_URL` | آدرسی که **وب روی خود سرور** برای حرف زدن با API استفاده می‌کند؛ معمولاً `http://127.0.0.1:4000` |
+| `API_PUBLIC_URL` | آدرس API که درگاه پرداخت بتواند به آن برگردد (باید از اینترنت دیده شود) |
+| `DATABASE_URL` | رشتهٔ اتصال Postgres واقعی |
+| `REDIS_URL` | آدرس Redis واقعی |
+| `SESSION_SECRET` | یک رشتهٔ بلند و تصادفی |
+| `OTP_PEPPER` | یک رشتهٔ بلند و تصادفی دیگر |
+| `SEED_ADMIN_PASSWORD` / `SEED_STUDENT_PASSWORD` | فقط اگر می‌خواهید seed بزنید؛ بعداً عوض کنید |
+| `ENABLE_HSTS` | فقط وقتی HTTPS کامل دارید: `true` |
+| `PAYMENT_MOCK_HOOKS` | روی سرور واقعی همیشه `false` |
+| `SPOTPLAYER_MOCK_HOOKS` | روی سرور واقعی همیشه `false` |
 
-## Suggested future production checklist (not implemented)
+### پرداخت آقای‌پرداخت / زرین‌پال
 
-1. Managed PostgreSQL + Redis; run `pnpm db:migrate` as `migrate:deploy` in release job.
-2. Set strong `SESSION_SECRET` / `OTP_PEPPER`; disable all `*_MOCK_HOOKS`.
-3. Supply real ZarinPal / AqayePardakht / SpotPlayer credentials; re-verify payment + license paths manually.
-4. Replace console email/SMS with a real provider; store secrets outside git.
-5. Terminate TLS; set `ENABLE_HSTS=true` only behind HTTPS.
-6. Harden CSP (remove `'unsafe-inline'` when Next nonce pipeline exists).
-7. Move ticket attachments to signed object storage (MinIO/S3).
-8. Add CI: typecheck, lint, unit tests, dependency audit, secret scanning.
+- برای تست سندباکس آقای‌پرداخت: `AQAYE_PARDAKHT_PIN` را خالی بگذارید و `AQAYE_PARDAKHT_SANDBOX=true`
+- برای فروش واقعی: پین واقعی را بگذارید و سندباکس را خاموش کنید
+- `API_PUBLIC_URL` باید دقیقاً دامنه‌ای باشد که در پنل درگاه مجاز شده
 
-## What not to do
+### اسپات‌پلیر
 
-- Do not invent successful payments or SpotPlayer licenses in any environment.
-- Do not claim production readiness solely because `pnpm build` passes.
-- Do not commit real `.env` secrets.
+تا وقتی کلید واقعی ندارید، فیلدها را خالی بگذارید. لایسنس واقعی ساخته نمی‌شود مگر با اعتبار واقعی.
+
+**هرگز فایل `.env` را داخل Git نگذارید.**
+
+---
+
+## قدم ۳ — روشن کردن Postgres و Redis
+
+اگر Docker دارید:
+
+```bash
+pnpm docker:up
+pnpm docker:ps
+```
+
+صبر کنید تا healthcheck سبز شود. اگر Postgres/Redis جدا دارید، فقط `DATABASE_URL` و `REDIS_URL` را درست کنید و این قدم را رد کنید.
+
+---
+
+## قدم ۴ — نصب پکیج‌ها
+
+```bash
+pnpm install
+```
+
+---
+
+## قدم ۵ — دیتابیس: ساخت جداول و دادهٔ اولیه
+
+```bash
+# ساخت کلاینت Prisma
+pnpm db:generate
+
+# اعمال migrationها روی سرور (مهم: deploy نه dev)
+pnpm --filter @zharfa/database migrate:deploy
+
+# (اختیاری) دادهٔ دمو — فقط اگر می‌خواهید ادمین/دانشجو نمونه داشته باشید
+pnpm db:seed
+```
+
+بعد از seed (اگر زده باشید):
+
+- ادمین: یوزرنیم `admin` — رمز همان `SEED_ADMIN_PASSWORD`
+- پنل: `/admin`
+- داشبورد دانشجو: `/dashboard`
+
+---
+
+## قدم ۶ — بیلد برای تولید
+
+```bash
+pnpm build
+```
+
+این دستور همهٔ پکیج‌ها و اپ‌ها را برای production می‌سازد. اگر خطا داد، همان خطا را کامل بخوانید (معمولاً TypeScript یا env ناقص است).
+
+---
+
+## قدم ۷ — اجرای سرویس‌ها
+
+برای تست دستی (سه ترمینال جدا):
+
+```bash
+# ترمینال ۱ — API
+pnpm --filter @zharfa/api start:prod
+
+# ترمینال ۲ — Worker
+pnpm --filter @zharfa/worker start
+
+# ترمینال ۳ — وب
+pnpm --filter @zharfa/web start
+```
+
+بررسی سلامت:
+
+```bash
+curl -s http://127.0.0.1:4000/health
+curl -s http://127.0.0.1:4001/health
+curl -sI http://127.0.0.1:3000
+```
+
+برای اجرای پایدار روی سرور، از **systemd** یا **PM2** استفاده کنید تا با بستن SSH خاموش نشوند.
+
+### نمونهٔ ساده با PM2
+
+```bash
+npm i -g pm2
+
+pm2 start "pnpm --filter @zharfa/api start:prod" --name zharfa-api
+pm2 start "pnpm --filter @zharfa/worker start" --name zharfa-worker
+pm2 start "pnpm --filter @zharfa/web start" --name zharfa-web
+
+pm2 save
+pm2 startup
+```
+
+---
+
+## قدم ۸ — Nginx (پیشنهادی) و HTTPS
+
+مرورگر نباید مستقیم به پورت‌های داخلی بزند. Nginx را جلوی وب/API بگذارید.
+
+### مثال ساده: یک دامنه برای سایت، API زیر همان دامنه با `/api-backend` یا ساب‌دامین
+
+**حالت رایج‌تر: ساب‌دامین**
+
+- `https://zharfa.example.com` → وب `:3000`
+- `https://api.zharfa.example.com` → API `:4000`
+
+نمونهٔ اسکچ Nginx برای وب:
+
+```nginx
+server {
+  listen 80;
+  server_name zharfa.example.com;
+
+  location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+و برای API:
+
+```nginx
+server {
+  listen 80;
+  server_name api.zharfa.example.com;
+
+  location / {
+    proxy_pass http://127.0.0.1:4000;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+سپس با Certbot گواهی بگیرید:
+
+```bash
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d zharfa.example.com -d api.zharfa.example.com
+```
+
+بعد از HTTPS:
+
+1. در `.env` همهٔ URLهای عمومی را با `https://` بگذارید
+2. `ENABLE_HSTS=true`
+3. سرویس‌ها را ری‌استارت کنید
+
+---
+
+## قدم ۹ — کانفیگ بعد از بالا آمدن
+
+1. با ادمین وارد `/admin` شوید
+2. **پرداخت‌ها** را در `/admin/payments` چک کنید (سندباکس/پین)
+3. **اسپات‌پلیر** را در ادمین تنظیم کنید
+4. در صورت نیاز کلید OpenAI و یکپارچگی‌ها را از ادمین بگذارید (ترجیحاً به‌جای فقط `.env`)
+5. یک خرید آزمایشی با سندباکس انجام دهید و callback را تست کنید
+
+---
+
+## به‌روزرسانی نسخهٔ جدید روی سرور
+
+```bash
+cd /opt/zharfa
+git pull
+pnpm install
+pnpm db:generate
+pnpm --filter @zharfa/database migrate:deploy
+pnpm build
+pm2 restart zharfa-api zharfa-worker zharfa-web
+# یا معادل systemd
+```
+
+---
+
+## عیب‌یابی سریع
+
+| مشکل | کار |
+|------|-----|
+| سایت بالا نمی‌آید | `pnpm --filter @zharfa/web start` را ببینید؛ پورت `3000` آزاد است؟ |
+| لاگین کار نمی‌کند | `API_INTERNAL_URL` و کوکی/دامنه را چک کنید |
+| پرداخت برنمی‌گردد | `API_PUBLIC_URL` از اینترنت دیده می‌شود؟ دامنه در پنل درگاه ثبت شده؟ |
+| دیتابیس خطا می‌دهد | `DATABASE_URL` و وضعیت Postgres (`pnpm docker:ps`) |
+| migration روی سرور خطا | حتماً `migrate:deploy` بزنید نه `db:migrate` (dev) |
+| OTP را نمی‌بینید | در این نسخه OTP در لاگ کنسول API چاپ می‌شود مگر SMS واقعی وصل شده باشد |
+
+---
+
+## چک‌لیست نهایی قبل از فروش واقعی
+
+- [ ] `NODE_ENV=production`
+- [ ] رمزهای `SESSION_SECRET` و `OTP_PEPPER` قوی و یکتا
+- [ ] HTTPS فعال و `ENABLE_HSTS=true`
+- [ ] `PAYMENT_MOCK_HOOKS=false` و `SPOTPLAYER_MOCK_HOOKS=false`
+- [ ] اعتبار واقعی درگاه و اسپات‌پلیر
+- [ ] بکاپ منظم از Postgres
+- [ ] دسترسی SSH و پنل ادمین محدود شده
+
+---
+
+## یادداشت صادقانه
+
+این پروژه برای اجرای واقعی آمادهٔ پایه است، ولی «آمادهٔ فروش بدون تست دستی» نیست. بعد از دیپلوی حتماً مسیر خرید، callback، لایسنس و تیکت را خودتان یک‌بار از اول تا آخر تست کنید.
