@@ -54,7 +54,10 @@ export class GatewayRegistryService {
     for (const provider of providers) {
       const adapter =
         provider === PaymentProvider.ZARINPAL ? this.zarinpal : this.aqaye;
-      const credentialsStatus = adapter.hasCredentials()
+      // Aqaye sandbox needs no merchant pin (pin=sandbox). Prefer it as default
+      // when ZarinPal still lacks a merchant id.
+      const sandboxDefault = true;
+      const credentialsStatus = adapter.hasCredentials(sandboxDefault)
         ? GatewayCredentialsStatus.PRESENT
         : GatewayCredentialsStatus.MISSING;
       await this.prisma.paymentGatewaySetting.upsert({
@@ -63,11 +66,25 @@ export class GatewayRegistryService {
           provider,
           technicalEnabled: true,
           checkoutVisible: true,
-          isDefault: provider === PaymentProvider.ZARINPAL,
-          sandboxMode: true,
+          isDefault: provider === PaymentProvider.AQAYE_PARDAKHT,
+          sandboxMode: sandboxDefault,
           credentialsStatus,
         },
         update: { credentialsStatus },
+      });
+    }
+
+    // Existing installs: if ZarinPal still has no merchant id but Aqaye sandbox
+    // is ready, make Aqaye the default selectable gateway.
+    const zarinpalReady = this.zarinpal.hasCredentials(true);
+    const aqayeReady = this.aqaye.hasCredentials(true);
+    if (!zarinpalReady && aqayeReady) {
+      await this.prisma.paymentGatewaySetting.updateMany({
+        data: { isDefault: false },
+      });
+      await this.prisma.paymentGatewaySetting.update({
+        where: { provider: PaymentProvider.AQAYE_PARDAKHT },
+        data: { isDefault: true, sandboxMode: true, checkoutVisible: true },
       });
     }
   }
@@ -79,7 +96,7 @@ export class GatewayRegistryService {
     });
     return rows.map((row) => {
       const adapter = this.getAdapter(row.provider);
-      const integrationStatus = adapter.integrationStatus();
+      const integrationStatus = adapter.integrationStatus(row.sandboxMode);
       // Respect DB technicalEnabled even if env adapter thinks enabled.
       const effectiveStatus: GatewayIntegrationStatus = !row.technicalEnabled
         ? "DISABLED"
@@ -95,7 +112,7 @@ export class GatewayRegistryService {
         checkoutVisible: row.checkoutVisible,
         isDefault: row.isDefault,
         sandboxMode: row.sandboxMode,
-        credentialsStatus: adapter.hasCredentials()
+        credentialsStatus: adapter.hasCredentials(row.sandboxMode)
           ? GatewayCredentialsStatus.PRESENT
           : GatewayCredentialsStatus.MISSING,
         usableAtCheckout,
@@ -139,9 +156,13 @@ export class GatewayRegistryService {
     }
 
     const adapter = this.getAdapter(provider);
+    const current = await this.prisma.paymentGatewaySetting.findUnique({
+      where: { provider },
+    });
+    const sandboxForCreds = patch.sandboxMode ?? current?.sandboxMode ?? true;
     const data: Prisma.PaymentGatewaySettingUpdateInput = {
       ...patch,
-      credentialsStatus: adapter.hasCredentials()
+      credentialsStatus: adapter.hasCredentials(sandboxForCreds)
         ? GatewayCredentialsStatus.PRESENT
         : GatewayCredentialsStatus.MISSING,
     };

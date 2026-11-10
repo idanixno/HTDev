@@ -8,6 +8,9 @@ import { SpotPlayerModule } from "./spotplayer/spotplayer.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { TicketsModule } from "./tickets/tickets.module";
 import { AdminModule } from "./admin/admin.module";
+import { IntegrationsModule } from "./integrations/integrations.module";
+import { SeoModule } from "./seo/seo.module";
+import { SecurityModule } from "./security/security.module";
 
 @Module({
   imports: [
@@ -19,6 +22,9 @@ import { AdminModule } from "./admin/admin.module";
     NotificationsModule,
     TicketsModule,
     AdminModule,
+    IntegrationsModule,
+    SeoModule,
+    SecurityModule,
   ],
   controllers: [HealthController],
 })

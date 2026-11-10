@@ -1,28 +1,27 @@
 import {
   CanActivate,
   ExecutionContext,
-  ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { UserRole } from "@zharfa/database";
 import { AuthGuard, type AuthedRequest } from "../identity/auth.guard";
 
-/** Requires authenticated OWNER (instructor/admin). */
+/** Owner-only routes. Missing session and other roles look like a missing route. */
 @Injectable()
 export class OwnerGuard implements CanActivate {
   constructor(private readonly auth: AuthGuard) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const ok = await this.auth.canActivate(context);
-    if (!ok) return false;
+    try {
+      await this.auth.canActivate(context);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) throw new NotFoundException();
+      throw error;
+    }
     const req = context.switchToHttp().getRequest<AuthedRequest>();
-    if (!req.user) {
-      throw new UnauthorizedException("ورود لازم است.");
-    }
-    if (req.user.role !== UserRole.OWNER) {
-      throw new ForbiddenException("فقط مالک می‌تواند این عمل را انجام دهد.");
-    }
+    if (!req.user || req.user.role !== UserRole.OWNER) throw new NotFoundException();
     return true;
   }
 }

@@ -7,31 +7,32 @@ import {
 } from "class-validator";
 
 export class RegisterDto {
-  @IsString()
-  @MinLength(3)
-  @MaxLength(32)
+  @IsString({ message: "نام کاربری باید متن باشد." })
+  @MinLength(3, { message: "نام کاربری حداقل ۳ نویسه است." })
+  @MaxLength(32, { message: "نام کاربری حداکثر ۳۲ نویسه است." })
   @Matches(/^[a-zA-Z][a-zA-Z0-9_-]{2,31}$/, {
-    message: "username must start with a letter and use a-z, 0-9, _, -",
+    message:
+      "نام کاربری باید با حرف لاتین شروع شود و فقط حرف، عدد، _ و - داشته باشد.",
   })
   username!: string;
 
-  @IsString()
-  @MinLength(5)
-  @MaxLength(254)
+  @IsString({ message: "ایمیل باید متن باشد." })
+  @MinLength(5, { message: "ایمیل معتبر نیست." })
+  @MaxLength(254, { message: "ایمیل بیش از حد بلند است." })
   email!: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(32)
+  @IsString({ message: "شماره موبایل باید متن باشد." })
+  @MaxLength(32, { message: "شماره موبایل بیش از حد بلند است." })
   phone?: string;
 
-  @IsString()
-  @MinLength(2)
-  @MaxLength(80)
+  @IsString({ message: "نام نمایشی باید متن باشد." })
+  @MinLength(2, { message: "نام نمایشی حداقل ۲ نویسه است." })
+  @MaxLength(80, { message: "نام نمایشی بیش از حد بلند است." })
   displayName!: string;
 
-  @IsString()
-  @MinLength(8)
-  @MaxLength(128)
+  @IsString({ message: "رمز عبور باید متن باشد." })
+  @MinLength(8, { message: "رمز عبور باید حداقل ۸ نویسه باشد." })
+  @MaxLength(128, { message: "رمز عبور بیش از حد بلند است." })
   password!: string;
 }

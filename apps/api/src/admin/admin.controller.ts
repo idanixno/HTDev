@@ -22,18 +22,22 @@ import {
   AdminListQueryDto,
   AdminOrdersQueryDto,
   AnalyticsQueryDto,
+  UpdateFooterCmsDto,
   UpdateHomeCmsDto,
   UpsertArticleDto,
   UpsertCategoryDto,
   UpsertCouponDto,
   UpsertCourseDto,
+  CreatePathStepDto,
   UpsertFaqDto,
+  UpsertLearningPathDto,
   UpsertLessonDto,
   UpsertModuleDto,
+  UpdatePathStepDto,
 } from "./dto/admin.dto";
 
 /**
- * OWNER-only admin surface. Every route uses OwnerGuard — no obscurity by path.
+ * Owner-only admin surface. Non-owners receive 404, the same as a missing route.
  */
 @Controller("admin")
 @UseGuards(OwnerGuard)
@@ -103,6 +107,11 @@ export class AdminController {
     return this.admin.upsertCourse(req.user!.id, body, id);
   }
 
+  @Delete("courses/:id")
+  removeCourse(@Req() req: AuthedRequest, @Param("id") id: string) {
+    return this.admin.deleteCourse(req.user!.id, id);
+  }
+
   @Post("courses/:id/modules")
   createModule(
     @Req() req: AuthedRequest,
@@ -169,6 +178,11 @@ export class AdminController {
     return this.admin.upsertCategory(req.user!.id, body, id);
   }
 
+  @Delete("categories/:id")
+  removeCategory(@Req() req: AuthedRequest, @Param("id") id: string) {
+    return this.admin.deleteCategory(req.user!.id, id);
+  }
+
   // Orders
   @Get("orders")
   orders(@Query() query: AdminOrdersQueryDto) {
@@ -199,6 +213,11 @@ export class AdminController {
     @Body() body: UpsertCouponDto,
   ) {
     return this.admin.upsertCoupon(req.user!.id, body, id);
+  }
+
+  @Delete("coupons/:id")
+  removeCoupon(@Req() req: AuthedRequest, @Param("id") id: string) {
+    return this.admin.deleteCoupon(req.user!.id, id);
   }
 
   // Payment gateway settings (reuse commerce service)
@@ -255,6 +274,79 @@ export class AdminController {
     return this.admin.upsertArticle(req.user!.id, body, id);
   }
 
+  @Delete("articles/:id")
+  removeArticle(@Req() req: AuthedRequest, @Param("id") id: string) {
+    return this.admin.deleteArticle(req.user!.id, id);
+  }
+
+  @Get("paths")
+  learningPaths() {
+    return this.admin.listLearningPaths();
+  }
+
+  @Post("paths")
+  createLearningPath(
+    @Req() req: AuthedRequest,
+    @Body() body: UpsertLearningPathDto,
+  ) {
+    return this.admin.upsertLearningPath(req.user!.id, body);
+  }
+
+  @Get("paths/:pathId")
+  learningPath(@Param("pathId") pathId: string) {
+    return this.admin.getLearningPath(pathId);
+  }
+
+  @Patch("paths/:pathId")
+  updateLearningPath(
+    @Req() req: AuthedRequest,
+    @Param("pathId") pathId: string,
+    @Body() body: UpsertLearningPathDto,
+  ) {
+    return this.admin.upsertLearningPath(req.user!.id, body, pathId);
+  }
+
+  @Delete("paths/:pathId")
+  removeLearningPath(
+    @Req() req: AuthedRequest,
+    @Param("pathId") pathId: string,
+  ) {
+    return this.admin.deleteLearningPath(req.user!.id, pathId);
+  }
+
+  @Post("paths/:pathId/steps")
+  createLearningPathStep(
+    @Req() req: AuthedRequest,
+    @Param("pathId") pathId: string,
+    @Body() body: CreatePathStepDto,
+  ) {
+    return this.admin.createLearningPathStep(req.user!.id, pathId, body);
+  }
+
+  @Get("paths/:pathId/steps/:stepId")
+  learningPathStep(@Param("pathId") pathId: string, @Param("stepId") stepId: string) {
+    return this.admin.getLearningPathStep(pathId, stepId);
+  }
+
+  @Patch("paths/:pathId/steps/:stepId")
+  updateLearningPathStep(
+    @Req() req: AuthedRequest,
+    @Param("pathId") pathId: string,
+    @Param("stepId") stepId: string,
+    @Body() body: UpdatePathStepDto,
+  ) {
+    return this.admin.updateLearningPathStep(req.user!.id, pathId, stepId, body);
+  }
+
+  @Delete("paths/:pathId/steps/:stepId")
+  removeLearningPathStep(
+    @Req() req: AuthedRequest,
+    @Param("pathId") pathId: string,
+    @Param("stepId") stepId: string,
+  ) {
+    return this.admin.deleteLearningPathStep(req.user!.id, pathId, stepId);
+  }
+
   // CMS
   @Get("cms/home")
   homeCms() {
@@ -264,6 +356,16 @@ export class AdminController {
   @Patch("cms/home")
   updateHome(@Req() req: AuthedRequest, @Body() body: UpdateHomeCmsDto) {
     return this.admin.updateHomeCms(req.user!.id, body);
+  }
+
+  @Get("cms/footer")
+  footerCms() {
+    return this.admin.getFooterCms();
+  }
+
+  @Patch("cms/footer")
+  updateFooter(@Req() req: AuthedRequest, @Body() body: UpdateFooterCmsDto) {
+    return this.admin.updateFooterCms(req.user!.id, body);
   }
 
   @Get("cms/faq")

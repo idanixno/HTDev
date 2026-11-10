@@ -283,6 +283,57 @@ export class IdentityService {
    * Authenticated password change. Revokes every session, including the current
    * one, so a stolen cookie cannot survive a reset.
    */
+  async updateProfile(
+    userId: string,
+    input: {
+      displayName: string;
+      phone?: string | null;
+      telegramHandle?: string | null;
+      githubHandle?: string | null;
+    },
+  ): Promise<{ user: PublicUser }> {
+    const displayName = input.displayName.trim();
+    if (displayName.length < 2) {
+      throw new BadRequestException("نام نمایشی حداقل ۲ نویسه است.");
+    }
+
+    let phone: string | null | undefined = input.phone;
+    if (phone !== undefined) {
+      if (phone == null || phone.trim() === "") {
+        phone = null;
+      } else {
+        const normalized = normalizePhone(phone);
+        if (!normalized) {
+          throw new BadRequestException("شماره موبایل معتبر نیست.");
+        }
+        phone = normalized;
+        const taken = await this.prisma.user.findFirst({
+          where: { phone: normalized, NOT: { id: userId } },
+          select: { id: true },
+        });
+        if (taken) {
+          throw new ConflictException("این شماره موبایل قبلاً ثبت شده است.");
+        }
+      }
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        displayName,
+        ...(phone !== undefined ? { phone } : {}),
+        ...(input.telegramHandle !== undefined
+          ? { telegramHandle: input.telegramHandle }
+          : {}),
+        ...(input.githubHandle !== undefined
+          ? { githubHandle: input.githubHandle }
+          : {}),
+      },
+    });
+
+    return { user: toPublicUser(user) };
+  }
+
   async changePassword(
     userId: string,
     currentPassword: string,

@@ -40,6 +40,11 @@ export type PublicCourseCardDto = {
   diagramKind: "boundary" | "chain";
   chainNodes: string[];
   href: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  ogImage: string | null;
+  noIndex: boolean;
+  updatedAt: string;
 };
 
 export type PublicLessonDto = {
@@ -49,6 +54,8 @@ export type PublicLessonDto = {
   sortOrder: number;
   durationMinutes: number | null;
   isPreview: boolean;
+  previewAsset: string | null;
+  videoAsset: string | null;
 };
 
 export type PublicModuleDto = {
@@ -61,15 +68,25 @@ export type PublicModuleDto = {
 
 export type PublicCourseDetailDto = PublicCourseCardDto & {
   description: string | null;
+  /** Public intro/preview video for the course hero (optional). */
+  previewAsset: string | null;
+  /**
+   * When true, full lessons play in SpotPlayer after purchase.
+   * Site-hosted videoAsset is only exposed for isPreview lessons.
+   */
+  spotPlayerProtected: boolean;
   publishedAt: string | null;
   modules: PublicModuleDto[];
 };
 
 export type PublicPathStepDto = {
   id: string;
+  slug: string;
   title: string;
   summary: string | null;
   sortOrder: number;
+  href: string;
+  noIndex: boolean;
   course: PublicCourseCardDto | null;
 };
 
@@ -150,31 +167,48 @@ export function toPublicCourseCard(course: CourseWithCategory): PublicCourseCard
     diagramKind: diagramKindToUi(course.diagramKind),
     chainNodes: [...chainNodes],
     href: `/courses/${course.slug}`,
+    seoTitle: course.seoTitle,
+    seoDescription: course.seoDescription,
+    ogImage: course.ogImage,
+    noIndex: course.noIndex,
+    updatedAt: course.updatedAt.toISOString(),
   };
 }
 
 export function toPublicCourseDetail(
   course: CourseWithCategory & {
     modules: (CurriculumModule & { lessons: Lesson[] })[];
+    spotPlayerMapping?: { enabled: boolean } | null;
   },
 ): PublicCourseDetailDto {
+  const spotPlayerProtected = Boolean(
+    course.spotPlayerMapping?.enabled,
+  );
   return {
     ...toPublicCourseCard(course),
     description: course.description,
+    previewAsset: course.previewAsset,
+    spotPlayerProtected,
     publishedAt: course.publishedAt?.toISOString() ?? null,
     modules: course.modules.map((mod) => ({
       id: mod.id,
       title: mod.title,
       summary: mod.summary,
       sortOrder: mod.sortOrder,
-      lessons: mod.lessons.map((lesson) => ({
-        id: lesson.id,
-        title: lesson.title,
-        summary: lesson.summary,
-        sortOrder: lesson.sortOrder,
-        durationMinutes: lesson.durationMinutes,
-        isPreview: lesson.isPreview,
-      })),
+      lessons: mod.lessons.map((lesson) => {
+        const allowSiteVideo =
+          !spotPlayerProtected || lesson.isPreview;
+        return {
+          id: lesson.id,
+          title: lesson.title,
+          summary: lesson.summary,
+          sortOrder: lesson.sortOrder,
+          durationMinutes: lesson.durationMinutes,
+          isPreview: lesson.isPreview,
+          previewAsset: lesson.isPreview ? lesson.previewAsset : null,
+          videoAsset: allowSiteVideo ? lesson.videoAsset : null,
+        };
+      }),
     })),
   };
 }
@@ -212,9 +246,12 @@ export function toPublicPathDetail(
     stepCount: path.steps.length,
     steps: path.steps.map((step) => ({
       id: step.id,
+      slug: step.slug,
       title: step.title,
       summary: step.summary,
       sortOrder: step.sortOrder,
+      href: `/paths/${path.slug}/${step.slug}`,
+      noIndex: step.noIndex,
       course: step.course ? toPublicCourseCard(step.course) : null,
     })),
   };

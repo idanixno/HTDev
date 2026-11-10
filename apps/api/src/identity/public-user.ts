@@ -6,6 +6,8 @@ export type PublicUser = {
   email: string;
   phone: string | null;
   displayName: string;
+  telegramHandle: string | null;
+  githubHandle: string | null;
   role: User["role"];
   emailVerified: boolean;
   phoneVerified: boolean;
@@ -18,6 +20,8 @@ export function toPublicUser(user: User): PublicUser {
     email: user.email,
     phone: user.phone,
     displayName: user.displayName,
+    telegramHandle: user.telegramHandle,
+    githubHandle: user.githubHandle,
     role: user.role,
     emailVerified: Boolean(user.emailVerifiedAt),
     phoneVerified: Boolean(user.phoneVerifiedAt),

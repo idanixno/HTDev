@@ -13,6 +13,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   Max,
   MaxLength,
   Min,
@@ -65,6 +66,7 @@ export class UpsertCategoryDto {
   summary?: string | null;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   sortOrder?: number;
 }
@@ -98,11 +100,13 @@ export class UpsertCourseDto {
   @IsEnum(CourseOfferKind)
   offerKind!: CourseOfferKind;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   priceToman!: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   compareAtToman?: number | null;
@@ -112,11 +116,13 @@ export class UpsertCourseDto {
   levelLabel?: string | null;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   durationHours?: number | null;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   lessonCount?: number;
@@ -126,6 +132,7 @@ export class UpsertCourseDto {
   featured?: boolean;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   sortOrder?: number;
 
@@ -135,11 +142,35 @@ export class UpsertCourseDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(500)
+  previewAsset?: string | null;
+
+  @IsOptional()
+  @IsString()
   indexLabel?: string | null;
 
   @IsOptional()
   @IsEnum(CourseDiagramKind)
   diagramKind?: CourseDiagramKind;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  seoTitle?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(320)
+  seoDescription?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  ogImage?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  noIndex?: boolean;
 }
 
 export class UpsertCouponDto {
@@ -152,26 +183,31 @@ export class UpsertCouponDto {
   discountType!: CouponDiscountType;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   percentOff?: number | null;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   amountOffToman?: number | null;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   minOrderToman?: number | null;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   maxDiscountToman?: number | null;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   maxRedemptions?: number | null;
@@ -193,6 +229,7 @@ export class UpsertFaqDto {
   answer!: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   sortOrder?: number;
 
@@ -219,13 +256,32 @@ export class UpsertArticleDto {
 
   @IsString()
   @MinLength(20)
-  @MaxLength(20000)
+  @MaxLength(60000)
   body!: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(300)
+  @MaxLength(500)
   coverAsset?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  seoTitle?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(320)
+  seoDescription?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  ogImage?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  noIndex?: boolean;
 
   @IsOptional()
   @IsBoolean()
@@ -285,6 +341,16 @@ export class UpsertLessonDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(500)
+  previewAsset?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  videoAsset?: string | null;
+
+  @IsOptional()
+  @IsString()
   moduleId?: string | null;
 }
 
@@ -325,6 +391,18 @@ export class UpdateHomeCmsDto {
   secondaryCtaHref?: string | null;
 }
 
+export class UpdateFooterCmsDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(12000)
+  enamadHtml?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(12000)
+  paymentGatewayHtml?: string | null;
+}
+
 export class AdminOrdersQueryDto extends AdminListQueryDto {
   @IsOptional()
   @IsString()
@@ -336,5 +414,94 @@ export class AdminCustomersQueryDto extends AdminListQueryDto {
   @IsString()
   role?: string;
 }
+
+export class UpdatePathStepDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  title!: string;
+
+  @IsString()
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  @MaxLength(80)
+  slug!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  summary?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60000)
+  body?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  seoTitle?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(320)
+  seoDescription?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  ogImage?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  noIndex?: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  sortOrder?: number;
+
+  @IsOptional()
+  @IsString()
+  courseId?: string | null;
+}
+
+export class UpsertLearningPathDto {
+  @IsString()
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  @MaxLength(80)
+  slug!: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  summary?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60000)
+  description?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  coverAsset?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  published?: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  sortOrder?: number;
+}
+
+export class CreatePathStepDto extends UpdatePathStepDto {}
 
 export { PaymentProvider };

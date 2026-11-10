@@ -182,6 +182,7 @@ export class CommerceService {
       orderId: order.id,
       mobile: input.phone,
       email: input.email,
+      sandbox: gateway.sandboxMode,
     });
 
     if (!created.ok) {
@@ -282,10 +283,18 @@ export class CommerceService {
     });
 
     const adapter = this.gateways.getAdapter(provider);
+    const gatewaySetting = await this.prisma.paymentGatewaySetting.findUnique({
+      where: { provider },
+    });
     const verify = await adapter.verifyPayment({
       amountToman: amountInt(tx.amountToman),
       authority,
       callbackStatus,
+      sandbox: gatewaySetting?.sandboxMode,
+      trackingNumber:
+        query.tracking_number ?? query.trackingNumber ?? null,
+      cardNumber: query.cardnumber ?? query.card_number ?? null,
+      bank: query.bank ?? null,
     });
 
     if (!verify.ok) {

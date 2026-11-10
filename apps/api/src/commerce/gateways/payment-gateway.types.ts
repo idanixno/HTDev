@@ -13,6 +13,8 @@ export type CreatePaymentInput = {
   orderId: string;
   mobile?: string | null;
   email?: string | null;
+  /** Prefer DB/admin sandbox flag; adapters fall back to env. */
+  sandbox?: boolean;
 };
 
 export type CreatePaymentResult =
@@ -34,6 +36,14 @@ export type VerifyPaymentInput = {
   authority: string;
   /** ZarinPal callback Status=OK|NOK; AqayePardakht status=1|0 */
   callbackStatus?: string | null;
+  /** Prefer DB/admin sandbox flag; adapters fall back to env. */
+  sandbox?: boolean;
+  /** AqayePardakht callback: tracking_number */
+  trackingNumber?: string | null;
+  /** AqayePardakht callback: cardnumber (masked) */
+  cardNumber?: string | null;
+  /** AqayePardakht callback: bank */
+  bank?: string | null;
 };
 
 export type VerifyPaymentResult =
@@ -53,9 +63,12 @@ export type VerifyPaymentResult =
 
 export interface PaymentGatewayAdapter {
   readonly provider: PaymentProvider;
-  /** True when env credentials required for live/sandbox API calls are present. */
-  hasCredentials(): boolean;
-  integrationStatus(): GatewayIntegrationStatus;
+  /**
+   * True when credentials for API calls are present.
+   * Optional `sandbox` lets registry evaluate against admin sandboxMode.
+   */
+  hasCredentials(sandbox?: boolean): boolean;
+  integrationStatus(sandbox?: boolean): GatewayIntegrationStatus;
   createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult>;
   verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentResult>;
 }

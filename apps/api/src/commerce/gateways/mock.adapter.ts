@@ -18,11 +18,11 @@ import type {
 export class MockPaymentAdapter implements PaymentGatewayAdapter {
   constructor(readonly provider: PaymentProvider) {}
 
-  hasCredentials(): boolean {
+  hasCredentials(_sandbox?: boolean): boolean {
     return process.env.PAYMENT_MOCK_HOOKS === "true";
   }
 
-  integrationStatus(): GatewayIntegrationStatus {
+  integrationStatus(_sandbox?: boolean): GatewayIntegrationStatus {
     if (!this.hasCredentials()) return "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED";
     return "IMPLEMENTED";
   }

@@ -1,5 +1,13 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PaymentProvider } from "@zharfa/database";
+import {
+  aqayeCreateTransaction,
+  aqayeStartPayUrl,
+  aqayeVerifyTransaction,
+  publicWebOrigin,
+  resolveAqayePin,
+  validateAqayeAmount,
+} from "./aqayepardakht.client";
 import type {
   CreatePaymentInput,
   CreatePaymentResult,
@@ -9,99 +17,96 @@ import type {
   VerifyPaymentResult,
 } from "./payment-gateway.types";
 
-type AqayeCreateResponse = {
-  status?: string;
-  transid?: string;
-  code?: string | number;
-};
-
-type AqayeVerifyResponse = {
-  status?: string;
-  code?: string | number;
-};
-
 /**
- * AqayePardakht (آقای پرداخت) v2 API.
+ * AqayePardakht (آقای پرداخت) adapter — ready for sandbox and production.
+ *
+ * Sandbox (default): pin `sandbox`, startpay `/startpay/sandbox/{transid}`.
+ * No merchant PIN required while sandbox is on.
+ *
+ * Production: set `AQAYE_PARDAKHT_PIN` and turn sandbox off (env + admin flag).
+ * Browser return alone never marks PAID — verify API is always required.
+ *
  * Docs: https://aqayepardakht.ir/api/
- *
- * Create:  POST https://panel.aqayepardakht.ir/api/v2/create
- * Verify:  POST https://panel.aqayepardakht.ir/api/v2/verify
- * StartPay: https://panel.aqayepardakht.ir/startpay/{transid}
- * Sandbox start: …/startpay/sandbox/{transid}
- *
- * Amount is Toman. Verify code "1" = success, "2" = already verified.
- * Never mark PAID from browser return alone — always call verify.
  */
 @Injectable()
 export class AqayePardakhtAdapter implements PaymentGatewayAdapter {
   readonly provider = PaymentProvider.AQAYE_PARDAKHT;
   private readonly logger = new Logger(AqayePardakhtAdapter.name);
 
-  hasCredentials(): boolean {
-    return Boolean(this.pin());
+  hasCredentials(sandbox?: boolean): boolean {
+    return Boolean(
+      resolveAqayePin(this.configuredPin(), sandbox ?? this.envSandbox()),
+    );
   }
 
-  integrationStatus(): GatewayIntegrationStatus {
+  integrationStatus(sandbox?: boolean): GatewayIntegrationStatus {
     if (!this.technicalEnabled()) return "DISABLED";
-    if (!this.hasCredentials()) return "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED";
+    if (!this.hasCredentials(sandbox)) {
+      return "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED";
+    }
     return "IMPLEMENTED";
   }
 
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
-    const status = this.integrationStatus();
-    if (status === "DISABLED") {
+    const sandbox = input.sandbox ?? this.envSandbox();
+    const pin = resolveAqayePin(this.configuredPin(), sandbox);
+
+    if (!this.technicalEnabled()) {
       return {
         ok: false,
-        integrationStatus: status,
+        integrationStatus: "DISABLED",
         reason: "درگاه آقای پرداخت از نظر فنی غیرفعال است.",
       };
     }
-    if (status === "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED") {
+    if (!pin) {
       return {
         ok: false,
-        integrationStatus: status,
+        integrationStatus: "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED",
         reason:
-          "AQAYE_PARDAKHT_PIN تنظیم نشده — IMPLEMENTED_BUT_CREDENTIALS_REQUIRED",
+          "AQAYE_PARDAKHT_PIN تنظیم نشده — برای محیط واقعی پین درگاه لازم است. برای تست، سندباکس را روشن بگذارید (پین sandbox).",
       };
     }
 
-    const body = {
-      pin: this.pin(),
-      amount: input.amountToman,
-      callback: input.callbackUrl,
-      callback_method: "GET",
-      invoice_id: input.orderId,
-      ...(input.mobile ? { mobile: input.mobile } : {}),
-      ...(input.email ? { email: input.email } : {}),
-      description: input.description,
-    };
-
-    try {
-      const res = await fetch("https://panel.aqayepardakht.ir/api/v2/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      const json = (await res.json()) as AqayeCreateResponse;
-      if (json.status === "success" && json.transid) {
-        const path = this.sandbox()
-          ? `startpay/sandbox/${json.transid}`
-          : `startpay/${json.transid}`;
-        return {
-          ok: true,
-          authority: json.transid,
-          redirectUrl: `https://panel.aqayepardakht.ir/${path}`,
-          raw: json,
-        };
-      }
+    const amountError = validateAqayeAmount(input.amountToman);
+    if (amountError) {
       return {
         ok: false,
         integrationStatus: "IMPLEMENTED",
-        reason: `آقای پرداخت درخواست را رد کرد (code=${String(json.code ?? "unknown")}).`,
-        raw: json,
+        reason: amountError,
+      };
+    }
+
+    try {
+      const result = await aqayeCreateTransaction({
+        pin,
+        amount: input.amountToman,
+        callback: input.callbackUrl,
+        callbackMethod: "GET",
+        invoiceId: input.orderId,
+        mobile: input.mobile,
+        email: input.email,
+        description: input.description,
+        referer: publicWebOrigin(),
+      });
+
+      if (result.ok) {
+        const useSandboxPay = sandbox || pin === "sandbox";
+        return {
+          ok: true,
+          authority: result.transid,
+          redirectUrl: aqayeStartPayUrl(result.transid, useSandboxPay),
+          raw: result.raw,
+        };
+      }
+
+      this.logger.warn(
+        `AqayePardakht create rejected code=${result.code}: ${result.message}`,
+      );
+      return {
+        ok: false,
+        integrationStatus: "IMPLEMENTED",
+        reason: result.message,
+        raw: result.raw,
       };
     } catch (err) {
       this.logger.error("AqayePardakht create failed", err as Error);
@@ -114,19 +119,26 @@ export class AqayePardakhtAdapter implements PaymentGatewayAdapter {
   }
 
   async verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentResult> {
-    const status = this.integrationStatus();
-    if (status !== "IMPLEMENTED") {
+    const sandbox = input.sandbox ?? this.envSandbox();
+    const pin = resolveAqayePin(this.configuredPin(), sandbox);
+
+    if (!this.technicalEnabled()) {
       return {
         ok: false,
-        integrationStatus: status,
+        integrationStatus: "DISABLED",
+        reason: "درگاه آقای پرداخت غیرفعال است.",
+      };
+    }
+    if (!pin) {
+      return {
+        ok: false,
+        integrationStatus: "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED",
         reason:
-          status === "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED"
-            ? "AQAYE_PARDAKHT_PIN تنظیم نشده — بدون وریفای واقعی پرداخت موفق نمی‌شود."
-            : "درگاه آقای پرداخت غیرفعال است.",
+          "AQAYE_PARDAKHT_PIN تنظیم نشده — بدون وریفای واقعی پرداخت موفق نمی‌شود.",
       };
     }
 
-    // status=0 from callback means unpaid — do not call verify.
+    // Docs: skip verify when callback status is 0 (failed/cancelled).
     if (input.callbackStatus != null && String(input.callbackStatus) === "0") {
       return {
         ok: false,
@@ -136,33 +148,34 @@ export class AqayePardakhtAdapter implements PaymentGatewayAdapter {
     }
 
     try {
-      const res = await fetch("https://panel.aqayepardakht.ir/api/v2/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          pin: this.pin(),
-          amount: input.amountToman,
-          transid: input.authority,
-        }),
+      const result = await aqayeVerifyTransaction({
+        pin,
+        amount: input.amountToman,
+        transid: input.authority,
+        referer: publicWebOrigin(),
       });
-      const json = (await res.json()) as AqayeVerifyResponse;
-      const code = String(json.code ?? "");
-      // "1" = paid; "2" = already verified (idempotent success).
-      if (json.status === "success" && (code === "1" || code === "2")) {
+
+      if (result.ok) {
         return {
           ok: true,
-          alreadyVerified: code === "2",
-          refId: input.authority,
-          raw: json,
+          alreadyVerified: result.alreadyVerified,
+          refId: (input.trackingNumber?.trim() || input.authority).trim(),
+          cardPan: input.cardNumber?.trim() || null,
+          raw: {
+            ...(typeof result.raw === "object" && result.raw
+              ? (result.raw as object)
+              : { verify: result.raw }),
+            tracking_number: input.trackingNumber ?? null,
+            cardnumber: input.cardNumber ?? null,
+            bank: input.bank ?? null,
+          },
         };
       }
+
       return {
         ok: false,
-        reason: `تأیید آقای پرداخت ناموفق بود (code=${code || "unknown"}).`,
-        raw: json,
+        reason: result.message,
+        raw: result.raw,
       };
     } catch (err) {
       this.logger.error("AqayePardakht verify failed", err as Error);
@@ -173,12 +186,12 @@ export class AqayePardakhtAdapter implements PaymentGatewayAdapter {
     }
   }
 
-  private pin(): string | null {
+  private configuredPin(): string | null {
     const pin = process.env.AQAYE_PARDAKHT_PIN?.trim();
     return pin && pin.length > 0 ? pin : null;
   }
 
-  private sandbox(): boolean {
+  private envSandbox(): boolean {
     return (
       (process.env.AQAYE_PARDAKHT_SANDBOX ?? "true").toLowerCase() !== "false"
     );

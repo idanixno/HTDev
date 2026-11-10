@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
 import { CatalogService } from "./catalog.service";
 import { ListCoursesQueryDto } from "./dto/list-courses.dto";
+import { JoinWaitlistDto } from "./dto/waitlist.dto";
 
 @Controller("catalog")
 export class CatalogController {
@@ -21,6 +22,16 @@ export class CatalogController {
     return this.catalog.featuredCourses();
   }
 
+  @Post("courses/:slug/waitlist")
+  joinWaitlist(@Param("slug") slug: string, @Body() dto: JoinWaitlistDto) {
+    return this.catalog.joinCourseWaitlist(slug, dto.phone);
+  }
+
+  @Get("courses/:slug/related-articles")
+  relatedArticles(@Param("slug") slug: string) {
+    return this.catalog.listRelatedArticlesForCourse(slug);
+  }
+
   @Get("courses/:slug")
   getCourse(@Param("slug") slug: string) {
     return this.catalog.getCourseBySlug(slug);
@@ -29,6 +40,11 @@ export class CatalogController {
   @Get("paths")
   listPaths() {
     return this.catalog.listPaths();
+  }
+
+  @Get("paths/:slug/steps/:stepSlug")
+  getPathStep(@Param("slug") slug: string, @Param("stepSlug") stepSlug: string) {
+    return this.catalog.getPathStep(slug, stepSlug);
   }
 
   @Get("paths/:slug")
@@ -49,6 +65,11 @@ export class CatalogController {
   @Get("faq")
   faq() {
     return this.catalog.listPublishedFaq();
+  }
+
+  @Get("footer-trusts")
+  footerTrusts() {
+    return this.catalog.getFooterTrusts();
   }
 
   @Get("articles")

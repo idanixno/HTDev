@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Patch,
   Post,
   Req,
   Res,
@@ -14,6 +15,7 @@ import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { RecoverRequestDto, RecoverVerifyDto } from "./dto/recover.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
 import {
   AuthGuard,
   extractSessionToken,
@@ -110,6 +112,17 @@ export class IdentityController {
   @UseGuards(AuthGuard)
   me(@Req() req: AuthedRequest) {
     return { user: req.user };
+  }
+
+  @Patch("me")
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @RateLimitBucket("password_change")
+  async updateProfile(
+    @Req() req: AuthedRequest,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.identity.updateProfile(req.user!.id, dto);
   }
 
   @Post("password")

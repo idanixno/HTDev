@@ -1,7 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import {
@@ -13,24 +15,36 @@ import {
   UserRole,
 } from "@zharfa/database";
 import { decimalToNumber, formatTomanLabel } from "../catalog/pricing";
+import {
+  MESSAGING_PROVIDER,
+  type MessagingProvider,
+} from "../identity/messaging/messaging.types";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "./audit.service";
 import type {
+  CreatePathStepDto,
   UpsertArticleDto,
   UpsertCategoryDto,
   UpsertCouponDto,
   UpsertCourseDto,
   UpsertFaqDto,
+  UpsertLearningPathDto,
   UpsertLessonDto,
   UpsertModuleDto,
+  UpdateFooterCmsDto,
   UpdateHomeCmsDto,
+  UpdatePathStepDto,
 } from "./dto/admin.dto";
 
 @Injectable()
 export class AdminService {
+  private readonly logger = new Logger(AdminService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    @Inject(MESSAGING_PROVIDER)
+    private readonly messaging: MessagingProvider,
   ) {}
 
   // ── Courses ──────────────────────────────────────────────────────────
@@ -107,14 +121,20 @@ export class AdminService {
       featured: dto.featured ?? false,
       sortOrder: dto.sortOrder ?? 0,
       coverAsset: dto.coverAsset ?? null,
+      previewAsset: this.cleanVideoAsset(dto.previewAsset),
       indexLabel: dto.indexLabel ?? null,
       diagramKind: dto.diagramKind,
+      seoTitle: dto.seoTitle?.trim() || null,
+      seoDescription: dto.seoDescription?.trim() || null,
+      ogImage: dto.ogImage?.trim() || null,
+      noIndex: dto.noIndex ?? false,
       publishedAt:
         dto.publicationStatus === CoursePublicationStatus.PUBLISHED
           ? (existing?.publishedAt ?? new Date())
           : null,
     };
 
+    const previousOffer = existing?.offerKind ?? null;
     const course = await this.writeUnique(async () =>
       id
         ? this.prisma.course.update({ where: { id }, data })
@@ -136,7 +156,45 @@ export class AdminService {
       },
     });
 
+    if (
+      previousOffer === CourseOfferKind.COMING_SOON &&
+      course.offerKind !== CourseOfferKind.COMING_SOON
+    ) {
+      await this.notifyCourseWaitlist(course.id, course.title, course.slug);
+    }
+
     return { id: course.id, slug: course.slug, title: course.title };
+  }
+
+  /** SMS waitlist when a course leaves به‌زودی. Console adapter in development. */
+  private async notifyCourseWaitlist(
+    courseId: string,
+    title: string,
+    slug: string,
+  ) {
+    const pending = await this.prisma.courseWaitlistEntry.findMany({
+      where: { courseId, notifiedAt: null },
+      select: { id: true, phone: true },
+    });
+    if (pending.length === 0) return;
+
+    const body = `ژرفا: دوره «${title}» منتشر شد. ثبت‌نام: /courses/${slug}`;
+    const now = new Date();
+    for (const row of pending) {
+      try {
+        await this.messaging.sendSms({ to: row.phone, body });
+        await this.prisma.courseWaitlistEntry.update({
+          where: { id: row.id },
+          data: { notifiedAt: now },
+        });
+      } catch (error) {
+        this.logger.warn(
+          `waitlist SMS failed for ${row.phone}: ${
+            error instanceof Error ? error.message : "unknown"
+          }`,
+        );
+      }
+    }
   }
 
   async getCourse(id: string) {
@@ -159,6 +217,8 @@ export class AdminService {
       sortOrder: lesson.sortOrder,
       durationMinutes: lesson.durationMinutes,
       isPreview: lesson.isPreview,
+      previewAsset: lesson.previewAsset,
+      videoAsset: lesson.videoAsset,
       moduleId: lesson.moduleId,
     });
 
@@ -185,8 +245,13 @@ export class AdminService {
       featured: course.featured,
       sortOrder: course.sortOrder,
       coverAsset: course.coverAsset,
+      previewAsset: course.previewAsset,
       indexLabel: course.indexLabel,
       diagramKind: course.diagramKind,
+      seoTitle: course.seoTitle,
+      seoDescription: course.seoDescription,
+      ogImage: course.ogImage,
+      noIndex: course.noIndex,
       modules: course.modules.map((mod) => ({
         id: mod.id,
         title: mod.title,
@@ -274,12 +339,16 @@ export class AdminService {
       });
       if (!existing) throw new NotFoundException("درس یافت نشد.");
     }
+    const isPreview = dto.isPreview ?? false;
+    const previewAsset = dto.previewAsset?.trim() || null;
     const data = {
       title: dto.title.trim(),
       summary: dto.summary ?? null,
       sortOrder: dto.sortOrder ?? 0,
       durationMinutes: dto.durationMinutes ?? null,
-      isPreview: dto.isPreview ?? false,
+      isPreview,
+      previewAsset: isPreview ? previewAsset : null,
+      videoAsset: this.cleanVideoAsset(dto.videoAsset),
       moduleId: dto.moduleId || null,
     };
     const lesson = await this.writeUnique(async () =>
@@ -339,7 +408,7 @@ export class AdminService {
 
   async getArticle(id: string) {
     const article = await this.prisma.article.findUnique({ where: { id } });
-    if (!article) throw new NotFoundException("یادداشت یافت نشد.");
+    if (!article) throw new NotFoundException("مقاله یافت نشد.");
     return {
       id: article.id,
       slug: article.slug,
@@ -347,6 +416,10 @@ export class AdminService {
       summary: article.summary,
       body: article.body,
       coverAsset: article.coverAsset,
+      seoTitle: article.seoTitle,
+      seoDescription: article.seoDescription,
+      ogImage: article.ogImage,
+      noIndex: article.noIndex,
       published: article.published,
       readingMinutes: article.readingMinutes,
       sortOrder: article.sortOrder,
@@ -357,14 +430,22 @@ export class AdminService {
     const existing = id
       ? await this.prisma.article.findUnique({ where: { id } })
       : null;
-    if (id && !existing) throw new NotFoundException("یادداشت یافت نشد.");
+    if (id && !existing) throw new NotFoundException("مقاله یافت نشد.");
     const published = dto.published ?? false;
+    const blank = (value?: string | null) => {
+      const trimmed = value?.trim();
+      return trimmed ? trimmed : null;
+    };
     const data = {
       slug: dto.slug.trim().toLowerCase(),
       title: dto.title.trim(),
-      summary: dto.summary ?? null,
+      summary: blank(dto.summary),
       body: dto.body.trim(),
-      coverAsset: dto.coverAsset ?? null,
+      coverAsset: blank(dto.coverAsset),
+      seoTitle: blank(dto.seoTitle),
+      seoDescription: blank(dto.seoDescription),
+      ogImage: blank(dto.ogImage),
+      noIndex: dto.noIndex ?? false,
       published,
       publishedAt: published ? (existing?.publishedAt ?? new Date()) : null,
       readingMinutes: dto.readingMinutes ?? null,
@@ -381,11 +462,237 @@ export class AdminService {
       entityType: "Article",
       entityId: article.id,
       summary: id
-        ? `به‌روزرسانی یادداشت «${article.title}»`
-        : `ایجاد یادداشت «${article.title}»`,
+        ? `به‌روزرسانی مقاله «${article.title}»`
+        : `ایجاد مقاله «${article.title}»`,
       metadata: { slug: article.slug, published: article.published },
     });
     return { id: article.id, slug: article.slug, title: article.title };
+  }
+
+  async deleteArticle(actorId: string, id: string) {
+    const article = await this.prisma.article.findUnique({ where: { id } });
+    if (!article) throw new NotFoundException("مقاله یافت نشد.");
+    await this.prisma.article.delete({ where: { id } });
+    await this.audit.record({
+      actorId,
+      action: "article.delete",
+      entityType: "Article",
+      entityId: id,
+      summary: `حذف مقاله «${article.title}»`,
+    });
+    return { ok: true };
+  }
+
+  async listLearningPaths() {
+    return this.prisma.learningPath.findMany({
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+      include: {
+        steps: {
+          orderBy: { sortOrder: "asc" },
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            sortOrder: true,
+            noIndex: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+  }
+
+  async getLearningPath(pathId: string) {
+    const path = await this.prisma.learningPath.findUnique({
+      where: { id: pathId },
+      include: {
+        steps: {
+          orderBy: { sortOrder: "asc" },
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            sortOrder: true,
+            noIndex: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+    if (!path) throw new NotFoundException("مسیر یافت نشد.");
+    return path;
+  }
+
+  async upsertLearningPath(
+    actorId: string,
+    dto: UpsertLearningPathDto,
+    id?: string,
+  ) {
+    const blank = (value?: string | null) => {
+      const trimmed = value?.trim();
+      return trimmed ? trimmed : null;
+    };
+    const data = {
+      slug: dto.slug.trim().toLowerCase(),
+      title: dto.title.trim(),
+      summary: blank(dto.summary),
+      description: blank(dto.description),
+      coverAsset: blank(dto.coverAsset),
+      published: dto.published ?? false,
+      sortOrder: dto.sortOrder ?? 0,
+    };
+    const path = await this.writeUnique(async () =>
+      id
+        ? this.prisma.learningPath.update({ where: { id }, data })
+        : this.prisma.learningPath.create({ data }),
+    );
+    await this.audit.record({
+      actorId,
+      action: id ? "path.update" : "path.create",
+      entityType: "LearningPath",
+      entityId: path.id,
+      summary: id
+        ? `به‌روزرسانی مسیر «${path.title}»`
+        : `ایجاد مسیر «${path.title}»`,
+      metadata: { slug: path.slug, published: path.published },
+    });
+    return {
+      id: path.id,
+      slug: path.slug,
+      title: path.title,
+      published: path.published,
+    };
+  }
+
+  async deleteLearningPath(actorId: string, id: string) {
+    const path = await this.prisma.learningPath.findUnique({ where: { id } });
+    if (!path) throw new NotFoundException("مسیر یافت نشد.");
+    await this.prisma.learningPath.delete({ where: { id } });
+    await this.audit.record({
+      actorId,
+      action: "path.delete",
+      entityType: "LearningPath",
+      entityId: id,
+      summary: `حذف مسیر «${path.title}»`,
+    });
+    return { ok: true };
+  }
+
+  async getLearningPathStep(pathId: string, stepId: string) {
+    const step = await this.prisma.learningPathStep.findFirst({
+      where: { id: stepId, pathId },
+      include: {
+        path: { select: { id: true, title: true, slug: true } },
+        course: { select: { title: true, slug: true } },
+      },
+    });
+    if (!step) throw new NotFoundException("این گام پیدا نشد.");
+    return step;
+  }
+
+  async createLearningPathStep(
+    actorId: string,
+    pathId: string,
+    dto: CreatePathStepDto,
+  ) {
+    await this.getLearningPath(pathId);
+    const blank = (value?: string | null) => {
+      const trimmed = value?.trim();
+      return trimmed ? trimmed : null;
+    };
+    let sortOrder = dto.sortOrder;
+    if (sortOrder == null) {
+      const agg = await this.prisma.learningPathStep.aggregate({
+        where: { pathId },
+        _max: { sortOrder: true },
+      });
+      sortOrder = (agg._max.sortOrder ?? -1) + 1;
+    }
+    const step = await this.writeUnique(async () =>
+      this.prisma.learningPathStep.create({
+        data: {
+          pathId,
+          title: dto.title.trim(),
+          slug: dto.slug.trim().toLowerCase(),
+          summary: blank(dto.summary),
+          body: dto.body?.trim() ?? "",
+          seoTitle: blank(dto.seoTitle),
+          seoDescription: blank(dto.seoDescription),
+          ogImage: blank(dto.ogImage),
+          noIndex: dto.noIndex ?? false,
+          sortOrder,
+          courseId: blank(dto.courseId),
+        },
+      }),
+    );
+    await this.audit.record({
+      actorId,
+      action: "path-step.create",
+      entityType: "LearningPathStep",
+      entityId: step.id,
+      summary: `ایجاد گام «${step.title}»`,
+      metadata: { slug: step.slug, pathId },
+    });
+    return { id: step.id, slug: step.slug, title: step.title };
+  }
+
+  async updateLearningPathStep(
+    actorId: string,
+    pathId: string,
+    stepId: string,
+    dto: UpdatePathStepDto,
+  ) {
+    const existing = await this.getLearningPathStep(pathId, stepId);
+    const blank = (value?: string | null) => {
+      const trimmed = value?.trim();
+      return trimmed ? trimmed : null;
+    };
+    const step = await this.writeUnique(async () =>
+      this.prisma.learningPathStep.update({
+        where: { id: existing.id },
+        data: {
+          title: dto.title.trim(),
+          slug: dto.slug.trim().toLowerCase(),
+          summary: blank(dto.summary),
+          body: dto.body?.trim() ?? "",
+          seoTitle: blank(dto.seoTitle),
+          seoDescription: blank(dto.seoDescription),
+          ogImage: blank(dto.ogImage),
+          noIndex: dto.noIndex ?? false,
+          ...(dto.sortOrder != null ? { sortOrder: dto.sortOrder } : {}),
+          ...(dto.courseId !== undefined
+            ? { courseId: blank(dto.courseId) }
+            : {}),
+        },
+      }),
+    );
+    await this.audit.record({
+      actorId,
+      action: "path-step.update",
+      entityType: "LearningPathStep",
+      entityId: step.id,
+      summary: `به‌روزرسانی گام «${step.title}»`,
+      metadata: { slug: step.slug, pathId },
+    });
+    return { id: step.id, slug: step.slug, title: step.title };
+  }
+
+  async deleteLearningPathStep(
+    actorId: string,
+    pathId: string,
+    stepId: string,
+  ) {
+    const existing = await this.getLearningPathStep(pathId, stepId);
+    await this.prisma.learningPathStep.delete({ where: { id: existing.id } });
+    await this.audit.record({
+      actorId,
+      action: "path-step.delete",
+      entityType: "LearningPathStep",
+      entityId: stepId,
+      summary: `حذف گام «${existing.title}»`,
+      metadata: { pathId },
+    });
+    return { ok: true };
   }
 
   // ── Categories ───────────────────────────────────────────────────────
@@ -413,9 +720,11 @@ export class AdminService {
       summary: dto.summary ?? null,
       sortOrder: dto.sortOrder ?? 0,
     };
-    const category = id
-      ? await this.prisma.category.update({ where: { id }, data })
-      : await this.prisma.category.create({ data });
+    const category = await this.writeUnique(async () =>
+      id
+        ? this.prisma.category.update({ where: { id }, data })
+        : this.prisma.category.create({ data }),
+    );
 
     await this.audit.record({
       actorId,
@@ -428,6 +737,21 @@ export class AdminService {
     });
 
     return category;
+  }
+
+  async deleteCategory(actorId: string, id: string) {
+    const category = await this.prisma.category.findUnique({ where: { id } });
+    if (!category) throw new NotFoundException("دسته یافت نشد.");
+    // Course.categoryId uses onDelete: SetNull — courses stay, lose this category.
+    await this.prisma.category.delete({ where: { id } });
+    await this.audit.record({
+      actorId,
+      action: "category.delete",
+      entityType: "Category",
+      entityId: id,
+      summary: `حذف دسته «${category.title}»`,
+    });
+    return { ok: true };
   }
 
   // ── Orders ───────────────────────────────────────────────────────────
@@ -647,6 +971,20 @@ export class AdminService {
     return { id: coupon.id, code: coupon.code, active: coupon.active };
   }
 
+  async deleteCoupon(actorId: string, id: string) {
+    const coupon = await this.prisma.coupon.findUnique({ where: { id } });
+    if (!coupon) throw new NotFoundException("کوپن یافت نشد.");
+    await this.prisma.coupon.delete({ where: { id } });
+    await this.audit.record({
+      actorId,
+      action: "coupon.delete",
+      entityType: "Coupon",
+      entityId: id,
+      summary: `حذف کوپن ${coupon.code}`,
+    });
+    return { ok: true };
+  }
+
   // ── CMS ──────────────────────────────────────────────────────────────
 
   async getHomeCms() {
@@ -716,6 +1054,50 @@ export class AdminService {
       heroTitle: row.heroTitle,
       updatedAt: row.updatedAt.toISOString(),
     }));
+  }
+
+  async getFooterCms() {
+    const row = await this.prisma.cmsFooterContent.findUnique({
+      where: { id: "footer" },
+    });
+    return {
+      id: "footer",
+      enamadHtml: row?.enamadHtml ?? null,
+      paymentGatewayHtml: row?.paymentGatewayHtml ?? null,
+      updatedAt: row?.updatedAt.toISOString() ?? null,
+    };
+  }
+
+  async updateFooterCms(actorId: string, dto: UpdateFooterCmsDto) {
+    const enamadHtml = normalizeEmbedHtml(dto.enamadHtml);
+    const paymentGatewayHtml = normalizeEmbedHtml(dto.paymentGatewayHtml);
+    const row = await this.prisma.cmsFooterContent.upsert({
+      where: { id: "footer" },
+      create: {
+        id: "footer",
+        enamadHtml,
+        paymentGatewayHtml,
+      },
+      update: {
+        enamadHtml,
+        paymentGatewayHtml,
+      },
+    });
+
+    await this.audit.record({
+      actorId,
+      action: "cms.footer.update",
+      entityType: "CmsFooterContent",
+      entityId: "footer",
+      summary: "به‌روزرسانی نشان‌های اعتماد فوتر",
+    });
+
+    return {
+      id: row.id,
+      enamadHtml: row.enamadHtml,
+      paymentGatewayHtml: row.paymentGatewayHtml,
+      updatedAt: row.updatedAt.toISOString(),
+    };
   }
 
   async listFaq(includeUnpublished = true) {
@@ -803,6 +1185,53 @@ export class AdminService {
     }
   }
 
+  async deleteCourse(actorId: string, id: string) {
+    const course = await this.prisma.course.findUnique({
+      where: { id },
+      include: { _count: { select: { orders: true } } },
+    });
+    if (!course) throw new NotFoundException("دوره یافت نشد.");
+    if (course._count.orders > 0) {
+      throw new BadRequestException(
+        "این دوره سفارش دارد و حذف نمی‌شود. اول سفارش‌ها باید جدا بمانند.",
+      );
+    }
+    await this.prisma.course.delete({ where: { id } });
+    await this.audit.record({
+      actorId,
+      action: "course.delete",
+      entityType: "Course",
+      entityId: id,
+      summary: `حذف دوره ${course.title}`,
+    });
+    return { ok: true };
+  }
+
+  private cleanVideoAsset(value?: string | null): string | null {
+    const raw = value?.trim() ?? "";
+    if (!raw) return null;
+    if (raw.startsWith("/") && !raw.startsWith("//") && !raw.includes("..")) {
+      return raw.slice(0, 500);
+    }
+    let url: URL;
+    try {
+      url = new URL(raw);
+    } catch {
+      throw new BadRequestException(
+        "لینک ویدیو باید مسیر سایت یا نشانی http/https باشد.",
+      );
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      throw new BadRequestException(
+        "لینک ویدیو باید مسیر سایت یا نشانی http/https باشد.",
+      );
+    }
+    if (url.username || url.password) {
+      throw new BadRequestException("لینک ویدیو نباید نام کاربری یا رمز داشته باشد.");
+    }
+    return url.toString().slice(0, 500);
+  }
+
   private assertCoursePricing(dto: UpsertCourseDto) {
     if (dto.offerKind === CourseOfferKind.FREE && dto.priceToman !== 0) {
       throw new BadRequestException("دوره رایگان باید قیمت صفر داشته باشد.");
@@ -815,4 +1244,16 @@ export class AdminService {
       throw new BadRequestException("دوره پولی به قیمت مثبت نیاز دارد.");
     }
   }
+}
+
+/** Keep owner-provided badge embeds, strip scripts, collapse empty to null. */
+function normalizeEmbedHtml(raw: string | null | undefined): string | null {
+  if (raw == null) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const withoutScripts = trimmed
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .trim();
+  return withoutScripts ? withoutScripts.slice(0, 12000) : null;
 }

@@ -26,6 +26,6 @@ import { MESSAGING_PROVIDER } from "./messaging/messaging.types";
       useExisting: ConsoleMessagingProvider,
     },
   ],
-  exports: [IdentityService, SessionService, AuthGuard],
+  exports: [IdentityService, SessionService, AuthGuard, MESSAGING_PROVIDER],
 })
 export class IdentityModule {}

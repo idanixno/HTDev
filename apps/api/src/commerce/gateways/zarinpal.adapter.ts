@@ -44,11 +44,11 @@ export class ZarinPalAdapter implements PaymentGatewayAdapter {
   readonly provider = PaymentProvider.ZARINPAL;
   private readonly logger = new Logger(ZarinPalAdapter.name);
 
-  hasCredentials(): boolean {
+  hasCredentials(_sandbox?: boolean): boolean {
     return Boolean(this.merchantId());
   }
 
-  integrationStatus(): GatewayIntegrationStatus {
+  integrationStatus(_sandbox?: boolean): GatewayIntegrationStatus {
     if (!this.technicalEnabled()) return "DISABLED";
     if (!this.hasCredentials()) return "IMPLEMENTED_BUT_CREDENTIALS_REQUIRED";
     return "IMPLEMENTED";
