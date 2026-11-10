@@ -15,3 +15,5 @@ packages/database/generated
 *.tsbuildinfo
 .data
 apps/api/.data
+apps/web/public/media/lessons/*
+!apps/web/public/media/lessons/.gitkeep

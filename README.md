@@ -100,7 +100,7 @@ Seed also creates categories, courses, curriculum, learning paths, coupons, gate
 | Integration | Env vars | Local status | Notes |
 |-------------|----------|--------------|-------|
 | ZarinPal | `ZARINPAL_MERCHANT_ID`, `ZARINPAL_SANDBOX` | `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` when empty | No fake PAID; paid purchase UI disabled without merchant id |
-| AqayePardakht | `AQAYE_PARDAKHT_PIN`, `AQAYE_PARDAKHT_SANDBOX` | `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` when empty | Same verify/idempotency rules |
+| AqayePardakht | `AQAYE_PARDAKHT_PIN`, `AQAYE_PARDAKHT_SANDBOX` | Sandbox-ready with official pin `sandbox` when PIN empty + sandbox on; live needs real PIN | Same verify/idempotency rules; startpay `/startpay/sandbox/{transid}` in sandbox |
 | SpotPlayer | `SPOTPLAYER_API_KEY`, `SPOTPLAYER_LICENSE_ENDPOINT` | `IMPLEMENTED_BUT_CREDENTIALS_REQUIRED` when empty | Payment PAID ≠ license SUCCEEDED; no invented keys |
 | Email / SMS | (console adapters only) | Console provider | OTP + notifications print to API logs; not a real MTA/SMS gateway |
 | Payment/SpotPlayer mocks | `PAYMENT_MOCK_HOOKS`, `SPOTPLAYER_MOCK_*` | Unit/test only | **Never** enable in production; mocks still require explicit verify/create calls |
@@ -115,7 +115,7 @@ Do **not** claim `VERIFIED_REAL_INTEGRATION` without live merchant/SpotPlayer/SM
 | Student dashboard | `/dashboard` |
 | Admin shell (OWNER) | `/admin` (+ courses, orders, tickets, payments, SpotPlayer, CMS, …) |
 | Courses / paths / journal | `/courses`, `/courses/[slug]`, `/paths`, `/journal` |
-| About, FAQ, policies | `/about`, `/faq`, `/contact`, `/terms`, `/privacy`, `/refunds` |
+| FAQ and terms | `/faq`, `/terms` |
 | Purchase + payment pages | `/courses/[slug]/purchase`, `/payments/{pending,success,failure}` |
 | Student orders / access / tickets / notifications / security | `/dashboard/orders`, `/dashboard/access`, `/dashboard/tickets`, `/dashboard/notifications`, `/dashboard/account` |
 | API identity | `POST /identity/register\|login\|logout`, `GET /identity/me`, recover routes |
