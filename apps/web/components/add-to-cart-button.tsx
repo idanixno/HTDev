@@ -21,7 +21,7 @@ export function AddToCartButton({ item }: { item: CartCourseItem }) {
   if (saved) {
     return (
       <Button href="/cart" variant="secondary">
-        اضافه شد؛ برو به سبد خرید
+        برو به سبد
       </Button>
     );
   }

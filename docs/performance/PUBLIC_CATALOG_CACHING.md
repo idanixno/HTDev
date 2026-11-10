@@ -5,10 +5,12 @@
 Next.js server components fetch the Nest catalog API through `apps/web/lib/catalog.ts` with:
 
 ```ts
-next: { revalidate: CATALOG_REVALIDATE_SECONDS } // currently 60
+next: { revalidate: CATALOG_REVALIDATE_SECONDS } // currently 300
 ```
 
 Affected routes: home featured courses, `/courses`, `/courses/[slug]`, `/paths`, `/paths/[slug]`, and `sitemap.xml` generation.
+
+Site chrome (`fetchSiteChrome`) is React `cache()`-deduped per request (header + footer). Public chrome no longer calls `cookies()` / `/identity/me` in the server header — account state is client-probed via `/api/auth/me` so catalog pages can stay on the ISR path. Admin lives outside the `(site)` layout so it does not pay for site header/footer fetches.
 
 ## What must not be cached
 

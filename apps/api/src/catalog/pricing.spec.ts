@@ -8,16 +8,15 @@ import {
 } from "./pricing";
 
 describe("pricing helpers", () => {
-  it("formats whole toman with Persian digits", () => {
-    expect(formatTomanLabel(2_400_000)).toMatch(/تومان$/);
-    expect(formatTomanLabel(2_400_000)).toContain("۲");
-    expect(formatTomanLabel(0)).toBe("۰ تومان");
+  it("formats whole toman as colloquial هزارتومن (÷1000)", () => {
+    expect(formatTomanLabel(2_400_000)).toBe("۲٬۴۰۰ هزارتومن");
+    expect(formatTomanLabel(300_000)).toBe("۳۰۰ هزارتومن");
+    expect(formatTomanLabel(0)).toBe("۰ هزارتومن");
   });
 
-  it("formats fractional Decimal prices", () => {
+  it("rounds fractional Decimal prices before ÷1000 display", () => {
     const label = formatTomanLabel(new Prisma.Decimal("1999.5"));
-    expect(label).toMatch(/تومان$/);
-    expect(label).toContain("۱");
+    expect(label).toBe("۲ هزارتومن");
   });
 
   it("maps offer kind to price labels", () => {
@@ -38,7 +37,7 @@ describe("pricing helpers", () => {
         offerKind: CourseOfferKind.PAID,
         priceToman: 1_600_000,
       }),
-    ).toMatch(/تومان$/);
+    ).toBe("۱٬۶۰۰ هزارتومن");
   });
 
   it("rounds Decimal list price to integer toman for orders", () => {

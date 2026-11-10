@@ -44,6 +44,7 @@ export type PublicCourseCardDto = {
   seoDescription: string | null;
   ogImage: string | null;
   noIndex: boolean;
+  publishedAt: string | null;
   updatedAt: string;
 };
 
@@ -66,6 +67,14 @@ export type PublicModuleDto = {
   lessons: PublicLessonDto[];
 };
 
+export type PublicCoursePurchaseNoteDto = {
+  id: string;
+  body: string;
+  sortOrder: number;
+  /** `global` for all courses; `course` for exclusive notes. */
+  scope: "global" | "course";
+};
+
 export type PublicCourseDetailDto = PublicCourseCardDto & {
   description: string | null;
   /** Public intro/preview video for the course hero (optional). */
@@ -77,6 +86,8 @@ export type PublicCourseDetailDto = PublicCourseCardDto & {
   spotPlayerProtected: boolean;
   publishedAt: string | null;
   modules: PublicModuleDto[];
+  /** Merged global + exclusive «قبل از خرید» notes. */
+  purchaseNotes: PublicCoursePurchaseNoteDto[];
 };
 
 export type PublicPathStepDto = {
@@ -171,6 +182,7 @@ export function toPublicCourseCard(course: CourseWithCategory): PublicCourseCard
     seoDescription: course.seoDescription,
     ogImage: course.ogImage,
     noIndex: course.noIndex,
+    publishedAt: course.publishedAt?.toISOString() ?? null,
     updatedAt: course.updatedAt.toISOString(),
   };
 }
@@ -180,6 +192,7 @@ export function toPublicCourseDetail(
     modules: (CurriculumModule & { lessons: Lesson[] })[];
     spotPlayerMapping?: { enabled: boolean } | null;
   },
+  purchaseNotes: PublicCoursePurchaseNoteDto[] = [],
 ): PublicCourseDetailDto {
   const spotPlayerProtected = Boolean(
     course.spotPlayerMapping?.enabled,
@@ -189,7 +202,6 @@ export function toPublicCourseDetail(
     description: course.description,
     previewAsset: course.previewAsset,
     spotPlayerProtected,
-    publishedAt: course.publishedAt?.toISOString() ?? null,
     modules: course.modules.map((mod) => ({
       id: mod.id,
       title: mod.title,
@@ -210,6 +222,7 @@ export function toPublicCourseDetail(
         };
       }),
     })),
+    purchaseNotes,
   };
 }
 

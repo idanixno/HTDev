@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { apiBaseUrl } from "../../../../lib/auth-constants";
 import { assertSameOrigin } from "../../../../lib/csrf";
+import { OWNER_MARKER_COOKIE } from "../../../../lib/owner-marker";
 import {
   SESSION_COOKIE_NAME,
   sessionCookieOptions,
@@ -25,9 +26,8 @@ export async function POST(request: Request) {
   }
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(SESSION_COOKIE_NAME, "", {
-    ...sessionCookieOptions(),
-    maxAge: 0,
-  });
+  const clear = { ...sessionCookieOptions(), maxAge: 0 };
+  res.cookies.set(SESSION_COOKIE_NAME, "", clear);
+  res.cookies.set(OWNER_MARKER_COOKIE, "", clear);
   return res;
 }

@@ -1,4 +1,6 @@
+import { cache } from "react";
 import { apiBaseUrl } from "./auth-constants";
+import { DEFAULT_SITE_CHROME, type SiteChrome } from "./site-chrome";
 
 export type CourseCardAvailability =
   | "publishedPaid"
@@ -36,6 +38,7 @@ export type PublicCourseCard = {
   seoDescription?: string | null;
   ogImage?: string | null;
   noIndex?: boolean;
+  publishedAt?: string | null;
   updatedAt?: string;
 };
 
@@ -58,12 +61,20 @@ export type PublicCourseModule = {
   lessons: PublicCourseLesson[];
 };
 
+export type PublicCoursePurchaseNote = {
+  id: string;
+  body: string;
+  sortOrder: number;
+  scope: "global" | "course";
+};
+
 export type PublicCourseDetail = PublicCourseCard & {
   description: string | null;
   previewAsset: string | null;
   spotPlayerProtected: boolean;
   publishedAt: string | null;
   modules: PublicCourseModule[];
+  purchaseNotes?: PublicCoursePurchaseNote[];
 };
 
 export type PublicCategory = {
@@ -75,6 +86,17 @@ export type PublicCategory = {
   courseCount: number;
 };
 
+export type PublicPathStep = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  sortOrder: number;
+  href: string;
+  noIndex: boolean;
+  course: PublicCourseCard | null;
+};
+
 export type PublicPath = {
   id: string;
   slug: string;
@@ -84,16 +106,15 @@ export type PublicPath = {
   coverAsset: string | null;
   href: string;
   stepCount: number;
-  steps?: {
-    id: string;
-    slug: string;
-    title: string;
-    summary: string | null;
-    sortOrder: number;
-    href: string;
-    noIndex: boolean;
-    course: PublicCourseCard | null;
-  }[];
+  steps?: PublicPathStep[];
+};
+
+/** Path timeline anchored on a course (تخصص / نقشه راه مدرک). */
+export type PublicCourseTrack = PublicPath & {
+  credentialLabel: string;
+  currentCourseSlug: string;
+  currentStepIndex: number | null;
+  steps: PublicPathStep[];
 };
 
 export type PublicPathStepPage = {
@@ -135,7 +156,7 @@ export type CourseListResult = {
  * Private surfaces (dashboard/admin/auth) must keep cache: "no-store".
  * See docs/performance/PUBLIC_CATALOG_CACHING.md.
  */
-export const CATALOG_REVALIDATE_SECONDS = 60;
+export const CATALOG_REVALIDATE_SECONDS = 300;
 
 async function catalogFetch<T>(path: string): Promise<T | null> {
   try {
@@ -183,6 +204,7 @@ export type PublicArticle = PublicArticleCard & {
   seoDescription: string | null;
   ogImage: string | null;
   noIndex: boolean;
+  updatedAt?: string | null;
 };
 
 export async function fetchCourses(params: {
@@ -222,6 +244,26 @@ export async function fetchPaths(): Promise<PublicPath[]> {
   return (await catalogFetch<PublicPath[]>("/catalog/paths")) ?? [];
 }
 
+export type PathsPageCms = {
+  title: string;
+  lead: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+};
+
+export async function fetchPathsPageCms(): Promise<PathsPageCms> {
+  return (
+    (await catalogFetch<PathsPageCms>("/catalog/meta/paths-page")) ?? {
+      title: "نقشهٔ راه یادگیری",
+      lead:
+        "مسیرهای پیشنهادی برای یادگیری عمیق. دوره‌ها را به ترتیب ببینید،",
+      seoTitle: "نقشهٔ راه",
+      seoDescription:
+        "ترتیب پیشنهادی دوره‌های ژرفا — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
+    }
+  );
+}
+
 export async function fetchPathStep(
   pathSlug: string,
   stepSlug: string,
@@ -234,6 +276,16 @@ export async function fetchPathStep(
 export async function fetchPath(slug: string): Promise<PublicPath | null> {
   return catalogFetch<PublicPath>(
     `/catalog/paths/${encodeURIComponent(slug)}`,
+  );
+}
+
+export async function fetchCourseTracks(
+  slug: string,
+): Promise<PublicCourseTrack[]> {
+  return (
+    (await catalogFetch<PublicCourseTrack[]>(
+      `/catalog/courses/${encodeURIComponent(slug)}/tracks`,
+    )) ?? []
   );
 }
 
@@ -251,13 +303,32 @@ export type PublicFooterTrusts = {
 };
 
 export async function fetchFooterTrusts(): Promise<PublicFooterTrusts> {
-  return (
-    (await catalogFetch<PublicFooterTrusts>("/catalog/footer-trusts")) ?? {
-      enamadHtml: null,
-      paymentGatewayHtml: null,
-    }
-  );
+  const chrome = await fetchSiteChrome();
+  return {
+    enamadHtml: chrome.enamadHtml,
+    paymentGatewayHtml: chrome.paymentGatewayHtml,
+  };
 }
+
+export const fetchSiteChrome = cache(async (): Promise<SiteChrome> => {
+  const remote = await catalogFetch<Partial<SiteChrome>>("/catalog/footer-trusts");
+  if (!remote) return DEFAULT_SITE_CHROME;
+  return {
+    ...DEFAULT_SITE_CHROME,
+    ...remote,
+    headerLinks: remote.headerLinks?.length
+      ? remote.headerLinks
+      : DEFAULT_SITE_CHROME.headerLinks,
+    footerGroups: remote.footerGroups?.length
+      ? remote.footerGroups
+      : DEFAULT_SITE_CHROME.footerGroups,
+    mobileGroups: remote.mobileGroups?.length
+      ? remote.mobileGroups
+      : DEFAULT_SITE_CHROME.mobileGroups,
+    showCart: remote.showCart ?? true,
+    showThemeToggle: remote.showThemeToggle ?? true,
+  };
+});
 
 export async function fetchArticles(): Promise<PublicArticleCard[]> {
   return (await catalogFetch<PublicArticleCard[]>("/catalog/articles")) ?? [];
@@ -265,10 +336,11 @@ export async function fetchArticles(): Promise<PublicArticleCard[]> {
 
 export async function fetchRelatedArticles(
   courseSlug: string,
+  limit = 4,
 ): Promise<PublicArticleCard[]> {
   return (
     (await catalogFetch<PublicArticleCard[]>(
-      `/catalog/courses/${encodeURIComponent(courseSlug)}/related-articles`,
+      `/catalog/courses/${encodeURIComponent(courseSlug)}/related-articles?limit=${encodeURIComponent(String(limit))}`,
     )) ?? []
   );
 }
@@ -291,6 +363,28 @@ export function formatCourseDuration(hours: number | null): string | null {
   return `${minutes.toLocaleString("fa-IR")} دقیقه`;
 }
 
+/** Clock-style duration for course cards (e.g. ۱۷:۱۴:۰۲). */
+export function formatCourseDurationClock(hours: number | null): string | null {
+  if (hours == null || hours <= 0) return null;
+  const totalSeconds = Math.round(hours * 3600);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  const fa = (n: number) =>
+    n.toLocaleString("fa-IR", { minimumIntegerDigits: 2, useGrouping: false });
+  return `${fa(h)}:${fa(m)}:${fa(s)}`;
+}
+
+export function courseCardStatusLabel(course: PublicCourseCard): string {
+  if (
+    course.availability === "publishedPaid" ||
+    course.availability === "publishedFree"
+  ) {
+    return "تکمیل ضبط";
+  }
+  return course.statusLabel;
+}
+
 export function canAddCourseToCart(course: PublicCourseCard) {
   return (
     course.offerKind !== "FREE" &&
@@ -311,7 +405,7 @@ export function courseDiscount(course: PublicCourseCard): {
   if (compare == null || compare <= course.priceToman) return null;
   const percent = Math.round(((compare - course.priceToman) / compare) * 100);
   if (percent < 1) return null;
-  const compareLabel = `${compare.toLocaleString("fa-IR")} تومان`;
+  const compareLabel = formatTomanLabel(compare);
   return {
     percent,
     compareLabel,
@@ -333,8 +427,9 @@ export type CartCourseItem = {
 };
 
 export function formatTomanLabel(n: number): string {
-  if (!Number.isFinite(n) || n <= 0) return "۰ تومان";
-  return `${Math.round(n).toLocaleString("fa-IR")} تومان`;
+  if (!Number.isFinite(n) || n <= 0) return "۰ هزارتومن";
+  const display = Math.round(n / 1000);
+  return `${display.toLocaleString("fa-IR")} هزارتومن`;
 }
 
 export function parseTomanLabel(label: string | null | undefined): number {
@@ -345,7 +440,12 @@ export function parseTomanLabel(label: string | null | undefined): number {
     .replace(/[^\d]/g, "");
   if (!normalized) return 0;
   const value = Number(normalized);
-  return Number.isFinite(value) ? value : 0;
+  if (!Number.isFinite(value)) return 0;
+  // Display «هزارتومن»/legacy «تومن» are thousands of stored toman; «تومان» is full.
+  if (/تومن/.test(label) && !/تومان/.test(label)) {
+    return value * 1000;
+  }
+  return value;
 }
 
 export function cartItemPayable(item: CartCourseItem): number {

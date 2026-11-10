@@ -1,4 +1,7 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
+import { DisinabPlate } from "./disinab";
+import { ZharfaLogo } from "./zharfa-logo";
 
 export function AuthShell({
   title,
@@ -12,29 +15,28 @@ export function AuthShell({
   footer?: ReactNode;
 }) {
   return (
-    <section className="auth-page" aria-labelledby="auth-heading">
-      <div className="auth-page__frame">
-        <aside className="auth-page__aside">
-          <div>
-            <p className="auth-page__aside-kicker">ژرفا</p>
-            <p className="auth-page__aside-title">اطلس یادگیری عمیق</p>
-          </div>
-          <p className="auth-page__aside-copy">
-            حساب برای خرید تک‌دوره، پیگیری سفارش و دسترسی اسپات‌پلیر است. اشتراک
-            یا پخش ویدیو داخل سایت اینجا نیست.
-          </p>
-        </aside>
-        <div className="auth-page__panel">
-          <header className="auth-page__header">
-            <h1 id="auth-heading" className="auth-page__title">
-              {title}
-            </h1>
-            <p className="auth-page__subtitle">{subtitle}</p>
-          </header>
-          {children}
-          {footer ? <div className="auth-page__footer">{footer}</div> : null}
+    <div className="disinab-auth">
+      <DisinabPlate
+        className="disinab-auth__plate"
+        aria-labelledby="auth-heading"
+      >
+        <div className="disinab-auth__brand-row">
+          <Link href="/" className="disinab-auth__mark" aria-label="ژرفا، صفحه اصلی">
+            <ZharfaLogo className="disinab-auth__logo" decorative />
+            <span>
+              <strong>ژرفا</strong>
+              <em>اطلس یادگیری عمیق</em>
+            </span>
+          </Link>
         </div>
-      </div>
-    </section>
+
+        <h1 id="auth-heading">{title}</h1>
+        <p className="disinab__line">{subtitle}</p>
+
+        {children}
+
+        {footer ? <div className="disinab-auth__footer">{footer}</div> : null}
+      </DisinabPlate>
+    </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   CoursePublicationStatus,
   Prisma,
 } from "@zharfa/database";
+import { mergeSiteChrome } from "../cms/site-chrome";
 import { normalizePhone } from "../identity/normalization";
 import { PrismaService } from "../prisma/prisma.service";
 import {
@@ -132,7 +133,30 @@ export class CatalogService {
       throw new NotFoundException("دوره یافت نشد.");
     }
 
-    return toPublicCourseDetail(course);
+    const noteRows = await this.prisma.coursePurchaseNote.findMany({
+      where: {
+        published: true,
+        OR: [{ courseId: null }, { courseId: course.id }],
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+
+    const purchaseNotes = [...noteRows]
+      .sort((a, b) => {
+        const aScope = a.courseId ? 1 : 0;
+        const bScope = b.courseId ? 1 : 0;
+        if (aScope !== bScope) return aScope - bScope;
+        if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      })
+      .map((n) => ({
+        id: n.id,
+        body: n.body,
+        sortOrder: n.sortOrder,
+        scope: (n.courseId ? "course" : "global") as "global" | "course",
+      }));
+
+    return toPublicCourseDetail(course, purchaseNotes);
   }
 
   async listPaths() {
@@ -142,6 +166,22 @@ export class CatalogService {
       orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
     });
     return rows.map(toPublicPathSummary);
+  }
+
+  async getPathsPageCms() {
+    const row = await this.prisma.cmsPathsContent.findUnique({
+      where: { id: "paths" },
+    });
+    return {
+      title: row?.title ?? "نقشهٔ راه یادگیری",
+      lead:
+        row?.lead ??
+        "مسیرهای پیشنهادی برای یادگیری عمیق. دوره‌ها را به ترتیب ببینید.",
+      seoTitle: row?.seoTitle ?? "نقشهٔ راه",
+      seoDescription:
+        row?.seoDescription ??
+        "ترتیب پیشنهادی دوره‌های ژرفا — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
+    };
   }
 
   async getPathBySlug(slug: string) {
@@ -178,6 +218,65 @@ export class CatalogService {
     };
 
     return toPublicPathDetail(sanitized);
+  }
+
+  /**
+   * Published learning paths that include this course — used as a
+   * domain specialization timeline (پیش‌نیاز → این دوره → ادامه مسیر).
+   */
+  async listTracksForCourse(slug: string) {
+    const course = await this.prisma.course.findFirst({
+      where: {
+        slug,
+        publicationStatus: CoursePublicationStatus.PUBLISHED,
+      },
+      select: { id: true, slug: true, title: true },
+    });
+    if (!course) {
+      throw new NotFoundException("دوره یافت نشد.");
+    }
+
+    const paths = await this.prisma.learningPath.findMany({
+      where: {
+        published: true,
+        steps: { some: { courseId: course.id } },
+      },
+      include: {
+        steps: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            course: { include: courseCardInclude },
+          },
+        },
+      },
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+    });
+
+    return paths.map((path) => {
+      const sanitized = {
+        ...path,
+        steps: path.steps.map((step) => {
+          if (
+            step.course &&
+            step.course.publicationStatus !== CoursePublicationStatus.PUBLISHED
+          ) {
+            return { ...step, course: null };
+          }
+          return step;
+        }),
+      };
+      const detail = toPublicPathDetail(sanitized);
+      const steps = detail.steps ?? [];
+      const currentIndex = steps.findIndex(
+        (step) => step.course?.slug === course.slug,
+      );
+      return {
+        ...detail,
+        credentialLabel: `تخصص ژرفا · ${path.title}`,
+        currentCourseSlug: course.slug,
+        currentStepIndex: currentIndex >= 0 ? currentIndex : null,
+      };
+    });
   }
 
   async getPathStep(pathSlug: string, stepSlug: string) {
@@ -256,16 +355,13 @@ export class CatalogService {
   async getFooterTrusts() {
     const row = await this.prisma.cmsFooterContent.findUnique({
       where: { id: "footer" },
-      select: { enamadHtml: true, paymentGatewayHtml: true },
     });
-    return {
-      enamadHtml: row?.enamadHtml ?? null,
-      paymentGatewayHtml: row?.paymentGatewayHtml ?? null,
-    };
+    return mergeSiteChrome(row);
   }
 
   /** Suggest journal notes that overlap the course topic, description, and syllabus. */
-  async listRelatedArticlesForCourse(slug: string, limit = 3) {
+  async listRelatedArticlesForCourse(slug: string, limit = 4) {
+    const take = Math.min(Math.max(limit, 1), 6);
     const course = await this.prisma.course.findFirst({
       where: {
         slug,
@@ -309,10 +405,19 @@ export class CatalogService {
         modules: course.modules,
       },
       articles,
-      Math.min(Math.max(limit, 1), 6),
+      take,
     );
 
-    return ranked.map(toPublicArticleCard);
+    if (ranked.length >= take) {
+      return ranked.map(toPublicArticleCard);
+    }
+
+    const seen = new Set(ranked.map((row) => row.id));
+    const filled = [
+      ...ranked,
+      ...articles.filter((row) => !seen.has(row.id)).slice(0, take - ranked.length),
+    ];
+    return filled.map(toPublicArticleCard);
   }
 
   async getArticleBySlug(slug: string) {
@@ -419,6 +524,7 @@ function toPublicArticle(article: {
   ogImage: string | null;
   noIndex: boolean;
   publishedAt: Date | null;
+  updatedAt: Date;
   readingMinutes: number | null;
 }) {
   return {
@@ -428,5 +534,6 @@ function toPublicArticle(article: {
     seoDescription: article.seoDescription,
     ogImage: article.ogImage,
     noIndex: article.noIndex,
+    updatedAt: article.updatedAt.toISOString(),
   };
 }

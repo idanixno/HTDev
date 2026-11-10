@@ -123,9 +123,12 @@ export default async function AdminDashboardPage({
           <div className="admin-charts-grid">
             <LineChart
               chartId="revenue"
-              title="درآمد روزانه (تومان)"
-              series={data.series.revenueByDay}
-              valueSuffix=" تومان"
+              title="درآمد روزانه (هزارتومن)"
+              series={data.series.revenueByDay.map((point) => ({
+                ...point,
+                value: Math.round(point.value / 1000),
+              }))}
+              valueSuffix=" هزارتومن"
             />
             <LineChart
               chartId="orders"

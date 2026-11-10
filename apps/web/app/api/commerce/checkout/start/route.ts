@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { apiBaseUrl, SESSION_COOKIE_NAME } from "../../../../../lib/auth-constants";
+import { assertSameOrigin } from "../../../../../lib/csrf";
 
 export async function POST(request: Request) {
+  const blocked = assertSameOrigin(request);
+  if (blocked) return blocked;
+
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE_NAME)?.value;
   if (!token) {

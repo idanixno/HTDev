@@ -14,7 +14,10 @@ export default async function AdminPathsPage() {
             مسیرها
           </h1>
           <p className="admin-page__subtitle">
-            ساخت و ویرایش مسیرهای یادگیری و گام‌های هر مسیر.
+            هر مسیر منتشرشده یک بخش در{" "}
+            <Link href="/paths">صفحهٔ نقشهٔ راه</Link> می‌شود (عنوان، توضیح، جدول
+            دوره‌ها). عنوان و لید خود صفحه را از{" "}
+            <Link href="/admin/cms">CMS پایه</Link> ویرایش کنید.
           </p>
         </div>
         <Button href="/admin/paths/new">مسیر جدید</Button>

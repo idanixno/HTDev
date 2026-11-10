@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { CourseEditorForm } from "../../../../components/admin/course-editor-form";
+import { CourseNotesEditor } from "../../../../components/admin/course-notes-editor";
 import { CurriculumEditor } from "../../../../components/admin/curriculum-editor";
 import { fetchAdminCategories, fetchAdminCourse } from "../../../../lib/admin";
 
@@ -57,6 +58,16 @@ export default async function EditCoursePage({ params }: { params: Params }) {
         }}
       />
       <CurriculumEditor course={course} />
+      <article
+        className="admin-panel"
+        style={{ marginTop: "var(--zharfa-space-24)" }}
+      >
+        <CourseNotesEditor
+          courseId={course.id}
+          title="نکات انحصاری قبل از خرید"
+          hint="فقط روی همین دوره دیده می‌شود و بعد از نکات عمومی می‌آید."
+        />
+      </article>
     </section>
   );
 }

@@ -6,7 +6,7 @@ import type {
 
 /** دیسیناب — plate primitives matching dashboard `presence__plate`. */
 
-type PlateTag = "section" | "div" | "article" | "aside";
+type PlateTag = "section" | "div" | "article" | "aside" | "header";
 
 export function DisinabPlate({
   children,

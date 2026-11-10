@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { apiBaseUrl } from "../../../../../lib/auth-constants";
+import { assertSameOrigin } from "../../../../../lib/csrf";
 import { getSessionToken } from "../../../../../lib/session";
 
 export async function POST(
   request: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
+  const blocked = assertSameOrigin(request);
+  if (blocked) return blocked;
+
   const token = await getSessionToken();
   if (!token) {
     return NextResponse.json({ message: "ورود لازم است." }, { status: 401 });

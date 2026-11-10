@@ -53,7 +53,7 @@ export default async function AdminCouponsPage() {
                   <td>
                     {c.discountType === "PERCENT"
                       ? `${(c.percentOff ?? 0).toLocaleString("fa-IR")}٪`
-                      : `${(c.amountOffToman ?? 0).toLocaleString("fa-IR")} تومان`}
+                      : `${Math.round((c.amountOffToman ?? 0) / 1000).toLocaleString("fa-IR")} هزارتومن`}
                   </td>
                   <td>
                     {c.redemptionCount.toLocaleString("fa-IR")}

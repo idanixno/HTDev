@@ -24,7 +24,9 @@ import {
   decodeBase64Payload,
   sha256Hex,
 } from "./attachment-rules";
+import { assertAttachmentContentSafe } from "./attachment-scan";
 import { TicketAttachmentStorage } from "./attachment-storage";
+import { ClamAvScanner } from "./clamav.scanner";
 import type {
   CreateTicketDto,
   ReplyTicketDto,
@@ -55,6 +57,7 @@ export class TicketsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storage: TicketAttachmentStorage,
+    private readonly clamav: ClamAvScanner,
     @Optional()
     @Inject(forwardRef(() => NotificationsService))
     private readonly notifications?: NotificationsService,
@@ -446,6 +449,8 @@ export class TicketsService {
         fileName: item.fileName,
       });
       assertAttachmentMagicBytes(meta.contentType, bytes);
+      assertAttachmentContentSafe(meta.contentType, bytes);
+      await this.clamav.assertClean(bytes);
       const storageKey = buildAttachmentStorageKey(input.ticketId, meta.ext);
       await this.storage.put(storageKey, bytes);
       await this.prisma.ticketAttachment.create({

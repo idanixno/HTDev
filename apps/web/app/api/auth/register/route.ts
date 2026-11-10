@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { apiBaseUrl } from "../../../../lib/auth-constants";
 import { assertSameOrigin } from "../../../../lib/csrf";
+import { OWNER_MARKER_COOKIE } from "../../../../lib/owner-marker";
 import {
   SESSION_COOKIE_NAME,
   sessionCookieOptions,
@@ -22,13 +23,21 @@ export async function POST(request: Request) {
     return NextResponse.json(data, { status: upstream.status });
   }
 
+  const sessionToken =
+    upstream.headers.get("x-session-token") ||
+    (typeof data.sessionToken === "string" ? data.sessionToken : null);
+  if (!sessionToken) {
+    return NextResponse.json(
+      { message: "نشست برقرار نشد." },
+      { status: 502 },
+    );
+  }
+
   const res = NextResponse.json({ user: data.user });
-  res.cookies.set(
-    SESSION_COOKIE_NAME,
-    data.sessionToken as string,
-    sessionCookieOptions(
-      data.expiresAt ? new Date(data.expiresAt as string) : undefined,
-    ),
+  const cookieOpts = sessionCookieOptions(
+    data.expiresAt ? new Date(data.expiresAt as string) : undefined,
   );
+  res.cookies.set(SESSION_COOKIE_NAME, sessionToken, cookieOpts);
+  res.cookies.set(OWNER_MARKER_COOKIE, "", { ...cookieOpts, maxAge: 0 });
   return res;
 }

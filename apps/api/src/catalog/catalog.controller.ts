@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
+import {
+  RateLimitBucket,
+  RateLimitStubGuard,
+} from "../identity/rate-limit.stub";
 import { CatalogService } from "./catalog.service";
 import { ListCoursesQueryDto } from "./dto/list-courses.dto";
 import { JoinWaitlistDto } from "./dto/waitlist.dto";
@@ -23,13 +35,27 @@ export class CatalogController {
   }
 
   @Post("courses/:slug/waitlist")
+  @UseGuards(RateLimitStubGuard)
+  @RateLimitBucket("waitlist")
   joinWaitlist(@Param("slug") slug: string, @Body() dto: JoinWaitlistDto) {
     return this.catalog.joinCourseWaitlist(slug, dto.phone);
   }
 
   @Get("courses/:slug/related-articles")
-  relatedArticles(@Param("slug") slug: string) {
-    return this.catalog.listRelatedArticlesForCourse(slug);
+  relatedArticles(
+    @Param("slug") slug: string,
+    @Query("limit") limit?: string,
+  ) {
+    const parsed = limit ? Number(limit) : 4;
+    return this.catalog.listRelatedArticlesForCourse(
+      slug,
+      Number.isFinite(parsed) ? parsed : 4,
+    );
+  }
+
+  @Get("courses/:slug/tracks")
+  courseTracks(@Param("slug") slug: string) {
+    return this.catalog.listTracksForCourse(slug);
   }
 
   @Get("courses/:slug")
@@ -60,6 +86,11 @@ export class CatalogController {
   @Get("meta/levels")
   levels() {
     return this.catalog.listLevels();
+  }
+
+  @Get("meta/paths-page")
+  pathsPage() {
+    return this.catalog.getPathsPageCms();
   }
 
   @Get("faq")

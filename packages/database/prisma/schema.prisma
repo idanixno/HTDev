@@ -62,6 +62,10 @@ model User {
   telegramHandle     String?
   /// GitHub username when set.
   githubHandle       String?
+  /// LinkedIn /in/ vanity slug when set.
+  linkedinHandle     String?
+  /// Stack Overflow /users/{id} or /users/{id}/{slug} path when set.
+  stackOverflowHandle String?
   role               UserRole  @default(STUDENT)
   passwordHash       String
   emailVerifiedAt    DateTime?
@@ -177,10 +181,29 @@ model Course {
   spotPlayerLicenses    SpotPlayerLicense[]
   tickets               Ticket[]
   waitlistEntries       CourseWaitlistEntry[]
+  purchaseNotes         CoursePurchaseNote[]
 
   @@index([publicationStatus, offerKind])
   @@index([categoryId])
   @@index([featured, sortOrder])
+}
+
+/// Notes shown in the course «قبل از خرید» block.
+/// `courseId = null` → global (all courses); set → exclusive to that course.
+model CoursePurchaseNote {
+  id        String   @id @default(cuid())
+  courseId  String?
+  /// Plain text; optional markdown link `[برچسب](/path)`.
+  body      String
+  sortOrder Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, published, sortOrder])
+  @@index([published, sortOrder])
 }
 
 /// Phone interest for COMING_SOON courses. SMS is console/dev until a real gateway exists.
@@ -753,9 +776,43 @@ model CmsHomeContent {
   createdAt        DateTime @default(now())
 }
 
-/// Singleton footer trust badges (id = "footer"). Raw HTML snippets from admin.
+/// Singleton paths / roadmap index CMS copy (id = "paths").
+model CmsPathsContent {
+  id             String   @id @default("paths")
+  title          String   @default("نقشهٔ راه یادگیری")
+  lead           String?
+  seoTitle       String?
+  seoDescription String?
+  updatedAt      DateTime @updatedAt
+  createdAt      DateTime @default(now())
+}
+
+/// Singleton site chrome (id = "footer"): header + footer + trust badges.
 model CmsFooterContent {
   id                   String   @id @default("footer")
+  /// Brand wordmark (header + footer).
+  brandName            String   @default("ژرفا")
+  /// Header tagline next to brand.
+  brandTagline         String?
+  /// Footer kicker above brand (e.g. استودیو).
+  brandKicker          String?
+  /// Footer descriptive blurb.
+  footerBlurb          String?
+  /// Header primary nav: [{ href, label, match? }]
+  headerLinks          Json?
+  /// Footer menu columns: [{ label, links: [{ href, label }] }]
+  footerGroups         Json?
+  /// Mobile drawer groups (falls back to footerGroups).
+  mobileGroups         Json?
+  guestCtaLabel        String?
+  guestCtaHref         String?
+  authedCtaLabel       String?
+  authedCtaHref        String?
+  showCart             Boolean  @default(true)
+  showThemeToggle      Boolean  @default(true)
+  trustsLabel          String?
+  mobileMenuTitle      String?
+  mobileMenuLine       String?
   /// Enamad / e-namad seal embed HTML (anchor + img).
   enamadHtml           String?
   /// Payment gateway trust badge embed HTML.

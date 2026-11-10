@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiBaseUrl, SESSION_COOKIE_NAME } from "../../../../lib/auth-constants";
 import { assertSameOrigin } from "../../../../lib/csrf";
+import { OWNER_MARKER_COOKIE } from "../../../../lib/owner-marker";
 import { sessionCookieOptions } from "../../../../lib/session-cookie";
 
 export async function POST(request: Request) {
@@ -27,10 +28,9 @@ export async function POST(request: Request) {
   const data = await res.json().catch(() => ({ message: "خطای سرور" }));
   const response = NextResponse.json(data, { status: res.status });
   if (res.ok) {
-    response.cookies.set(SESSION_COOKIE_NAME, "", {
-      ...sessionCookieOptions(),
-      maxAge: 0,
-    });
+    const clear = { ...sessionCookieOptions(), maxAge: 0 };
+    response.cookies.set(SESSION_COOKIE_NAME, "", clear);
+    response.cookies.set(OWNER_MARKER_COOKIE, "", clear);
   }
   return response;
 }

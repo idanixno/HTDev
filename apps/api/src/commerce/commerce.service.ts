@@ -18,7 +18,7 @@ import {
   Prisma,
 } from "@zharfa/database";
 import { isPurchasableOffer } from "../catalog/course-state";
-import { decimalToNumber, toDecimal } from "../catalog/pricing";
+import { decimalToNumber, formatTomanLabel, toDecimal } from "../catalog/pricing";
 import { NotificationsService } from "../notifications/notifications.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { SpotPlayerService } from "../spotplayer/spotplayer.service";
@@ -55,7 +55,7 @@ export class CommerceService {
         title: course.title,
         offerKind: course.offerKind,
         priceToman: decimalToNumber(course.priceToman),
-        priceLabel: `${decimalToNumber(course.priceToman).toLocaleString("fa-IR")} تومان`,
+        priceLabel: formatTomanLabel(course.priceToman),
       },
       gateways,
       purchaseEnabled,
@@ -80,7 +80,7 @@ export class CommerceService {
       listPriceToman: decimalToNumber(result.listPriceToman),
       discountToman: decimalToNumber(result.discountToman),
       amountToman: decimalToNumber(result.amountToman),
-      amountLabel: `${decimalToNumber(result.amountToman).toLocaleString("fa-IR")} تومان`,
+      amountLabel: formatTomanLabel(result.amountToman),
     };
   }
 

@@ -24,15 +24,19 @@ import {
   AnalyticsQueryDto,
   UpdateFooterCmsDto,
   UpdateHomeCmsDto,
+  UpdatePathsCmsDto,
   UpsertArticleDto,
   UpsertCategoryDto,
   UpsertCouponDto,
   UpsertCourseDto,
   CreatePathStepDto,
   UpsertFaqDto,
+  UpsertCoursePurchaseNoteDto,
+  CoursePurchaseNotesQueryDto,
   UpsertLearningPathDto,
   UpsertLessonDto,
   UpsertModuleDto,
+  UpdateOrderStatusDto,
   UpdatePathStepDto,
 } from "./dto/admin.dto";
 
@@ -52,6 +56,11 @@ export class AdminController {
   @Get("analytics/dashboard")
   dashboard(@Query() query: AnalyticsQueryDto) {
     return this.analytics.dashboard(query);
+  }
+
+  @Get("nav-badges")
+  navBadges() {
+    return this.analytics.navBadges();
   }
 
   @Get("activity")
@@ -187,6 +196,28 @@ export class AdminController {
   @Get("orders")
   orders(@Query() query: AdminOrdersQueryDto) {
     return this.admin.listOrders(query);
+  }
+
+  @Get("orders/:id")
+  order(@Param("id") id: string) {
+    return this.admin.getOrder(id);
+  }
+
+  @Patch("orders/:id")
+  updateOrder(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: UpdateOrderStatusDto,
+  ) {
+    return this.admin.updateOrderStatus(req.user!.id, id, body.status);
+  }
+
+  @Post("orders/:id/retry-license")
+  retryOrderLicense(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+  ) {
+    return this.admin.retryOrderLicense(req.user!.id, id);
   }
 
   // Customers
@@ -358,6 +389,16 @@ export class AdminController {
     return this.admin.updateHomeCms(req.user!.id, body);
   }
 
+  @Get("cms/paths")
+  pathsCms() {
+    return this.admin.getPathsCms();
+  }
+
+  @Patch("cms/paths")
+  updatePaths(@Req() req: AuthedRequest, @Body() body: UpdatePathsCmsDto) {
+    return this.admin.updatePathsCms(req.user!.id, body);
+  }
+
   @Get("cms/footer")
   footerCms() {
     return this.admin.getFooterCms();
@@ -390,5 +431,39 @@ export class AdminController {
   @Delete("cms/faq/:id")
   deleteFaq(@Req() req: AuthedRequest, @Param("id") id: string) {
     return this.admin.deleteFaq(req.user!.id, id);
+  }
+
+  @Get("cms/course-notes")
+  coursePurchaseNotes(@Query() query: CoursePurchaseNotesQueryDto) {
+    return this.admin.listCoursePurchaseNotes({
+      scope: query.scope,
+      courseId: query.courseId,
+      includeUnpublished: true,
+    });
+  }
+
+  @Post("cms/course-notes")
+  createCoursePurchaseNote(
+    @Req() req: AuthedRequest,
+    @Body() body: UpsertCoursePurchaseNoteDto,
+  ) {
+    return this.admin.upsertCoursePurchaseNote(req.user!.id, body);
+  }
+
+  @Patch("cms/course-notes/:id")
+  updateCoursePurchaseNote(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: UpsertCoursePurchaseNoteDto,
+  ) {
+    return this.admin.upsertCoursePurchaseNote(req.user!.id, body, id);
+  }
+
+  @Delete("cms/course-notes/:id")
+  deleteCoursePurchaseNote(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+  ) {
+    return this.admin.deleteCoursePurchaseNote(req.user!.id, id);
   }
 }

@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { Vazirmatn, Inter, JetBrains_Mono } from "next/font/google";
-import { SiteFooter } from "../components/site-footer";
-import { SiteHeader } from "../components/site-header";
-import { SiteShell } from "../components/site-shell";
+import { Vazirmatn, JetBrains_Mono } from "next/font/google";
 import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
 import "./globals.css";
 
@@ -13,18 +10,13 @@ const vazirmatn = Vazirmatn({
   preload: true,
 });
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-  preload: false,
-});
-
+/** Code samples only — not preloaded so Persian LCP stays light. */
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
   display: "swap",
   preload: false,
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -49,7 +41,7 @@ export default function RootLayout({
       lang="fa"
       dir="rtl"
       data-theme="dark"
-      className={`${vazirmatn.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${vazirmatn.variable} ${jetbrainsMono.variable}`}
     >
       <body
         style={
@@ -57,15 +49,13 @@ export default function RootLayout({
             "--zharfa-font-persian":
               "var(--font-vazirmatn), Vazirmatn, Tahoma, sans-serif",
             "--zharfa-font-latin":
-              "var(--font-inter), Inter, var(--font-vazirmatn), sans-serif",
+              "var(--font-vazirmatn), Vazirmatn, Tahoma, sans-serif",
             "--zharfa-font-code":
-              "var(--font-jetbrains), JetBrains Mono, ui-monospace, monospace",
+              "var(--font-jetbrains), ui-monospace, monospace",
           } as React.CSSProperties
         }
       >
-        <SiteShell header={<SiteHeader />} footer={<SiteFooter />}>
-          {children}
-        </SiteShell>
+        {children}
       </body>
     </html>
   );

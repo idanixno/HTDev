@@ -32,7 +32,7 @@ class IngestProbeDto {
 
 /**
  * Internal ingest for Edge middleware probe logging.
- * Auth: x-internal-token must match INTERNAL_SECURITY_TOKEN or SESSION_SECRET.
+ * Auth: x-internal-token must match INTERNAL_SECURITY_TOKEN (no SESSION_SECRET fallback).
  */
 @Controller("internal/security")
 export class SecurityIngestController {
@@ -43,9 +43,7 @@ export class SecurityIngestController {
     @Headers("x-internal-token") token: string | undefined,
     @Body() body: IngestProbeDto,
   ) {
-    const expected =
-      process.env.INTERNAL_SECURITY_TOKEN?.trim() ||
-      process.env.SESSION_SECRET?.trim();
+    const expected = process.env.INTERNAL_SECURITY_TOKEN?.trim();
     if (!expected || token !== expected) {
       throw new UnauthorizedException();
     }

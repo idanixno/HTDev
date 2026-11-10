@@ -28,6 +28,9 @@ export default async function EditPathPage({ params }: { params: Params }) {
 
       <article className="admin-panel">
         <h2>مشخصات مسیر</h2>
+        <p className="admin-table__muted">
+          عنوان و توضیح اینجا همان بخش مسیر در صفحهٔ عمومی نقشهٔ راه است.
+        </p>
         <PathEditorForm
           pathId={path.id}
           initial={{
@@ -46,7 +49,11 @@ export default async function EditPathPage({ params }: { params: Params }) {
         className="admin-panel"
         style={{ marginTop: "var(--zharfa-space-24)" }}
       >
-        <h2>گام‌ها</h2>
+        <h2>گام‌ها / جدول دوره‌ها</h2>
+        <p className="admin-table__muted">
+          ترتیب گام‌ها و دورهٔ وصل‌شده، ردیف‌های جدول «شماره / نام دوره» در
+          نقشهٔ راه عمومی را می‌سازند.
+        </p>
         {path.steps.length === 0 ? (
           <Notice tone="information" title="خالی">
             هنوز گامی ثبت نشده. با «گام جدید» شروع کنید.

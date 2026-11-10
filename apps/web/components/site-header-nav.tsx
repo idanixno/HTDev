@@ -2,29 +2,30 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ChromeLink } from "../lib/site-chrome";
 
-const NAV_LINKS = [
-  { href: "/courses", label: "دوره‌ها", match: "/courses" },
-  { href: "/paths", label: "مسیرها", match: "/paths" },
-  { href: "/journal", label: "مقالات", match: "/journal" },
-] as const;
-
-export function SiteHeaderNav() {
+export function SiteHeaderNav({ links }: { links: ChromeLink[] }) {
   const pathname = usePathname() || "";
 
+  if (links.length === 0) return null;
+
   return (
-    <nav className="site-header__nav" aria-label="ناوبری اصلی">
-      <ul>
-        {NAV_LINKS.map((link) => {
+    <nav
+      className="site-header__nav disinab-header__nav"
+      aria-label="ناوبری اصلی"
+    >
+      <ul className="disinab-header__tabs" role="list">
+        {links.map((link) => {
+          const match = link.match || link.href;
           const current =
-            pathname === link.match || pathname.startsWith(`${link.match}/`);
+            pathname === match || pathname.startsWith(`${match}/`);
           return (
-            <li key={link.href}>
+            <li key={`${link.href}-${link.label}`}>
               <Link
                 href={link.href}
                 className={
-                  "site-header__link" +
-                  (current ? " site-header__link--current" : "")
+                  "site-header__link disinab-header__tab" +
+                  (current ? " site-header__link--current is-active" : "")
                 }
                 aria-current={current ? "page" : undefined}
               >

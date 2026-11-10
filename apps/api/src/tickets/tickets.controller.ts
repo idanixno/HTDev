@@ -107,11 +107,16 @@ export class TicketsController {
       where: { id: req.user!.id },
     });
     const file = await this.tickets.downloadAttachment(user, attachmentId);
+    // Force download + nosniff + empty CSP so browsers never execute XSS payloads inline.
+    const safeName = file.fileName.replace(/["\r\n]/g, "_");
     res.set({
       "Content-Type": file.contentType,
-      "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+      "Content-Disposition": `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
       "X-Content-Type-Options": "nosniff",
+      "X-Download-Options": "noopen",
+      "Content-Security-Policy": "default-src 'none'; sandbox",
       "Cache-Control": "private, no-store",
+      "Referrer-Policy": "no-referrer",
     });
     return new StreamableFile(file.bytes);
   }

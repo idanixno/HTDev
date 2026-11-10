@@ -128,4 +128,47 @@ export class AnalyticsService {
       publishedCourseCount,
     });
   }
+
+  /**
+   * Lightweight attention counts for the admin sidebar.
+   * Only surfaces items that still need an owner to look at them.
+   */
+  async navBadges(): Promise<{
+    badges: Record<string, number>;
+  }> {
+    const [tickets, orders, spotplayer] = await Promise.all([
+      this.prisma.ticket.count({
+        where: {
+          status: {
+            in: [TicketStatus.OPEN, TicketStatus.IN_PROGRESS],
+          },
+        },
+      }),
+      this.prisma.order.count({
+        where: {
+          status: {
+            in: [OrderStatus.FAILED, OrderStatus.AWAITING_GATEWAY],
+          },
+        },
+      }),
+      this.prisma.spotPlayerLicense.count({
+        where: {
+          status: {
+            in: [
+              SpotPlayerLicenseStatus.PENDING,
+              SpotPlayerLicenseStatus.QUEUED,
+              SpotPlayerLicenseStatus.IN_PROGRESS,
+              SpotPlayerLicenseStatus.FAILED,
+            ],
+          },
+        },
+      }),
+    ]);
+
+    const badges: Record<string, number> = {};
+    if (tickets > 0) badges["/admin/tickets"] = tickets;
+    if (orders > 0) badges["/admin/orders"] = orders;
+    if (spotplayer > 0) badges["/admin/spotplayer"] = spotplayer;
+    return { badges };
+  }
 }

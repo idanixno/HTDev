@@ -16,6 +16,7 @@ export function DisinabCourseCarousel({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const indexRef = useRef(0);
   const pausedRef = useRef(false);
+  const inViewRef = useRef(true);
   const [paused, setPaused] = useState(false);
   const [index, setIndex] = useState(0);
   const count = courses.length;
@@ -27,11 +28,18 @@ export function DisinabCourseCarousel({
       const items = root.querySelectorAll<HTMLElement>("[data-carousel-item]");
       if (items.length === 0) return;
       const safe = ((next % items.length) + items.length) % items.length;
-      items[safe]?.scrollIntoView({
-        behavior: "smooth",
-        inline: "start",
-        block: "nearest",
-      });
+      const target = items[safe];
+      if (!target) return;
+
+      // Only scroll the horizontal scroller — never the document
+      // (scrollIntoView was yanking the page while reading the syllabus).
+      const rootBox = root.getBoundingClientRect();
+      const itemBox = target.getBoundingClientRect();
+      const rtl = getComputedStyle(root).direction === "rtl";
+      const delta = rtl
+        ? itemBox.right - rootBox.right
+        : itemBox.left - rootBox.left;
+      root.scrollBy({ left: delta, behavior: "smooth" });
       indexRef.current = safe;
       setIndex(safe);
     },
@@ -43,11 +51,25 @@ export function DisinabCourseCarousel({
   }, [paused]);
 
   useEffect(() => {
+    const root = scrollerRef.current;
+    if (!root || count < 2) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inViewRef.current = Boolean(entry?.isIntersecting);
+      },
+      { root: null, threshold: 0.2 },
+    );
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [count]);
+
+  useEffect(() => {
     if (count < 2) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const id = window.setInterval(() => {
-      if (pausedRef.current) return;
+      if (pausedRef.current || !inViewRef.current) return;
       scrollToIndex(indexRef.current + 1);
     }, INTERVAL_MS);
 

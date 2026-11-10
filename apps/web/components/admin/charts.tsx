@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { orderStatusLabel } from "../../lib/commerce-shared";
 import { licenseStatusLabel } from "../../lib/spotplayer-shared";
+import { publicationStatusLabel } from "../../lib/status-labels";
 import { ticketStatusLabel, type TicketStatus } from "../../lib/ticket-shared";
 import { AdminLiveBadge } from "./live-badge";
 
@@ -18,21 +19,6 @@ const CHART_COLORS = [
 
 function formatFa(n: number): string {
   return n.toLocaleString("fa-IR");
-}
-
-function publicationStatusLabel(status: string): string {
-  switch (status) {
-    case "DRAFT":
-      return "پیش‌نویس";
-    case "PUBLISHED":
-      return "منتشرشده";
-    case "UNPUBLISHED":
-      return "برداشته‌شده";
-    case "ARCHIVED":
-      return "بایگانی";
-    default:
-      return status;
-  }
 }
 
 export function breakdownStatusLabel(

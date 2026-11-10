@@ -51,8 +51,10 @@ Env knobs: `AUTH_RATE_LIMIT`, `AUTH_RATE_WINDOW_MS`, `NOTIFY_RATE_LIMIT`, `NOTIF
 | Filename sanitization / no path segments | same |
 | Opaque storage keys `tickets/{id}/{uuid}.ext` | `buildAttachmentStorageKey` |
 | Magic-byte verification vs declared MIME | `assertAttachmentMagicBytes` |
+| XSS/malware content heuristics (HTML/script polyglot, PDF JS, EICAR) | `attachment-scan.ts` |
+| Optional ClamAV INSTREAM (`CLAMAV_ENABLED`, `CLAMAV_REQUIRED`, `CLAMD_*`) | `clamav.scanner.ts` |
 | Private root, reject `..` / absolute | `attachment-storage.ts` |
-| Auth-only download | tickets controller |
+| Auth-only download + `nosniff` + CSP sandbox + forced `attachment` | tickets controller |
 
 ## Payments & SpotPlayer
 
@@ -81,5 +83,6 @@ Env knobs: `AUTH_RATE_LIMIT`, `AUTH_RATE_WINDOW_MS`, `NOTIFY_RATE_LIMIT`, `NOTIF
 - Redis-backed notification rate limits
 - CI dependency audit / secret scanning
 - MinIO signed URLs for attachments
+- ClamAV is optional; set `CLAMAV_ENABLED=true` (+ daemon) and prefer `CLAMAV_REQUIRED=true` in production
 - CSP nonces (script-src still allows `'unsafe-inline'` for Next App Router)
 - Full synchronizer CSRF tokens for all mutating BFF routes

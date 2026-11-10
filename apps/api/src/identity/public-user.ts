@@ -8,6 +8,8 @@ export type PublicUser = {
   displayName: string;
   telegramHandle: string | null;
   githubHandle: string | null;
+  linkedinHandle: string | null;
+  stackOverflowHandle: string | null;
   role: User["role"];
   emailVerified: boolean;
   phoneVerified: boolean;
@@ -22,6 +24,8 @@ export function toPublicUser(user: User): PublicUser {
     displayName: user.displayName,
     telegramHandle: user.telegramHandle,
     githubHandle: user.githubHandle,
+    linkedinHandle: user.linkedinHandle,
+    stackOverflowHandle: user.stackOverflowHandle,
     role: user.role,
     emailVerified: Boolean(user.emailVerifiedAt),
     phoneVerified: Boolean(user.phoneVerifiedAt),

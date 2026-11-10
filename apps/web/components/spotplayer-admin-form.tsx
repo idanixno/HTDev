@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button, Field, Notice } from "@zharfa/ui";
 import type { SpotPlayerConfig } from "../lib/spotplayer-shared";
+import { integrationStatusLabel } from "../lib/status-labels";
 
 export function SpotPlayerAdminForm({
   initial,
@@ -49,7 +50,11 @@ export function SpotPlayerAdminForm({
       }
       setApiKey("");
       setMessage(
-        `ذخیره شد — وضعیت: ${data.integrationStatus ?? "به‌روز شد"} (کلید کامل هرگز برنمی‌گردد).`,
+        `ذخیره شد — وضعیت: ${
+          data.integrationStatus
+            ? integrationStatusLabel(data.integrationStatus)
+            : "به‌روز شد"
+        } (کلید کامل هرگز برنمی‌گردد).`,
       );
     } catch {
       setError("ارتباط برقرار نشد.");

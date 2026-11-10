@@ -64,18 +64,14 @@ export class IdentityService {
 
     const usernameNormalized = normalizeUsername(dto.username);
     const email = normalizeEmail(dto.email);
-    const phone = dto.phone ? normalizePhone(dto.phone) : null;
-    if (dto.phone && !phone) {
+    const phone = normalizePhone(dto.phone);
+    if (!phone) {
       throw new ConflictException("شماره موبایل معتبر نیست.");
     }
 
     const existing = await this.prisma.user.findFirst({
       where: {
-        OR: [
-          { usernameNormalized },
-          { email },
-          ...(phone ? [{ phone }] : []),
-        ],
+        OR: [{ usernameNormalized }, { email }, { phone }],
       },
     });
     if (existing) {
@@ -84,14 +80,16 @@ export class IdentityService {
       );
     }
 
+    const username = dto.username.trim();
+    const displayName = (dto.displayName?.trim() || username).slice(0, 80);
     const passwordHash = await this.passwords.hash(dto.password);
     const user = await this.prisma.user.create({
       data: {
-        username: dto.username.trim(),
+        username,
         usernameNormalized,
         email,
         phone,
-        displayName: dto.displayName.trim(),
+        displayName,
         role: UserRole.STUDENT,
         passwordHash,
       },
@@ -287,9 +285,10 @@ export class IdentityService {
     userId: string,
     input: {
       displayName: string;
-      phone?: string | null;
       telegramHandle?: string | null;
       githubHandle?: string | null;
+      linkedinHandle?: string | null;
+      stackOverflowHandle?: string | null;
     },
   ): Promise<{ user: PublicUser }> {
     const displayName = input.displayName.trim();
@@ -297,36 +296,21 @@ export class IdentityService {
       throw new BadRequestException("نام نمایشی حداقل ۲ نویسه است.");
     }
 
-    let phone: string | null | undefined = input.phone;
-    if (phone !== undefined) {
-      if (phone == null || phone.trim() === "") {
-        phone = null;
-      } else {
-        const normalized = normalizePhone(phone);
-        if (!normalized) {
-          throw new BadRequestException("شماره موبایل معتبر نیست.");
-        }
-        phone = normalized;
-        const taken = await this.prisma.user.findFirst({
-          where: { phone: normalized, NOT: { id: userId } },
-          select: { id: true },
-        });
-        if (taken) {
-          throw new ConflictException("این شماره موبایل قبلاً ثبت شده است.");
-        }
-      }
-    }
-
     const user = await this.prisma.user.update({
       where: { id: userId },
       data: {
         displayName,
-        ...(phone !== undefined ? { phone } : {}),
         ...(input.telegramHandle !== undefined
           ? { telegramHandle: input.telegramHandle }
           : {}),
         ...(input.githubHandle !== undefined
           ? { githubHandle: input.githubHandle }
+          : {}),
+        ...(input.linkedinHandle !== undefined
+          ? { linkedinHandle: input.linkedinHandle }
+          : {}),
+        ...(input.stackOverflowHandle !== undefined
+          ? { stackOverflowHandle: input.stackOverflowHandle }
           : {}),
       },
     });

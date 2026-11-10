@@ -7,6 +7,7 @@ import {
 } from "@zharfa/database";
 import { Type } from "class-transformer";
 import {
+  Allow,
   IsBoolean,
   IsEnum,
   IsInt,
@@ -238,6 +239,37 @@ export class UpsertFaqDto {
   published?: boolean;
 }
 
+export class UpsertCoursePurchaseNoteDto {
+  @IsString()
+  @MinLength(3)
+  @MaxLength(1000)
+  body!: string;
+
+  @IsOptional()
+  @IsString()
+  courseId?: string | null;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  sortOrder?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  published?: boolean;
+}
+
+export class CoursePurchaseNotesQueryDto {
+  /** `global` = only shared notes; omit/`course` with courseId = exclusive. */
+  @IsOptional()
+  @IsString()
+  scope?: "global" | "course";
+
+  @IsOptional()
+  @IsString()
+  courseId?: string;
+}
+
 export class UpsertArticleDto {
   @IsString()
   @MinLength(2)
@@ -391,7 +423,104 @@ export class UpdateHomeCmsDto {
   secondaryCtaHref?: string | null;
 }
 
+export class UpdatePathsCmsDto {
+  @IsString()
+  @MinLength(3)
+  @MaxLength(200)
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(800)
+  lead?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  seoTitle?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  seoDescription?: string | null;
+}
+
 export class UpdateFooterCmsDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  brandName?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  brandTagline?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  brandKicker?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(400)
+  footerBlurb?: string | null;
+
+  @IsOptional()
+  @Allow()
+  headerLinks?: unknown;
+
+  @IsOptional()
+  @Allow()
+  footerGroups?: unknown;
+
+  @IsOptional()
+  @Allow()
+  mobileGroups?: unknown;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  guestCtaLabel?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  guestCtaHref?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  authedCtaLabel?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  authedCtaHref?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  showCart?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  showThemeToggle?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  trustsLabel?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  mobileMenuTitle?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  mobileMenuLine?: string | null;
+
   @IsOptional()
   @IsString()
   @MaxLength(12000)
@@ -407,6 +536,18 @@ export class AdminOrdersQueryDto extends AdminListQueryDto {
   @IsOptional()
   @IsString()
   status?: string;
+
+  /** SpotPlayer license pipeline — orthogonal to OrderStatus. */
+  @IsOptional()
+  @IsString()
+  licenseStatus?: string;
+}
+
+export class UpdateOrderStatusDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(32)
+  status!: string;
 }
 
 export class AdminCustomersQueryDto extends AdminListQueryDto {

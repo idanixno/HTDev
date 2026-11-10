@@ -518,6 +518,147 @@ code {
   min-height: calc(100vh - 88px);
 }
 
+/* —— دیسیناب: ورود / ثبت‌نام / بازیابی —— */
+.disinab-auth {
+  display: grid;
+  place-items: center;
+  min-height: min(72vh, 680px);
+  padding: 32px 16px 48px;
+  animation: admin-kpi-in 0.45s ease both;
+}
+
+.disinab-auth__plate.disinab {
+  width: min(100%, 26.5rem);
+  margin: 0;
+}
+
+.disinab-auth__plate > .disinab__plate {
+  gap: 12px;
+  padding: 20px 18px 16px;
+}
+
+.disinab-auth__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.disinab-auth__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.disinab-auth__mark:hover {
+  text-decoration: none;
+}
+
+.disinab-auth__logo.zharfa-logo {
+  width: 40px;
+  height: 40px;
+  flex: none;
+}
+
+.disinab-auth__mark span {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.disinab-auth__mark strong {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.disinab-auth__mark em {
+  color: var(--zharfa-text-secondary);
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.disinab-auth__plate h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.disinab-auth__plate .disinab__line {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.disinab-auth .auth-form {
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.disinab-auth .auth-form__submit {
+  min-height: 40px;
+  margin-top: 4px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.disinab-auth .auth-form__ghost-link {
+  margin-top: 2px;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.disinab-auth__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 8px;
+  margin-top: 2px;
+  padding-top: 4px;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.84rem;
+  text-align: center;
+}
+
+.disinab-auth__footer a {
+  color: var(--zharfa-text-link);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.disinab-auth__footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .disinab-auth {
+    padding: 24px 14px 40px;
+    min-height: min(68vh, 620px);
+  }
+
+  .disinab-auth__plate.disinab {
+    width: min(100%, 24.5rem);
+  }
+
+  .disinab-auth__plate > .disinab__plate {
+    gap: 10px;
+    padding: 18px 14px 14px;
+  }
+
+  .disinab-auth__logo.zharfa-logo {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 .auth-page__panel {
   width: min(100%, 28rem);
   display: flex;
@@ -845,7 +986,7 @@ code {
 .catalog__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--zharfa-space-24);
+  gap: 12px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -933,11 +1074,12 @@ code {
 .course-detail__price em {
   padding: 2px 8px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--zharfa-tone-presale) 18%, transparent);
-  color: var(--zharfa-tone-presale);
+  background: color-mix(in srgb, var(--zharfa-tone-discount) 16%, transparent);
+  color: var(--zharfa-tone-discount);
+  border: 1px solid color-mix(in srgb, var(--zharfa-tone-discount) 42%, transparent);
   font-size: var(--zharfa-text-12);
   font-style: normal;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .course-detail__actions {
@@ -1701,7 +1843,7 @@ code {
 }
 
 .checkout-invoice__rows--discount strong {
-  color: var(--zharfa-tone-success, #4ade80);
+  color: var(--zharfa-tone-discount);
 }
 
 .checkout-invoice__totals {
@@ -2210,7 +2352,7 @@ code {
 
 .admin-shell {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: 268px minmax(0, 1fr);
   min-height: 100vh;
   background: var(--zharfa-bg-canvas);
 }
@@ -2906,6 +3048,12 @@ code {
   background: var(--zharfa-surface-card);
 }
 
+.admin-panel__subheading {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
 .admin-panel h2,
 .admin-panel h3 {
   margin: 0 0 var(--zharfa-space-16);
@@ -2944,6 +3092,122 @@ code {
 
 .admin-dl dd {
   margin: 0;
+}
+
+.admin-order-actions {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-order-actions__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.admin-order-actions__field {
+  flex: 1 1 16rem;
+  min-width: 12rem;
+}
+
+.admin-order-actions__license {
+  display: grid;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.admin-loading {
+  display: grid;
+  gap: 18px;
+  padding: 4px 0 24px;
+  animation: admin-kpi-in 0.35s ease both;
+}
+
+.admin-loading__header {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+  border-radius: 22px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  background:
+    radial-gradient(
+      640px 240px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent),
+      transparent 68%
+    ),
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 92%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 88%, var(--zharfa-surface-card))
+    );
+}
+
+.admin-loading__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-shimmer {
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--zharfa-surface-raised) 70%, transparent) 0%,
+    color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-surface-card)) 42%,
+    color-mix(in srgb, var(--zharfa-surface-raised) 70%, transparent) 84%
+  );
+  background-size: 220% 100%;
+  animation: admin-shimmer 1.25s ease-in-out infinite;
+}
+
+.admin-shimmer--eyebrow {
+  width: 5.5rem;
+  height: 0.7rem;
+}
+
+.admin-shimmer--title {
+  width: min(18rem, 70%);
+  height: 1.6rem;
+  border-radius: 14px;
+}
+
+.admin-shimmer--line {
+  width: min(28rem, 90%);
+  height: 0.85rem;
+}
+
+.admin-shimmer--card {
+  height: 5.5rem;
+  border-radius: 18px;
+}
+
+.admin-shimmer--panel {
+  height: 10rem;
+  border-radius: 20px;
+}
+
+.admin-shimmer--table {
+  height: 14rem;
+  border-radius: 20px;
+}
+
+@keyframes admin-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-loading__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .admin-check {
@@ -3078,6 +3342,277 @@ code {
   padding: var(--zharfa-space-48) var(--zharfa-space-24) var(--zharfa-space-64);
 }
 
+/* —— دیسیناب: نتیجهٔ پرداخت (کارت وسط) —— */
+.disinab-payment {
+  display: grid;
+  place-items: center;
+  min-height: min(72vh, 680px);
+  padding: 32px 16px 48px;
+  animation: admin-kpi-in 0.45s ease both;
+}
+
+.disinab-payment__plate.disinab {
+  width: min(100%, 26.5rem);
+  margin: 0;
+}
+
+.disinab-payment__plate .disinab__plate {
+  gap: 12px;
+  padding: 20px 18px 16px;
+}
+
+.disinab-payment__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.disinab-payment__plate .disinab__brand {
+  margin: 0;
+}
+
+.disinab-payment__plate .disinab__badge {
+  width: fit-content;
+  margin: 0;
+}
+
+.disinab-payment__plate h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.disinab-payment__plate .disinab__line {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.disinab-payment__empty {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-border-default) 80%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--zharfa-surface-card) 55%,
+    transparent
+  );
+}
+
+.disinab-payment__plate .disinab__facts {
+  grid-template-columns: 1fr;
+  margin-top: 2px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-payment__plate .disinab__facts > div,
+.disinab-payment__plate .disinab__facts > div:first-child,
+.disinab-payment__plate .disinab__facts > div:not(:first-child) {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-inline-start: 0;
+  padding-inline: 0;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+}
+
+.disinab-payment__plate .disinab__facts > div:first-child {
+  border-top: 0;
+  padding-top: 10px;
+}
+
+.disinab-payment__plate .disinab__facts dt {
+  flex: none;
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.disinab-payment__plate .disinab__facts dd {
+  margin: 0;
+  text-align: start;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.disinab-payment__ref {
+  font-family: var(--zharfa-font-mono, ui-monospace, monospace);
+  font-size: 0.78em;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.disinab-payment__status {
+  --payment-status-tone: var(--zharfa-tone-success);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--payment-status-tone) 36%, transparent);
+  background: color-mix(in srgb, var(--payment-status-tone) 14%, transparent);
+  color: var(--payment-status-tone);
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.disinab-payment__status[data-tone="pending"] {
+  --payment-status-tone: var(--zharfa-tone-pending, #fbbf24);
+}
+
+.disinab-payment__status strong {
+  font-weight: 700;
+}
+
+.disinab-payment__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: currentColor;
+  box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent);
+  animation: admin-live-pulse 1.8s ease-out infinite;
+}
+
+.disinab-payment__status[data-tone="pending"] .disinab-payment__status-dot {
+  animation: none;
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disinab-payment__status-dot {
+    animation: none;
+  }
+}
+
+.disinab-payment__license {
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+  padding: 12px 12px 12px;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-tone-success) 28%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-tone-success) 10%, transparent),
+      color-mix(in srgb, var(--zharfa-surface-card) 55%, transparent)
+    );
+}
+
+.disinab-payment__license-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.disinab-payment__license h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.disinab-payment__license .disinab__line {
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.disinab-payment__license-box.disinab__endpoint {
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-tone-success) 22%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 70%, transparent);
+}
+
+.disinab-payment__license-box .disinab__endpoint-url {
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.disinab-payment__license-box .disinab__copy {
+  width: 100%;
+}
+
+.disinab-payment__license-wait {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.disinab-payment__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.disinab-payment__actions .z-btn {
+  min-height: 40px;
+  justify-content: center;
+  font-size: 0.86rem;
+}
+
+.disinab-payment__actions .z-btn:only-child {
+  grid-column: 1 / -1;
+}
+
+.disinab-payment__more {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.disinab-payment__more a {
+  color: var(--zharfa-text-secondary);
+  text-decoration: none;
+}
+
+.disinab-payment__more a:hover {
+  color: var(--zharfa-text-link);
+}
+
+@media (max-width: 640px) {
+  .disinab-payment {
+    padding: 24px 14px 40px;
+    place-items: center;
+    min-height: min(68vh, 620px);
+  }
+
+  .disinab-payment__plate.disinab {
+    width: min(100%, 24.5rem);
+  }
+
+  .disinab-payment__plate > .disinab__plate {
+    padding: 18px 14px 14px;
+    gap: 10px;
+  }
+}
+
 /* —— دیسیناب: صفحهٔ ۴۰۴ وسط‌چین —— */
 .disinab-not-found {
   display: grid;
@@ -3159,6 +3694,28 @@ code {
   margin-bottom: var(--zharfa-space-16);
   color: var(--zharfa-text-secondary);
   font-size: var(--zharfa-text-14);
+}
+
+.crumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crumbs__list > li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crumbs__list > li + li::before {
+  content: "/";
+  color: var(--zharfa-text-secondary);
+  opacity: 0.7;
 }
 
 .faq-list,
@@ -3482,7 +4039,7 @@ code {
 .related-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--zharfa-space-16);
+  gap: 12px;
 }
 
 .catalog__clear {
@@ -3728,7 +4285,6 @@ code {
 
 .admin-shell__content {
   animation: none;
-  max-width: 1180px;
 }
 
 .admin-table-wrap {
@@ -4037,10 +4593,10 @@ code {
 }
 
 .cart-line__price em {
-  color: var(--zharfa-tone-sale);
+  color: var(--zharfa-tone-discount);
   font-size: 12px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .cart-line__actions {
@@ -4226,7 +4782,7 @@ code {
 /* —— دیسیناب: سبد خرید —— */
 .cart-page.disinab-cart {
   max-width: 1120px;
-  gap: 18px;
+  gap: 14px;
   padding: 24px 20px 72px;
 }
 
@@ -4237,90 +4793,216 @@ code {
   margin: 0;
 }
 
+.disinab-cart__mast > .disinab__plate,
+.disinab-cart__main > .disinab__plate,
+.disinab-cart__invoice > .disinab__plate,
+.disinab-cart__empty > .disinab__plate {
+  gap: 12px;
+  padding: 16px 16px 14px;
+}
+
 .disinab-cart__head {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px 16px;
+  gap: 8px 12px;
 }
 
 .disinab-cart__head h1 {
   margin: 0;
-  font-size: clamp(1.55rem, 3vw, 2.1rem);
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
   font-weight: 800;
   line-height: 1.3;
 }
 
 .disinab-cart__head .disinab__line {
-  margin-top: 8px;
+  margin-top: 6px;
   max-width: 36rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
 .disinab-cart__section-head {
   display: grid;
-  gap: 4px;
-  margin-bottom: 12px;
+  gap: 2px;
+  margin: 0;
 }
 
 .disinab-cart__section-head h2 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.disinab-cart__split.cart-split {
+  gap: 12px;
+}
+
+.disinab-cart__lines.cart-lines {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-cart__line.cart-line {
+  display: grid;
+  grid-template-columns: 28px 72px minmax(0, 1fr) auto;
+  gap: 10px 12px;
+  align-items: center;
+  margin: 0;
+  padding: 10px 0;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+  background: transparent;
+  box-shadow: none;
+}
+
+.disinab-cart__line .cart-line__index {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent);
+  color: var(--zharfa-text-primary);
+}
+
+.disinab-cart__line .cart-line__media {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 72px;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+  background: var(--zharfa-bg-canvas);
+  color: var(--zharfa-text-secondary);
+  font-size: 0.7rem;
+  text-decoration: none;
+}
+
+.disinab-cart__line .cart-line__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.disinab-cart__line .cart-line__body {
+  gap: 2px;
+  min-width: 0;
+}
+
+.disinab-cart__line .cart-line__body h3 {
+  font-size: 0.92rem;
   font-weight: 800;
   line-height: 1.4;
 }
 
-.disinab-cart__split.cart-split {
-  gap: 16px;
+.disinab-cart__line .cart-line__price {
+  gap: 6px;
 }
 
-.disinab-cart__line.cart-line {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  grid-template-columns: unset;
-  align-items: stretch;
+.disinab-cart__line .cart-line__price strong {
+  font-size: 0.86rem;
 }
 
-.disinab-cart__line .cart-line__top {
-  display: grid;
-  grid-template-columns: 28px 96px minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-  min-width: 0;
+.disinab-cart__line .cart-line__price s {
+  font-size: 0.75rem;
 }
 
-.disinab-cart__line .cart-line__media {
-  width: 96px;
-  aspect-ratio: 16 / 10;
+.disinab-cart__line .cart-line__price em {
+  font-size: 0.7rem;
 }
 
 .disinab-cart__line .cart-line__actions {
+  display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
-  width: 100%;
-}
-
-.disinab-cart__line .cart-line__actions .z-btn {
-  flex: 1 1 auto;
   width: auto;
 }
 
+.disinab-cart__line .cart-line__actions .z-btn {
+  width: auto;
+  min-height: 34px;
+  padding-inline: 12px;
+  font-size: 0.8rem;
+}
+
 .disinab-cart__line .cart-line__remove {
-  flex: 0 0 auto;
+  min-height: 34px;
+  padding-inline: 10px;
+  font-size: 0.78rem;
+}
+
+.disinab-cart__invoice-rows.cart-invoice__rows {
+  margin: 0;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-cart__invoice-rows li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.disinab-cart__invoice-rows span {
+  min-width: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.disinab-cart__invoice-rows strong {
+  flex: none;
+  font-size: 0.86rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.disinab-cart__totals.cart-invoice__totals {
+  margin: 0;
+}
+
+.disinab-cart__totals > div {
+  padding: 7px 0;
+  font-size: 0.86rem;
+}
+
+.disinab-cart__totals .cart-invoice__grand {
+  margin-top: 2px;
+  padding-top: 10px !important;
+}
+
+.disinab-cart__totals .cart-invoice__grand dt,
+.disinab-cart__totals .cart-invoice__grand dd {
+  font-size: 0.98rem;
+  font-weight: 800;
 }
 
 .disinab-cart__empty .disinab__line {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 }
 
 @media (min-width: 960px) {
   .disinab-cart__split.cart-split {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
-    gap: 20px;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
+    gap: 14px;
     align-items: start;
   }
 
@@ -4329,22 +5011,18 @@ code {
     top: 96px;
   }
 
-  .disinab-cart__line .cart-line__top {
-    grid-template-columns: 28px 112px minmax(0, 1fr);
+  .disinab-cart__line.cart-line {
+    grid-template-columns: 28px 80px minmax(0, 1fr) auto;
   }
 
   .disinab-cart__line .cart-line__media {
-    width: 112px;
-  }
-
-  .disinab-cart__line .cart-line__actions {
-    flex-direction: row;
+    width: 80px;
   }
 }
 
 @media (max-width: 720px) {
   .cart-page.disinab-cart {
-    gap: 12px;
+    gap: 10px;
     padding: 14px 12px 56px;
   }
 
@@ -4352,106 +5030,64 @@ code {
   .disinab-cart__main > .disinab__plate,
   .disinab-cart__invoice > .disinab__plate,
   .disinab-cart__empty > .disinab__plate {
-    gap: 12px;
-    padding: 14px 12px;
+    gap: 10px;
+    padding: 14px 12px 12px;
   }
 
   .disinab-cart__head h1 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
 
   .disinab-cart__head .disinab__line {
-    font-size: 0.88rem;
-    line-height: 1.65;
-  }
-
-  .disinab-cart__section-head {
-    margin-bottom: 10px;
+    font-size: 0.84rem;
+    line-height: 1.55;
   }
 
   .disinab-cart__section-head h2 {
-    font-size: 1.05rem;
-  }
-
-  .disinab-cart__lines.cart-lines {
-    gap: 10px;
+    font-size: 1rem;
   }
 
   .disinab-cart__line.cart-line {
-    gap: 10px;
-    padding: 10px;
-    border-radius: 14px;
-  }
-
-  .disinab-cart__line .cart-line__top {
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 10px;
-    align-items: start;
+    grid-template-columns: 26px 56px minmax(0, 1fr);
+    gap: 8px 10px;
+    padding: 10px 0;
   }
 
   .disinab-cart__line .cart-line__index {
-    display: none;
+    width: 26px;
+    height: 26px;
   }
 
   .disinab-cart__line .cart-line__media {
-    width: 72px;
-    border-radius: 10px;
-  }
-
-  .disinab-cart__line .cart-line__body {
-    gap: 6px;
-  }
-
-  .disinab-cart__line .cart-line__body h3 {
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-
-  .disinab-cart__line .cart-line__price {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .disinab-cart__line .cart-line__price strong {
-    font-size: 0.95rem;
-  }
-
-  .disinab-cart__line .cart-line__price s {
-    font-size: 0.8rem;
-  }
-
-  .disinab-cart__line .cart-line__price em {
-    display: inline-flex;
-    align-items: center;
-    min-height: 22px;
-    padding: 0 8px;
-    border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--zharfa-tone-sale) 35%, transparent);
-    background: color-mix(in srgb, var(--zharfa-tone-sale) 12%, transparent);
-    font-size: 0.72rem;
+    width: 56px;
+    border-radius: 8px;
   }
 
   .disinab-cart__line .cart-line__actions {
-    flex-direction: column;
-    gap: 8px;
+    grid-column: 2 / -1;
+    width: 100%;
+    justify-content: stretch;
   }
 
   .disinab-cart__line .cart-line__actions .z-btn,
   .disinab-cart__line .cart-line__remove {
-    width: 100%;
-    min-height: 44px;
+    flex: 1 1 0;
+    width: auto;
+    min-height: 34px;
+    font-size: 0.78rem;
   }
 
-  .cart-invoice__rows li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding: 10px 0;
+  .disinab-cart__invoice-rows li {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 0;
   }
 
-  .cart-invoice__rows strong {
-    white-space: normal;
+  .disinab-cart__invoice-rows span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -4506,25 +5142,36 @@ code {
 .theme-toggle__moon {
   grid-area: 1 / 1;
   display: block;
-  transition: opacity 0.2s ease;
+  color: inherit;
+  transition:
+    opacity 0.2s ease,
+    transform 0.22s ease;
 }
 
 .theme-toggle--dark .theme-toggle__sun {
   opacity: 1;
+  transform: none;
 }
 
 .theme-toggle--dark .theme-toggle__moon {
   opacity: 0;
+  transform: scale(0.7) rotate(-20deg);
   pointer-events: none;
 }
 
 .theme-toggle--light .theme-toggle__moon {
   opacity: 1;
+  transform: none;
 }
 
 .theme-toggle--light .theme-toggle__sun {
   opacity: 0;
+  transform: scale(0.7) rotate(20deg);
   pointer-events: none;
+}
+
+.disinab-nav-drawer__foot .theme-toggle {
+  color: var(--zharfa-text-primary);
 }
 
 /* Whole-page theme morph (View Transitions), expanding from the toggle. */
@@ -4759,9 +5406,10 @@ html.is-theme-switching .course-articles {
 .hero--search .hero__copy {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: var(--zharfa-space-16);
-  max-width: 46rem;
+  width: min(100%, 42rem);
+  max-width: 42rem;
 }
 
 .hero-search,
@@ -4944,7 +5592,7 @@ html.is-theme-switching .course-articles {
 .related-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--zharfa-space-24);
+  gap: 12px;
   list-style: none;
   margin: var(--zharfa-space-24) 0 0;
   padding: 0;
@@ -5525,156 +6173,190 @@ html.is-theme-switching .course-articles {
 }
 
 /* —— دیسیناب: صفحهٔ مسیرها —— */
-.paths.disinab-paths {
+.paths.disinab-paths,
+.path-detail.disinab-roadmap {
   gap: 22px;
   padding-block: 28px 72px;
 }
 
-.disinab-paths__hero.disinab {
-  margin: 0;
+/* —— دیسیناب: نقشهٔ راه مقاله‌ای (جدول شماره‌دار) —— */
+.disinab-roadmap__article.disinab {
+  margin: 0 auto;
+  max-width: 52rem;
 }
 
-.disinab-paths__crumbs.crumbs {
-  margin: 0 0 18px;
+.disinab-roadmap__crumbs.crumbs {
+  margin: 0 0 22px;
   color: var(--zharfa-text-secondary);
   font-size: 0.84rem;
 }
 
-.disinab-paths__crumbs a {
+.disinab-roadmap__crumbs a {
   color: inherit;
   text-decoration: none;
 }
 
-.disinab-paths__crumbs a:hover {
+.disinab-roadmap__crumbs a:hover {
   color: var(--zharfa-text-link);
 }
 
-.disinab-paths__intro {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px 24px;
+.disinab-roadmap__head {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 28px;
+  text-align: center;
 }
 
-.disinab-paths__intro h1 {
-  margin: 4px 0 0;
-  font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+.disinab-roadmap__head .disinab__brand {
+  margin: 0;
+  justify-self: center;
+}
+
+.disinab-roadmap__head h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 3.4vw, 2.45rem);
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.3;
   letter-spacing: -0.01em;
 }
 
-.disinab-paths__intro .disinab__line {
-  margin-top: 10px;
-  max-width: 36rem;
+.disinab-roadmap__lead {
+  margin: 0 auto;
+  max-width: 40rem;
+  color: var(--zharfa-text-secondary);
+  font-size: 1rem;
+  line-height: 1.9;
+  text-align: start;
 }
 
-.disinab-paths__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
+.disinab-roadmap__lead--secondary {
+  font-size: 0.95rem;
+  opacity: 0.92;
 }
 
-.disinab-paths__grid.path-index {
-  gap: 16px;
+.disinab-roadmap__cover {
+  margin: 0 0 28px;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  background: var(--zharfa-surface-base);
 }
 
-.disinab-paths__card.path-card {
+.disinab-roadmap__cover img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.disinab-roadmap__stack {
+  display: grid;
+  gap: 40px;
+}
+
+.disinab-roadmap__section {
+  display: grid;
+  gap: 14px;
+}
+
+.disinab-roadmap__section-title {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.4vw, 1.45rem);
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--zharfa-text-primary);
+}
+
+.disinab-roadmap__prose {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.98rem;
+  line-height: 1.9;
+  text-align: justify;
+}
+
+.disinab-roadmap__prose--secondary {
+  font-size: 0.92rem;
+}
+
+.disinab-roadmap__empty-steps {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.92rem;
+}
+
+.disinab-roadmap__table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
   border: 1px solid
     color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
-  border-radius: 20px;
   background:
     linear-gradient(
       160deg,
-      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
-      color-mix(in srgb, var(--zharfa-surface-card) 88%, var(--zharfa-bg-canvas))
-    );
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
-    0 22px 48px -36px rgb(0 0 0 / 0.55);
-  transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.disinab-paths__card.path-card:hover {
-  border-color: color-mix(in srgb, var(--zharfa-action-primary) 48%, var(--zharfa-border-default));
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
-    0 28px 56px -32px color-mix(in srgb, var(--zharfa-action-primary) 35%, transparent);
-  text-decoration: none;
-}
-
-.disinab-paths__media.path-card__media {
-  aspect-ratio: 16 / 10;
-  background:
-    radial-gradient(
-      420px 180px at 80% 0%,
-      color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent),
-      transparent 70%
+      color-mix(in srgb, var(--zharfa-action-primary) 8%, transparent),
+      transparent 55%
     ),
-    color-mix(in srgb, var(--zharfa-bg-canvas) 70%, var(--zharfa-surface-card));
+    var(--zharfa-surface-card);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+}
+
+.disinab-roadmap__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.disinab-roadmap__table th,
+.disinab-roadmap__table td {
+  padding: 12px 14px;
   border-bottom: 1px solid
     color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+  text-align: start;
+  vertical-align: middle;
 }
 
-.disinab-paths__fallback {
-  font-family: var(--zharfa-font-persian);
-  font-size: 1.1rem;
+.disinab-roadmap__table th {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  color: var(--zharfa-text-primary);
   font-weight: 800;
-  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.disinab-roadmap__table th:first-child,
+.disinab-roadmap__table td:first-child {
+  width: 4.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
   color: var(--zharfa-text-secondary);
 }
 
-.disinab-paths__body.path-card__body {
-  gap: 10px;
-  padding: 16px 18px 18px;
+.disinab-roadmap__table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
-.disinab-paths__count.path-card__count {
-  width: fit-content;
-  min-height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid
-    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
-  background: color-mix(in srgb, var(--zharfa-action-primary) 14%, transparent);
-  color: var(--zharfa-text-primary);
-  font-size: 0.75rem;
-  line-height: 28px;
+.disinab-roadmap__table a {
+  color: var(--zharfa-text-link);
+  font-weight: 700;
+  text-decoration: none;
 }
 
-.disinab-paths__body strong {
-  font-size: 1.12rem;
-  font-weight: 800;
-  line-height: 1.55;
-}
-
-.disinab-paths__empty.disinab {
-  margin: 0;
-}
-
-@media (max-width: 980px) {
-  .disinab-paths__grid.path-index {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.disinab-roadmap__table a:hover,
+.disinab-roadmap__table a:focus-visible {
+  text-decoration: underline;
+  outline: none;
 }
 
 @media (max-width: 640px) {
-  .disinab-paths__grid.path-index {
-    grid-template-columns: 1fr;
+  .disinab-roadmap__lead {
+    text-align: start;
+    text-align-last: start;
   }
 
-  .disinab-paths__intro {
-    align-items: stretch;
-  }
-
-  .disinab-paths__meta {
-    justify-content: flex-start;
+  .disinab-roadmap__table th,
+  .disinab-roadmap__table td {
+    padding: 10px 12px;
   }
 }
 
@@ -6619,8 +7301,9 @@ html.is-theme-switching .course-articles {
   grid-template-columns: 1fr;
 }
 
+/* Status psychology mirrors course cards (complete / free / gold / violet) */
 .course-page[data-offer="sale"] {
-  --zharfa-tone: var(--zharfa-tone-sale);
+  --zharfa-tone: var(--zharfa-tone-success);
 }
 
 .course-page[data-offer="free"] {
@@ -6806,15 +7489,15 @@ html.is-theme-switching .course-articles {
 .syllabus__chevron {
   width: 10px;
   height: 10px;
-  border-inline-end: 1.7px solid currentColor;
+  border-right: 1.7px solid currentColor;
   border-bottom: 1.7px solid currentColor;
-  transform: rotate(45deg);
+  transform: rotate(135deg);
   transition: transform 0.25s ease;
   opacity: 0.7;
 }
 
 .syllabus__modules > li.is-open .syllabus__chevron {
-  transform: rotate(-135deg);
+  transform: rotate(45deg);
 }
 
 .syllabus__spot {
@@ -6872,13 +7555,15 @@ html.is-theme-switching .course-articles {
 .syllabus__heading {
   display: flex;
   flex: 1 1 auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
+  width: 100%;
   min-width: 0;
 }
 
 .syllabus__heading strong {
+  flex: 1 1 auto;
   min-width: 0;
   line-height: 1.45;
 }
@@ -6916,6 +7601,8 @@ html.is-theme-switching .course-articles {
 }
 
 .syllabus__heading em {
+  flex: none;
+  margin-inline-start: auto;
   padding: 2px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent);
@@ -6923,6 +7610,7 @@ html.is-theme-switching .course-articles {
   font-style: normal;
   font-size: var(--zharfa-text-12);
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .syllabus .lesson-preview {
@@ -6934,6 +7622,96 @@ html.is-theme-switching .course-articles {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.course-notes__item--exclusive {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 28%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 8%,
+    var(--zharfa-surface-card)
+  );
+}
+
+.course-notes-editor__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.course-notes-editor__head h2 {
+  margin: 0 0 6px;
+}
+
+.course-notes-editor__scope {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 30%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  color: var(--zharfa-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.course-notes-editor__scope[data-scope="course"] {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-tone-sale) 35%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(in srgb, var(--zharfa-tone-sale) 12%, transparent);
+}
+
+.course-notes-editor__list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.course-notes-editor__list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--zharfa-border-default);
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent);
+}
+
+.course-notes-editor__list > li p {
+  margin: 0;
+}
+
+.course-notes-editor__row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.course-notes-editor__form {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--zharfa-border-default);
+}
+
+.course-notes-editor__form h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
 }
 
 .course-notes ul {
@@ -7042,6 +7820,46 @@ html.is-theme-switching .course-articles {
 .video-source__file {
   display: grid;
   gap: var(--zharfa-space-8);
+}
+
+.asset-image-field {
+  display: grid;
+  gap: 10px;
+}
+
+.asset-image-field__file {
+  display: grid;
+  gap: 8px;
+  font-size: var(--zharfa-text-13, 0.8125rem);
+  color: var(--zharfa-text-secondary);
+}
+
+.asset-image-field__file input[type="file"] {
+  max-width: 100%;
+  font: inherit;
+}
+
+.asset-image-field__preview {
+  width: min(100%, 18rem);
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-surface-raised) 80%, transparent);
+}
+
+.asset-image-field__preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.asset-image-field__note {
+  margin: 0;
+  font-size: var(--zharfa-text-13, 0.8125rem);
+  color: var(--zharfa-text-secondary);
 }
 
 .lesson-dialog__note {
@@ -7925,6 +8743,24 @@ html.is-theme-switching .course-articles {
   outline: none;
 }
 
+/* Desktop: flatten Disinab drawer chrome so the rail stays inline. */
+.catalog-filters__panel:not(.disinab-filter-drawer) .disinab-filter-drawer__aura {
+  display: none;
+}
+
+.catalog-filters__panel:not(.disinab-filter-drawer) .disinab-filter-drawer__inner,
+.catalog-filters__panel:not(.disinab-filter-drawer) .disinab-filter-drawer__body {
+  display: contents;
+}
+
+.catalog-filters__panel:not(.disinab-filter-drawer) .disinab__brand {
+  display: none;
+}
+
+.catalog-filters__panel:not(.disinab-filter-drawer) .disinab-filter-drawer__title-row .disinab__badge {
+  display: none;
+}
+
 .catalog-filters__bar {
   display: flex;
   align-items: flex-start;
@@ -8085,50 +8921,132 @@ html.is-theme-switching .course-articles {
     position: sticky;
     top: 0;
     z-index: 2;
-    margin: -4px -4px 16px;
-    padding: 4px 4px 14px;
+    margin: 0 0 12px;
+    padding: 0 0 12px;
     border-bottom: 1px solid color-mix(in srgb, var(--zharfa-text-primary) 8%, transparent);
-    background: color-mix(in srgb, var(--zharfa-surface-base) 92%, transparent);
-    backdrop-filter: blur(12px);
+    background: transparent;
+    backdrop-filter: none;
   }
 
-  .catalog-filters__panel {
+  /* Portaled out of DisinabPlate so overflow/transform no longer clips it. */
+  .catalog-filters__panel.disinab-filter-drawer {
     position: fixed;
     z-index: 80;
-    inset-block: 0;
-    inset-inline-start: 0;
+    inset-block: 10px;
+    inset-inline-start: 10px;
+    inset-inline-end: auto;
     display: flex;
     flex-direction: column;
-    width: min(22rem, 88vw);
-    height: 100dvh;
-    overflow: auto;
-    padding: 18px 16px 32px;
+    width: min(22.5rem, calc(100vw - 20px));
+    max-height: calc(100dvh - 20px);
+    height: auto;
+    overflow: hidden;
+    padding: 0;
+    border-radius: 24px;
+    border: 1px solid
+      color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
     background:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--zharfa-action-primary) 14%, transparent),
-        transparent 28%
+      radial-gradient(
+        520px 240px at 100% 0%,
+        color-mix(in srgb, var(--zharfa-action-primary) 26%, transparent),
+        transparent 68%
       ),
-      var(--zharfa-surface-base);
-    border-inline-end: 1px solid color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+      linear-gradient(
+        155deg,
+        color-mix(in srgb, var(--zharfa-surface-raised) 94%, transparent),
+        color-mix(in srgb, var(--zharfa-bg-canvas) 90%, var(--zharfa-surface-card))
+      );
     box-shadow:
-      inset -1px 0 0 color-mix(in srgb, var(--zharfa-text-primary) 5%, transparent),
-      -18px 0 40px -24px rgb(0 0 0 / 0.55);
-    transform: translateX(100%);
-    visibility: hidden;
-    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), visibility 220ms;
+      inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+      0 28px 60px -28px rgb(0 0 0 / 0.72);
+    transform: none;
+    visibility: visible;
+    animation: disinab-nav-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .catalog-filters.is-open .catalog-filters__panel {
-    transform: translateX(0);
-    visibility: visible;
+  .disinab-filter-drawer__scrim.nav-drawer__scrim {
+    z-index: 70;
+    background: color-mix(in srgb, #04070e 62%, transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .disinab-filter-drawer__aura {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background: repeating-linear-gradient(
+      -14deg,
+      transparent 0 22px,
+      color-mix(in srgb, var(--zharfa-text-link) 5%, transparent) 22px 23px
+    );
+  }
+
+  .disinab-filter-drawer__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    flex: 1;
+    padding: 18px 16px 16px;
+  }
+
+  .disinab-filter-drawer__bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .disinab-filter-drawer__title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    margin-top: 4px;
+  }
+
+  .disinab-filter-drawer__close {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 12px;
+    border: 1px solid
+      color-mix(in srgb, var(--zharfa-action-primary) 32%, var(--zharfa-border-default));
+    background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+    color: var(--zharfa-text-primary);
+    line-height: 0;
+    cursor: pointer;
+  }
+
+  .disinab-filter-drawer__body {
+    min-height: 0;
+    flex: 1;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
   }
 
   .catalog-filters.is-open .catalog-filters__heading {
     animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .catalog-filters__panel .catalog-rail {
+  @media (prefers-reduced-motion: reduce) {
+    .catalog-filters__panel.disinab-filter-drawer {
+      animation: none;
+    }
+  }
+
+  .catalog-filters__panel .catalog-rail,
+  .catalog-filters__panel .disinab-catalog__rail.catalog-rail {
+    display: grid;
     gap: 14px;
     padding: 0;
     border: 0;
@@ -8139,7 +9057,9 @@ html.is-theme-switching .course-articles {
 
   .catalog-filters__panel .catalog-rail__line {
     grid-template-columns: 1fr;
-    gap: 6px;
+    gap: 8px;
+    padding: 0;
+    border: 0;
     animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
     animation-delay: calc(var(--rail-i, 0) * 55ms);
   }
@@ -8153,24 +9073,16 @@ html.is-theme-switching .course-articles {
     margin: 0 2px 2px;
   }
 
-  .catalog-filters__panel .catalog-rail__line ul {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 6px;
+  .catalog-filters__panel .disinab-catalog__opts {
+    gap: 4px;
   }
 
-  .catalog-filters__panel .catalog-pill {
-    width: 100%;
+  .catalog-filters__panel .catalog-opt {
     min-height: 40px;
-    justify-content: flex-start;
     padding-inline: 12px;
     border-radius: 12px;
     animation: admin-kpi-value 0.4s ease both;
     animation-delay: calc(0.08s + var(--rail-i, 0) * 40ms);
-  }
-
-  .catalog-filters__panel .catalog-pill--active {
-    background: color-mix(in srgb, var(--zharfa-action-primary) 20%, var(--zharfa-surface-card));
   }
 }
 
@@ -8178,9 +9090,9 @@ html.is-theme-switching .course-articles {
   .catalog-filters__panel,
   .catalog-filters.is-open .catalog-filters__heading,
   .catalog-filters__panel .catalog-rail__line,
-  .catalog-filters__panel .catalog-pill,
+  .catalog-filters__panel .catalog-opt,
   .catalog-rail--live .catalog-rail__line,
-  .catalog-pill {
+  .catalog-opt {
     animation: none;
     transition: none;
   }
@@ -8721,26 +9633,12 @@ html.is-theme-switching .course-articles {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .disinab-folio__grid.access-list--grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1400px) {
-  .disinab-folio__grid.access-list--grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 820px) {
   .folio .access-list--grid,
   .salon-main .access-list--grid {
     grid-template-columns: 1fr;
-  }
-
-  .disinab-folio__grid.access-list--grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
   }
 }
 
@@ -8803,6 +9701,1344 @@ html.is-theme-switching .course-articles {
   }
 }
 
+/* —— دیسیناب: فوتر سایت —— */
+.site-footer.disinab-footer {
+  margin-top: 28px;
+  border-top: 0;
+  padding: 0 12px 16px;
+  background: transparent;
+}
+
+.disinab-footer__plate.site-footer__inner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  gap: 22px 28px;
+  max-width: var(--zharfa-container-wide);
+  margin: 0 auto;
+  padding: 22px 20px 20px;
+  border-radius: 24px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 26%, var(--zharfa-border-default));
+  background:
+    radial-gradient(
+      560px 260px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 94%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 88%, var(--zharfa-surface-card))
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 24px 52px -34px rgb(0 0 0 / 0.58);
+  animation: admin-kpi-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.disinab-footer__brand {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.disinab-footer__brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.disinab-footer__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  line-height: 0;
+  filter: drop-shadow(
+    0 12px 20px color-mix(in srgb, var(--zharfa-action-primary) 30%, transparent)
+  );
+}
+
+.disinab-footer__logo.zharfa-logo {
+  display: block;
+  width: 52px;
+  height: 52px;
+}
+
+.disinab-footer__brand-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.disinab-footer .site-footer__name {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.disinab-footer__line.disinab__line {
+  margin: 0;
+  max-width: 28rem;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+.disinab-footer__menus.site-footer__menus,
+.disinab-footer__trusts {
+  position: relative;
+  z-index: 1;
+}
+
+.disinab-footer__group {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.disinab-footer .site-footer__label.disinab__brand {
+  margin: 0;
+  color: var(--zharfa-tone-sale);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.disinab-footer ul {
+  gap: 4px;
+}
+
+.disinab-footer a {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: var(--zharfa-text-primary);
+  font-weight: 600;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.disinab-footer a:hover,
+.disinab-footer a:focus-visible {
+  color: var(--zharfa-text-primary);
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  text-decoration: none;
+}
+
+.disinab-footer .site-footer__badge {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 20%,
+    var(--zharfa-border-default)
+  );
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 45%, var(--zharfa-surface-card));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
+}
+
+@media (min-width: 1101px) {
+  .site-footer.disinab-footer {
+    padding: 0 24px 24px;
+  }
+
+  .disinab-footer__plate.site-footer__inner {
+    padding: 26px 26px 24px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .site-footer.disinab-footer {
+    padding: 0 10px 14px;
+  }
+
+  .disinab-footer__plate.site-footer__inner,
+  .disinab-footer__plate.site-footer__inner--with-trusts {
+    gap: 18px;
+    padding: 18px 14px 16px;
+    border-radius: 20px;
+  }
+
+  .disinab-footer__mark,
+  .disinab-footer__logo.zharfa-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .disinab-footer .site-footer__name {
+    font-size: 1.3rem;
+  }
+
+  .disinab-footer__line.disinab__line {
+    font-size: 0.86rem;
+    line-height: 1.7;
+  }
+
+  .disinab-footer__menus.site-footer__menus {
+    gap: 16px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-footer.disinab-footer {
+    padding: 0 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .disinab-footer__plate.site-footer__inner {
+    padding: 16px 12px 14px;
+    border-radius: 18px;
+  }
+}
+
+.shell:has(.course-page--dock) .site-footer.disinab-footer {
+  margin-top: 8px;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* —— دیسیناب: هدر سایت —— */
+.site-header.disinab-header {
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+  background: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 7%,
+    var(--zharfa-bg-canvas)
+  );
+  backdrop-filter: blur(16px);
+  padding: 0;
+}
+
+.disinab-header__bar.site-header__inner {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  gap: 20px;
+  min-height: 58px;
+  max-width: var(--zharfa-container-wide);
+  margin: 0 auto;
+  padding: 10px 24px;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.disinab-header__brand.site-brand {
+  position: relative;
+  z-index: 1;
+  gap: 12px;
+  min-width: 0;
+}
+
+.disinab-header__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  line-height: 0;
+  /* Tint logo plate from canvas — never pure white surface-card */
+  --zharfa-surface-raised: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 28%,
+    var(--zharfa-bg-canvas)
+  );
+  --zharfa-surface-card: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 18%,
+    var(--zharfa-bg-canvas)
+  );
+  filter: none;
+}
+
+.disinab-header__logo.zharfa-logo {
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+
+.disinab-header__copy {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+
+.disinab-header .site-brand__name {
+  font-size: 1.12rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.disinab-header .site-brand__tag {
+  padding-inline-start: 12px;
+  border-inline-start: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 12%, var(--zharfa-border-default));
+  color: var(--zharfa-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.disinab-header__nav.site-header__nav {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 0;
+}
+
+.disinab-header__tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.disinab-header__tab.site-header__link {
+  position: relative;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: color 0.16s ease;
+}
+
+.disinab-header__tab.site-header__link:hover,
+.disinab-header__tab.site-header__link:focus-visible {
+  color: var(--zharfa-text-primary);
+  background: transparent;
+  text-decoration: none;
+}
+
+.disinab-header__tab.site-header__link--current,
+.disinab-header__tab.is-active {
+  color: var(--zharfa-text-primary);
+  background: transparent;
+  box-shadow: none;
+  font-weight: 800;
+}
+
+.disinab-header__tab.site-header__link--current::after,
+.disinab-header__tab.is-active::after {
+  content: "";
+  position: absolute;
+  inset-inline: 12px;
+  bottom: 4px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: var(--zharfa-action-primary);
+}
+
+.disinab-header__actions.site-header__actions {
+  position: relative;
+  z-index: 1;
+  gap: 4px;
+}
+
+.disinab-header__actions .cart-link,
+.disinab-header__actions .theme-toggle,
+.disinab-header__account {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--zharfa-text-secondary);
+}
+
+.disinab-header__actions .cart-link:hover,
+.disinab-header__actions .theme-toggle:hover,
+.disinab-header__account:hover,
+.disinab-header__actions .cart-link:focus-visible,
+.disinab-header__actions .theme-toggle:focus-visible,
+.disinab-header__account:focus-visible {
+  color: var(--zharfa-text-primary);
+  background: color-mix(in srgb, var(--zharfa-text-primary) 5%, transparent);
+}
+
+.disinab-header__account {
+  display: inline-grid;
+  place-items: center;
+  text-decoration: none;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.disinab-header__account:hover,
+.disinab-header__account:focus-visible {
+  text-decoration: none;
+}
+
+.disinab-header__account-icon {
+  display: block;
+}
+
+.disinab-header .mobile-nav__toggle {
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  border-radius: 11px;
+  border: 0;
+  background: transparent;
+  color: var(--zharfa-text-secondary);
+  box-shadow: none;
+}
+
+.disinab-header .mobile-nav__toggle:hover,
+.disinab-header .mobile-nav__toggle:focus-visible {
+  color: var(--zharfa-text-primary);
+  background: color-mix(in srgb, var(--zharfa-text-primary) 5%, transparent);
+}
+
+@media (min-width: 1101px) {
+  .site-header.disinab-header {
+    padding: 0;
+  }
+
+  .disinab-header__bar.site-header__inner {
+    gap: 28px;
+    min-height: 62px;
+    padding: 10px 28px;
+  }
+
+  .disinab-header__mark,
+  .disinab-header__logo.zharfa-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .disinab-header .site-brand__name {
+    font-size: 1.18rem;
+  }
+
+  .disinab-header__tab.site-header__link {
+    padding: 0 14px;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .site-header.disinab-header {
+    padding: 0;
+  }
+
+  .disinab-header__bar.site-header__inner {
+    gap: 12px;
+    min-height: 54px;
+    padding: 8px 14px;
+    border-radius: 0;
+  }
+
+  .disinab-header__copy {
+    gap: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .disinab-header__bar.site-header__inner {
+    min-height: 52px;
+    padding-block: 6px;
+    padding-inline: 12px;
+  }
+
+  .disinab-header .site-brand__name {
+    font-size: 1.05rem;
+  }
+
+  .disinab-header__mark,
+  .disinab-header__logo.zharfa-logo {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* —— دیسیناب: منوی موبایل —— */
+.disinab-nav-drawer__scrim.nav-drawer__scrim {
+  background: color-mix(in srgb, #04070e 62%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.nav-drawer__panel.disinab-nav-drawer {
+  position: fixed;
+  z-index: 80;
+  inset-block: 10px;
+  inset-inline-start: 10px;
+  inset-inline-end: auto;
+  display: flex;
+  flex-direction: column;
+  width: min(22.5rem, calc(100vw - 20px));
+  max-height: calc(100dvh - 20px);
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
+  background:
+    radial-gradient(
+      520px 240px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 26%, transparent),
+      transparent 68%
+    ),
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 94%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 90%, var(--zharfa-surface-card))
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 28px 60px -28px rgb(0 0 0 / 0.72);
+  animation: disinab-nav-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.disinab-nav-drawer__aura {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background: repeating-linear-gradient(
+    -14deg,
+    transparent 0 22px,
+    color-mix(in srgb, var(--zharfa-text-link) 5%, transparent) 22px 23px
+  );
+}
+
+.disinab-nav-drawer__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  flex: 1;
+  padding: 18px 16px 16px;
+}
+
+.disinab-nav-drawer__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.disinab-nav-drawer__title {
+  min-width: 0;
+}
+
+.disinab-nav-drawer__title .disinab__brand {
+  margin: 0;
+}
+
+.disinab-nav-drawer__title h2 {
+  margin: 6px 0 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.disinab-nav-drawer__title .disinab__line {
+  margin: 8px 0 0;
+  font-size: 0.86rem;
+}
+
+.disinab-nav-drawer__close {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 32%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  color: var(--zharfa-text-primary);
+  line-height: 0;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.disinab-nav-drawer__close-icon {
+  display: block;
+}
+
+.disinab-nav-drawer__close:hover {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 48%,
+    var(--zharfa-border-default)
+  );
+}
+
+.disinab-nav-drawer__body {
+  display: grid;
+  gap: 0;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.disinab-nav-drawer__list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disinab-nav-drawer__list > li + li {
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+}
+
+.disinab-nav-drawer__list > li .disinab-nav-drawer__link {
+  border-radius: 12px;
+  margin-block: 3px;
+}
+
+.disinab-nav-drawer__group {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-nav-drawer__group:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.disinab-nav-drawer__group .disinab__brand {
+  margin: 0;
+  padding-inline: 4px;
+}
+
+.disinab-nav-drawer__group ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disinab-nav-drawer__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  color: var(--zharfa-text-primary);
+  font-weight: 700;
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.disinab-nav-drawer__link:hover {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 18%,
+    transparent
+  );
+  color: var(--zharfa-text-primary);
+  text-decoration: none;
+}
+
+.disinab-nav-drawer__link.is-current {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 36%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+}
+
+.disinab-nav-drawer__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex: none;
+  background: #34d399;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #34d399 22%, transparent);
+}
+
+.disinab-nav-drawer__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-nav-drawer__foot .theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent);
+  color: var(--zharfa-text-primary);
+}
+
+@keyframes disinab-nav-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-drawer__panel.disinab-nav-drawer {
+    animation: none;
+  }
+}
+
+/* —— دیسیناب: شرایط استفاده —— */
+.disinab-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: var(--zharfa-container-wide);
+  margin-inline: auto;
+  padding: 28px var(--zharfa-space-64) 72px;
+  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.disinab-terms__mast.disinab,
+.disinab-terms__body.disinab {
+  margin: 0;
+}
+
+.disinab-terms__crumbs.crumbs {
+  margin: 0 0 16px;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.84rem;
+}
+
+.disinab-terms__crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.disinab-terms__crumbs a:hover {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-terms__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 20px;
+}
+
+.disinab-terms__intro .disinab__brand {
+  margin: 0 0 6px;
+}
+
+.disinab-terms__intro h1 {
+  margin: 0;
+  font-size: clamp(1.85rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.disinab-terms__intro .disinab__line {
+  margin-top: 8px;
+  max-width: 38rem;
+}
+
+.disinab-terms__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.disinab-terms__body > .disinab__plate {
+  gap: 14px;
+}
+
+.disinab-terms__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.disinab-terms__list > li {
+  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(40ms + var(--term-i, 0) * 40ms);
+}
+
+.disinab-terms__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px 16px;
+  padding: 16px 16px 16px 18px;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
+    ),
+    var(--zharfa-surface-card);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+}
+
+.disinab-terms__index {
+  margin: 2px 0 0;
+  color: var(--zharfa-tone-sale);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.disinab-terms__copy {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.disinab-terms__copy h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.disinab-terms__copy p {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+@media (max-width: 720px) {
+  .disinab-terms {
+    gap: 14px;
+    padding: 18px 16px 56px;
+  }
+
+  .disinab-terms__mast > .disinab__plate,
+  .disinab-terms__body > .disinab__plate {
+    padding: 18px 14px 16px;
+  }
+
+  .disinab-terms__intro h1 {
+    font-size: clamp(1.55rem, 7vw, 1.9rem);
+  }
+
+  .disinab-terms__actions {
+    flex-direction: column;
+  }
+
+  .disinab-terms__actions .z-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .disinab-terms__item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .disinab-terms__index {
+    margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disinab-terms,
+  .disinab-terms__list > li {
+    animation: none;
+  }
+}
+
+/* —— دیسیناب: پرسش‌های رایج —— */
+.disinab-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: var(--zharfa-container-wide);
+  margin-inline: auto;
+  padding: 28px var(--zharfa-space-64) 72px;
+  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.disinab-faq__mast.disinab,
+.disinab-faq__feed.disinab {
+  margin: 0;
+}
+
+.disinab-faq__crumbs.crumbs {
+  margin: 0 0 16px;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.84rem;
+}
+
+.disinab-faq__crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.disinab-faq__crumbs a:hover {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-faq__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 20px;
+}
+
+.disinab-faq__intro .disinab__brand {
+  margin: 0 0 6px;
+}
+
+.disinab-faq__intro h1 {
+  margin: 0;
+  font-size: clamp(1.85rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.disinab-faq__intro .disinab__line {
+  margin-top: 8px;
+  max-width: 36rem;
+}
+
+.disinab-faq__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.disinab-faq__feed > .disinab__plate {
+  gap: 14px;
+}
+
+.disinab-faq__empty {
+  margin: 0;
+}
+
+.disinab-faq__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.disinab-faq__list > li {
+  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(40ms + var(--faq-i, 0) * 40ms);
+}
+
+.disinab-faq__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px 16px;
+  padding: 16px 16px 16px 18px;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
+    ),
+    var(--zharfa-surface-card);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+}
+
+.disinab-faq__index {
+  margin: 2px 0 0;
+  color: var(--zharfa-tone-sale);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.disinab-faq__copy {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.disinab-faq__copy h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.disinab-faq__copy p {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+@media (max-width: 720px) {
+  .disinab-faq {
+    gap: 14px;
+    padding: 18px 16px 56px;
+  }
+
+  .disinab-faq__mast > .disinab__plate,
+  .disinab-faq__feed > .disinab__plate {
+    padding: 18px 14px 16px;
+  }
+
+  .disinab-faq__intro h1 {
+    font-size: clamp(1.55rem, 7vw, 1.9rem);
+  }
+
+  .disinab-faq__actions {
+    flex-direction: column;
+  }
+
+  .disinab-faq__actions .z-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .disinab-faq__item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .disinab-faq__index {
+    margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disinab-faq,
+  .disinab-faq__list > li {
+    animation: none;
+  }
+}
+
+/* —— دیسیناب: فهرست مقالات —— */
+.journal.disinab-journal {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-block: 28px 72px;
+  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.disinab-journal__mast.disinab,
+.disinab-journal__feed.disinab {
+  margin: 0;
+}
+
+.disinab-journal__crumbs.crumbs {
+  margin: 0 0 16px;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.84rem;
+}
+
+.disinab-journal__crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.disinab-journal__crumbs a:hover {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-journal__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 20px;
+}
+
+.disinab-journal__intro-copy {
+  display: grid;
+  gap: 8px;
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.disinab-journal__intro .disinab__brand {
+  margin: 0;
+}
+
+.disinab-journal__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  min-width: 0;
+  width: 100%;
+}
+
+.disinab-journal__intro h1 {
+  margin: 0;
+  flex: 0 1 auto;
+  font-size: clamp(1.85rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.disinab-journal__intro .disinab__line {
+  margin: 0;
+  max-width: 34rem;
+}
+
+.disinab-journal__search.catalog-search {
+  flex: 0 1 28rem;
+  width: min(100%, 28rem);
+  max-width: 28rem;
+  min-width: min(100%, 14rem);
+  margin: 0;
+  margin-inline-start: auto;
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 22%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 50%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 6%, transparent);
+}
+
+.disinab-journal__search.catalog-search:focus-within {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 55%,
+    var(--zharfa-border-default)
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 7%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent);
+}
+
+.disinab-journal__feed > .disinab__plate {
+  gap: 16px;
+}
+
+.disinab-journal__empty {
+  margin: 0;
+  padding: 8px 2px;
+}
+
+.disinab-journal__grid.note-grid {
+  margin: 0;
+  gap: 16px;
+}
+
+.disinab-journal__grid > li {
+  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(40ms + var(--note-i, 0) * 45ms);
+}
+
+.disinab-journal__card.note-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 18px;
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 16%,
+    var(--zharfa-border-default)
+  );
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
+    ),
+    var(--zharfa-surface-card);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+    0 20px 42px -34px rgb(0 0 0 / 0.55);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.disinab-journal__card.note-card:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 38%,
+    var(--zharfa-border-default)
+  );
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 26px 48px -30px
+      color-mix(in srgb, var(--zharfa-action-primary) 28%, transparent);
+}
+
+.disinab-journal__card .note-card__media {
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+}
+
+.disinab-journal__card .note-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  padding: 14px 16px 16px;
+}
+
+.disinab-journal__card .note-card__body h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.disinab-journal__card .note-card__body h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.disinab-journal__card .note-card__body h2 a:hover {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-journal__card .note-card__summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.disinab-journal__read.note-card__read {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 36px;
+  margin-top: auto;
+  margin-inline-start: auto;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  color: var(--zharfa-text-primary);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.disinab-journal__read.note-card__read:hover {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
+  color: var(--zharfa-text-primary);
+  text-decoration: none;
+}
+
+@media (max-width: 720px) {
+  .journal.disinab-journal {
+    gap: 14px;
+    padding-block: 18px 56px;
+    padding-inline: 16px;
+  }
+
+  .disinab-journal__mast > .disinab__plate,
+  .disinab-journal__feed > .disinab__plate {
+    padding: 18px 14px 16px;
+  }
+
+  .disinab-journal__intro h1 {
+    font-size: clamp(1.55rem, 7vw, 1.9rem);
+  }
+
+  .disinab-journal__title-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .disinab-journal__search.catalog-search {
+    max-width: none;
+    width: 100%;
+  }
+
+  .disinab-journal__grid.note-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journal.disinab-journal,
+  .disinab-journal__grid > li,
+  .disinab-journal__card.note-card {
+    animation: none;
+    transition: none;
+  }
+
+  .disinab-journal__card.note-card:hover {
+    transform: none;
+  }
+}
+
 /* —— دیسیناب: کاتالوگ دوره‌ها —— */
 .catalog.disinab-catalog {
   display: flex;
@@ -8812,15 +11048,65 @@ html.is-theme-switching .course-articles {
 }
 
 .disinab-catalog__mast.disinab,
-.disinab-catalog__filters.disinab,
 .disinab-catalog__results.disinab {
   margin: 0;
 }
 
+.disinab-catalog__mast.disinab {
+  z-index: 4;
+  overflow: visible;
+}
+
+.disinab-catalog__results.disinab {
+  z-index: 1;
+}
+
+.disinab-catalog__mast.disinab:has(.catalog-dd[open]) {
+  z-index: 8;
+}
+
+.disinab-catalog__mast > .disinab__plate {
+  gap: 0;
+  padding: 22px 22px 18px;
+  overflow: visible;
+}
+
+.disinab-catalog__layout {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.88fr) minmax(0, 1.42fr);
+  gap: 18px 28px;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.disinab-catalog__lead {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-width: 0;
+}
+
+.disinab-catalog__results > .disinab__plate {
+  gap: 12px;
+  padding: 16px;
+}
+
+.disinab-catalog__results.catalog__results {
+  gap: 12px;
+}
+
+.disinab-catalog__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
 .disinab-catalog__crumbs.crumbs {
-  margin: 0 0 16px;
+  margin: 0;
   color: var(--zharfa-text-secondary);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
 }
 
 .disinab-catalog__crumbs a {
@@ -8837,105 +11123,602 @@ html.is-theme-switching .course-articles {
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 14px 20px;
+  gap: 12px 16px;
+  min-width: 0;
+}
+
+.disinab-catalog__intro-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.disinab-catalog__intro .disinab__brand {
+  margin: 0;
 }
 
 .disinab-catalog__intro h1 {
   margin: 0;
-  font-size: clamp(1.85rem, 3.4vw, 2.5rem);
+  font-size: clamp(1.55rem, 2.8vw, 2.1rem);
   font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .disinab-catalog__intro .disinab__line {
-  margin-top: 8px;
-  max-width: 34rem;
+  margin: 0;
+  max-width: 38rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
 }
 
-.disinab-catalog__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* Console: query dock + filter dropdowns */
+.disinab-catalog__console {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  overflow: visible;
+  border-radius: 20px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 24%, var(--zharfa-border-default));
+  background:
+    radial-gradient(
+      520px 180px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 14%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--zharfa-bg-canvas) 48%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+    0 18px 40px -34px rgb(0 0 0 / 0.45);
 }
 
-.disinab-catalog__search.catalog-search {
-  width: min(100%, 40rem);
-  margin-top: 6px;
-  border-color: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 22%,
-    var(--zharfa-border-default)
-  );
-  background: color-mix(in srgb, var(--zharfa-bg-canvas) 50%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 6%, transparent);
+.disinab-catalog__query {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 0;
+  min-height: 52px;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
+  background: var(--zharfa-surface-card);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
 }
 
-.disinab-catalog__search.catalog-search:focus-within {
+.disinab-catalog__query:focus-within {
   border-color: color-mix(
     in srgb,
     var(--zharfa-action-primary) 55%,
     var(--zharfa-border-default)
   );
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 7%, transparent),
-    0 0 0 3px color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent);
+    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent);
 }
 
-@media (min-width: 901px) {
-  .disinab-catalog__filters .catalog-filters__panel {
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-    padding: 0;
-  }
-
-  .disinab-catalog__filters .catalog-filters__bar {
-    margin-bottom: 12px;
-  }
-
-  .disinab-catalog__filters .catalog-filters__close {
-    display: none;
-  }
-}
-
-.disinab-catalog__filters .catalog-filters__title {
-  margin: 0;
-  font-size: 1.05rem;
+.disinab-catalog__method {
+  display: grid;
+  place-items: center;
+  padding: 0 14px;
+  border-inline-end: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 14%, transparent);
+  color: var(--zharfa-text-link);
+  font-size: 0.78rem;
   font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
-.disinab-catalog__filters .catalog-filters__toggle {
-  border-radius: 14px;
+.disinab-catalog__query input[type="search"],
+.disinab-catalog__query input {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--zharfa-text-primary);
+  font: inherit;
+  font-size: 0.95rem;
+  box-shadow: none;
+}
+
+.disinab-catalog__query input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.disinab-catalog__query button {
+  min-height: 52px;
+  padding: 0 18px;
+  border: 0;
+  border-inline-start: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
+  border-radius: 0;
+  background: var(--zharfa-action-primary);
+  color: var(--zharfa-text-on-primary);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.disinab-catalog__query button:hover {
+  background: var(--zharfa-action-hover);
+}
+
+.disinab-catalog__filters-slot.catalog-filters {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
+.disinab-catalog__filters-slot .catalog-filters__toggle {
+  display: none;
+  width: auto;
+  min-width: 5.5rem;
+  min-height: 44px;
+  padding-inline: 14px;
+  border-radius: 12px;
   border-color: color-mix(
     in srgb,
     var(--zharfa-action-primary) 28%,
     var(--zharfa-border-default)
   );
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.disinab-catalog__rail.catalog-rail {
-  gap: 16px;
+.disinab-catalog__filters-slot .catalog-filters__panel {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
-.disinab-catalog__rail .catalog-pill {
-  border-radius: 999px;
+.disinab-catalog__filters-slot .catalog-filters__bar,
+.disinab-catalog__filters-slot .catalog-filters__close {
+  display: none;
+}
+
+.disinab-catalog__rails {
+  display: contents;
+}
+
+.catalog-filters__desktop {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+  align-items: start;
+}
+
+.catalog-filters__toggles {
+  display: none;
+}
+
+.catalog-dd {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.catalog-dd[open] {
+  z-index: 5;
+}
+
+.catalog-dd > summary {
+  list-style: none;
+}
+
+.catalog-dd > summary::-webkit-details-marker {
+  display: none;
+}
+
+.catalog-dd__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 12px 8px 10px;
+  border-radius: 14px;
   border: 1px solid
-    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
-  background: color-mix(in srgb, var(--zharfa-bg-canvas) 45%, transparent);
-  transition: background 0.18s ease, border-color 0.18s ease;
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
+      transparent 58%
+    ),
+    color-mix(in srgb, var(--zharfa-surface-card) 82%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
+  cursor: pointer;
+  user-select: none;
 }
 
-.disinab-catalog__rail .catalog-pill--active,
-.disinab-catalog__rail .catalog-pill:hover {
+.catalog-dd--active > .catalog-dd__trigger,
+.catalog-dd[open] > .catalog-dd__trigger {
   border-color: color-mix(
     in srgb,
-    var(--zharfa-action-primary) 40%,
+    var(--zharfa-action-primary) 48%,
     var(--zharfa-border-default)
   );
-  background: color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent),
+      transparent 60%
+    ),
+    var(--zharfa-surface-card);
+}
+
+.catalog-dd__meta {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  text-align: start;
+}
+
+.catalog-dd__label {
+  color: var(--zharfa-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.catalog-dd__value {
+  overflow: hidden;
+  color: var(--zharfa-text-primary);
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catalog-dd__chevron {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-inline-end: 2px solid var(--zharfa-text-secondary);
+  border-block-end: 2px solid var(--zharfa-text-secondary);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.catalog-dd[open] > .catalog-dd__trigger .catalog-dd__chevron {
+  transform: rotate(225deg);
+  margin-block-start: 4px;
+}
+
+.catalog-dd__panel {
+  position: absolute;
+  z-index: 10;
+  inset-inline: 0;
+  top: calc(100% + 8px);
+  max-height: min(22rem, 70vh);
+  overflow: auto;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 24%, var(--zharfa-border-default));
+  background:
+    radial-gradient(
+      420px 160px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent),
+      transparent 70%
+    ),
+    var(--zharfa-surface-card);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+    0 22px 44px -28px rgb(0 0 0 / 0.45);
+}
+
+.catalog-dd__panel .disinab-catalog__rail {
+  gap: 10px;
+  padding: 4px 2px 2px;
+  border: 0;
+  background: transparent;
+}
+
+.catalog-dd__panel .disinab-catalog__rail-head {
+  display: none;
+}
+
+.catalog-dd__panel .disinab-catalog__seg {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.disinab-catalog__rail {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 12px 10px;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-surface-card) 70%, transparent);
+}
+
+.disinab-catalog__rail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.disinab-catalog__rail-label {
+  margin: 0;
+  color: var(--zharfa-text-primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.disinab-catalog__rail-hint {
+  margin: 2px 0 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.disinab-catalog__rail-count {
+  color: var(--zharfa-text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.disinab-catalog__seg {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  min-width: 0;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.disinab-catalog__seg--status {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.disinab-catalog__seg .catalog-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 45%, transparent);
+  color: var(--zharfa-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 700;
   text-decoration: none;
+  scroll-snap-align: start;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.disinab-catalog__seg .catalog-chip em {
+  min-width: 1.4em;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  color: inherit;
+  font-style: normal;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
+.disinab-catalog__seg .catalog-chip:hover {
+  color: var(--zharfa-text-primary);
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 42%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  text-decoration: none;
+}
+
+.disinab-catalog__seg .catalog-chip--active,
+.disinab-catalog__seg .catalog-chip--active:hover {
+  color: var(--zharfa-text-on-primary);
+  border-color: transparent;
+  background: var(--zharfa-action-primary);
+  box-shadow: 0 10px 22px -16px color-mix(in srgb, var(--zharfa-action-primary) 70%, transparent);
+}
+
+.disinab-catalog__seg .catalog-chip--active em {
+  background: color-mix(in srgb, white 18%, transparent);
+  color: inherit;
+  opacity: 1;
+}
+
+.disinab-catalog__active {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding-top: 2px;
+}
+
+.disinab-catalog__active-label {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.disinab-catalog__active-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.disinab-catalog__active-tags span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent);
+  color: var(--zharfa-text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.disinab-catalog__active-tags a {
+  color: var(--zharfa-text-link);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.disinab-catalog__active-tags a:hover {
+  text-decoration: underline;
+}
+
+/* legacy aliases kept for older markup */
+.disinab-catalog__find {
+  display: contents;
+}
+
+.disinab-catalog__bands {
+  display: contents;
+}
+
+@media (max-width: 1100px) {
+  .disinab-catalog__layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .catalog-filters__desktop {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-dd__panel {
+    position: static;
+    margin-top: 8px;
+    max-height: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .disinab-catalog__console {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .disinab-catalog__filters-slot.catalog-filters {
+    display: contents;
+  }
+
+  .catalog-filters__desktop {
+    display: none;
+  }
+
+  .catalog-filters__toggles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    order: 2;
+    width: 100%;
+  }
+
+  .disinab-catalog__filters-slot .catalog-filters__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding-inline: 8px;
+    font-size: 0.88rem;
+  }
+
+  .disinab-catalog__filters-slot .catalog-filters__toggle.is-active {
+    border-color: color-mix(
+      in srgb,
+      var(--zharfa-action-primary) 48%,
+      var(--zharfa-border-default)
+    );
+    background: color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent);
+    color: var(--zharfa-text-primary);
+    font-weight: 800;
+  }
+
+  .disinab-catalog__query {
+    order: 1;
+  }
+
+  .disinab-catalog__active {
+    order: 3;
+  }
+}
+
+@media (max-width: 720px) {
+  .disinab-catalog__mast > .disinab__plate {
+    gap: 0;
+    padding: 16px 14px 14px;
+  }
+
+  .disinab-catalog__intro {
+    align-items: stretch;
+  }
+
+  .disinab-catalog__intro h1 {
+    font-size: 1.4rem;
+  }
+
+  .disinab-catalog__intro .disinab__line {
+    font-size: 0.86rem;
+  }
+
+  .disinab-catalog__console {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .disinab-catalog__query {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 48px;
+  }
+
+  .disinab-catalog__query button {
+    grid-column: 1 / -1;
+    min-height: 42px;
+    border-inline-start: 0;
+    border-top: 1px solid
+      color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
+  }
+
+  .disinab-catalog__method {
+    font-size: 0.72rem;
+    padding: 0 12px;
+  }
 }
 
 .disinab-catalog__bar.catalog-bar {
@@ -8959,55 +11742,7 @@ html.is-theme-switching .course-articles {
 }
 
 .disinab-catalog__grid.catalog__grid {
-  gap: 16px;
-}
-
-.disinab-catalog__grid .z-course-card {
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid
-    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
-  border-radius: 18px;
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
-      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
-    ),
-    var(--zharfa-surface-card);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
-    0 20px 42px -34px rgb(0 0 0 / 0.55);
-  transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.disinab-catalog__grid .z-course-card:hover {
-  border-color: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 42%,
-    var(--zharfa-border-default)
-  );
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
-    0 26px 48px -30px color-mix(in srgb, var(--zharfa-action-primary) 30%, transparent);
-}
-
-.disinab-catalog__grid .z-course-card__media {
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
-}
-
-.disinab-catalog__grid .z-course-card__title {
-  font-weight: 800;
-}
-
-.disinab-catalog__grid .z-btn {
-  border-radius: 12px;
-  font-weight: 700;
+  gap: 12px;
 }
 
 .disinab-catalog__pages.catalog-pages {
@@ -9048,12 +11783,6 @@ html.is-theme-switching .course-articles {
 
 .disinab-catalog__pages strong {
   font-variant-numeric: tabular-nums;
-}
-
-@media (max-width: 720px) {
-  .disinab-catalog__intro {
-    align-items: stretch;
-  }
 }
 
 .catalog-mast {
@@ -9642,18 +12371,23 @@ html.is-theme-switching .course-articles {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 0;
   margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
   color: var(--zharfa-text-secondary);
   font-size: 0.9rem;
   line-height: 1.6;
 }
 
-.reading__byline > span {
+.reading__byline > span,
+.reading__byline > li {
   display: inline-flex;
   align-items: center;
 }
 
-.reading__byline > span + span::before {
+.reading__byline > span + span::before,
+.reading__byline > li + li::before {
   content: "";
   width: 3px;
   height: 3px;
@@ -9666,6 +12400,44 @@ html.is-theme-switching .course-articles {
   color: var(--zharfa-text-primary);
   font-weight: 600;
   text-decoration: none;
+}
+
+.reading__toc {
+  margin: 0 0 28px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 6%, transparent);
+}
+
+.reading__toc h2 {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.reading__toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.reading__toc a {
+  color: var(--zharfa-text-link);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.reading__toc a:hover {
+  text-decoration: underline;
+}
+
+.reading__mast .reading__kicker {
+  margin: 0 0 8px;
 }
 
 .reading__next a {
@@ -9751,11 +12523,8 @@ html.is-theme-switching .course-articles {
 .disinab-folio__identity .presence__hero {
   grid-template-columns: auto minmax(0, 1fr);
   gap: 14px 12px;
-}
-
-.disinab-folio__identity .presence__actions {
-  grid-column: 1 / -1;
-  justify-content: flex-start;
+  margin-top: 20px;
+  padding-top: 28px;
 }
 
 .disinab-folio__identity .presence__intro h1,
@@ -9773,7 +12542,23 @@ html.is-theme-switching .course-articles {
 }
 
 .disinab-folio__identity .presence__networks {
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: stretch;
+}
+
+.disinab-folio__identity .presence__net {
+  width: 100%;
+}
+
+.disinab-folio__identity .presence__corner--notes {
+  top: 12px;
+  right: 12px;
+}
+
+.disinab-folio__identity .presence__btn--edit {
+  top: 12px;
+  left: 12px;
 }
 
 .disinab-folio__identity .presence__mark {
@@ -9824,23 +12609,26 @@ html.is-theme-switching .course-articles {
   min-width: 0;
 }
 
-.disinab-folio__grid.access-list--grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+.disinab-folio__rows-list.access-list--rows {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
   margin: 0;
   padding: 0;
-  list-style: none;
 }
 
-.disinab-folio__card.access-card {
+.disinab-folio__card.access-card,
+.disinab-folio__card--row.access-card {
   display: grid;
-  gap: 12px;
+  grid-template-columns: 8.25rem minmax(0, 1fr);
+  gap: 12px 14px;
+  align-items: center;
   margin: 0;
-  padding: 14px;
+  padding: 12px;
   overflow: hidden;
   border: 1px solid
     color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
-  border-radius: 18px;
+  border-radius: 16px;
   background:
     linear-gradient(
       160deg,
@@ -9850,12 +12638,19 @@ html.is-theme-switching .course-articles {
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
 }
 
+.disinab-folio__card--row.is-plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .disinab-folio__card .access-card__cover {
   display: block;
-  margin: -14px -14px 0;
+  width: 8.25rem;
+  margin: 0;
   aspect-ratio: 16 / 10;
   overflow: hidden;
+  border-radius: 12px;
   background: var(--zharfa-bg-canvas);
+  align-self: stretch;
 }
 
 .disinab-folio__card .access-card__cover img {
@@ -9865,19 +12660,26 @@ html.is-theme-switching .course-articles {
   object-fit: cover;
 }
 
+.disinab-folio__card .access-card__body {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
 .disinab-folio__card .access-card__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 8px 12px;
 }
 
 .disinab-folio__card .access-card__head h3 {
   margin: 0;
-  font-size: 1.05rem;
+  min-width: 0;
+  font-size: 1.02rem;
   font-weight: 800;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .disinab-folio__card .access-card__head h3 a {
@@ -9892,17 +12694,17 @@ html.is-theme-switching .course-articles {
 .disinab-folio__card .access-card__meta {
   margin: 0;
   color: var(--zharfa-text-secondary);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
 }
 
 .disinab-folio__card .access-card__key {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .disinab-folio__card .access-card__key > span {
   color: var(--zharfa-text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -9920,7 +12722,7 @@ html.is-theme-switching .course-articles {
 .disinab-folio__card .access-card__key-row code {
   flex: 1;
   min-width: 0;
-  padding: 10px 12px;
+  padding: 9px 12px;
   overflow: auto;
   color: var(--zharfa-text-primary);
   font-family: var(--zharfa-font-code);
@@ -10176,6 +12978,43 @@ html.is-theme-switching .course-articles {
   max-width: 48rem;
 }
 
+.disinab-tickets__plate--thread .disinab-tickets__crumb {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.disinab-tickets__plate--thread .disinab-tickets__crumbs.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.disinab-tickets__plate--thread .ticket-thread__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.disinab-tickets__plate--thread .ticket-thread__head > div {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  width: 100%;
+}
+
+.disinab-tickets__plate--thread .ticket-thread__title,
+.disinab-tickets__plate--thread .ticket-thread__meta {
+  text-align: center;
+}
+
+.disinab-tickets__plate--thread .ticket-thread__head .z-badge {
+  justify-content: center;
+  text-align: center;
+}
+
 .disinab-tickets__head {
   display: flex;
   flex-wrap: wrap;
@@ -10394,8 +13233,50 @@ html.is-theme-switching .course-articles {
 }
 
 .disinab-tickets__thread .ticket-thread__actions {
-  margin-top: 0;
-  padding-top: 12px;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 6%, transparent);
+}
+
+.disinab-tickets__thread .ticket-thread__actions > p {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.disinab-tickets__thread .ticket-thread__btns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.disinab-tickets__thread .ticket-thread__btns .z-btn {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  justify-content: center;
+  padding-inline: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+}
+
+@media (min-width: 560px) {
+  .disinab-tickets__thread .ticket-thread__btns {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
@@ -10439,6 +13320,10 @@ html.is-theme-switching .course-articles {
     margin-bottom: 4px;
   }
 
+  .disinab-tickets__plate--thread .disinab-tickets__crumb {
+    align-items: center;
+  }
+
   .disinab-tickets__crumbs.crumbs {
     font-size: 0.78rem;
     line-height: 1.5;
@@ -10449,9 +13334,14 @@ html.is-theme-switching .course-articles {
   }
 
   .disinab-tickets__thread .ticket-thread__head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .disinab-tickets__plate--thread .ticket-thread__head {
+    text-align: center;
   }
 
   .disinab-tickets__thread .ticket-thread__title {
@@ -10459,13 +13349,11 @@ html.is-theme-switching .course-articles {
   }
 
   .disinab-tickets__thread .ticket-thread__meta {
-    grid-column: 1 / -1;
     font-size: 0.78rem;
   }
 
   .disinab-tickets__thread .ticket-thread__head .z-badge {
     width: fit-content;
-    justify-self: end;
   }
 
   .disinab-tickets__thread .ticket-msg {
@@ -10505,13 +13393,20 @@ html.is-theme-switching .course-articles {
     min-height: 42px;
   }
 
-  .disinab-tickets__thread .ticket-thread__btns {
+  .disinab-tickets__thread .ticket-thread__actions {
+    padding: 10px;
     gap: 8px;
   }
 
+  .disinab-tickets__thread .ticket-thread__btns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
   .disinab-tickets__thread .ticket-thread__btns .z-btn {
-    flex: 1;
-    min-height: 40px;
+    min-height: 38px;
+    font-size: 0.78rem;
+    padding-inline: 8px;
   }
 }
 
@@ -10560,31 +13455,24 @@ html.is-theme-switching .course-articles {
     padding: 16px 12px 14px;
   }
 
-  .disinab-folio__grid.access-list--grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    align-items: stretch;
+  .disinab-folio__rows-list.access-list--rows {
+    gap: 8px;
   }
 
-  .disinab-folio__card.access-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    height: 100%;
-    padding: 8px;
+  .disinab-folio__card--row.access-card {
+    grid-template-columns: 5.75rem minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
     border-radius: 14px;
   }
 
   .disinab-folio__card .access-card__cover {
-    display: block;
-    margin: -8px -8px 0;
-    aspect-ratio: 16 / 10;
-    border-radius: 14px 14px 0 0;
+    width: 5.75rem;
+    margin: 0;
+    border-radius: 10px;
   }
 
   .disinab-folio__card .access-card__head {
-    flex-direction: column;
-    align-items: flex-start;
     gap: 6px;
   }
 
@@ -10598,20 +13486,13 @@ html.is-theme-switching .course-articles {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    min-height: 0;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     line-height: 1.4;
   }
 
   .disinab-folio__card .access-card__meta {
-    margin-top: 0;
-    font-size: 0.74rem;
+    font-size: 0.76rem;
     line-height: 1.45;
-  }
-
-  .disinab-folio__card .access-card__key {
-    margin-top: auto;
-    gap: 0;
   }
 
   .disinab-folio__card .access-card__key > span {
@@ -10627,30 +13508,21 @@ html.is-theme-switching .course-articles {
   }
 
   .disinab-folio__card .access-card__key-row {
-    flex-wrap: nowrap;
     border-radius: 10px;
   }
 
   .disinab-folio__card .access-card__key-row code {
-    flex: 1;
-    width: auto;
-    min-width: 0;
     padding: 8px 9px;
-    font-size: 0.64rem;
+    font-size: 0.66rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .disinab-folio__card .access-card__key-row button {
-    flex: none;
-    width: auto;
     min-width: 48px;
     min-height: 34px;
     padding: 0 10px;
-    border-top: 0;
-    border-inline-start: 1px solid
-      color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
     font-size: 0.74rem;
   }
 
@@ -10728,12 +13600,287 @@ html.is-theme-switching .course-articles {
   padding: 26px 26px 22px;
 }
 
+/* —— دیسیناب: کارت دوره یکدست در کل سایت —— */
+.disinab-catalog__grid .z-course-card,
+.disinab-home-catalog__grid .z-course-card,
+.disinab-carousel__item .z-course-card,
+.disinab-related .z-course-card,
+.disinab-reading__course .z-course-card,
+.path-steps .z-course-card,
+.home-grid .z-course-card,
+.catalog__grid .z-course-card,
+.related-list .z-course-card {
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 42%, transparent) 55%
+    ),
+    var(--zharfa-surface-card);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+    0 16px 34px -28px rgb(0 0 0 / 0.55);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.disinab-catalog__grid .z-course-card:hover,
+.disinab-home-catalog__grid .z-course-card:hover,
+.disinab-carousel__item .z-course-card:hover,
+.disinab-related .z-course-card:hover,
+.disinab-reading__course .z-course-card:hover,
+.path-steps .z-course-card:hover,
+.home-grid .z-course-card:hover,
+.catalog__grid .z-course-card:hover,
+.related-list .z-course-card:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 42%,
+    var(--zharfa-border-default)
+  );
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 20px 40px -28px
+      color-mix(in srgb, var(--zharfa-action-primary) 28%, transparent);
+}
+
+.disinab-catalog__grid .z-course-card__media,
+.disinab-home-catalog__grid .z-course-card__media,
+.disinab-carousel__item .z-course-card__media,
+.disinab-related .z-course-card__media,
+.disinab-reading__course .z-course-card__media,
+.path-steps .z-course-card__media,
+.home-grid .z-course-card__media,
+.catalog__grid .z-course-card__media,
+.related-list .z-course-card__media,
+.disinab-home-catalog__grid .z-course-card__cover,
+.disinab-carousel__item .z-course-card__cover {
+  flex: none;
+  width: 100%;
+  max-width: none;
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 14%, var(--zharfa-border-default));
+  background: #0d1219;
+}
+
+.disinab-catalog__grid .z-course-card__media,
+.disinab-home-catalog__grid .z-course-card__media,
+.disinab-carousel__item .z-course-card__media,
+.disinab-related .z-course-card__media,
+.disinab-reading__course .z-course-card__media,
+.path-steps .z-course-card__media,
+.home-grid .z-course-card__media,
+.catalog__grid .z-course-card__media,
+.related-list .z-course-card__media {
+  text-decoration: none;
+}
+
+.disinab-catalog__grid .z-course-card__media::after,
+.disinab-home-catalog__grid .z-course-card__media::after,
+.disinab-carousel__item .z-course-card__media::after,
+.disinab-related .z-course-card__media::after,
+.disinab-reading__course .z-course-card__media::after,
+.path-steps .z-course-card__media::after,
+.home-grid .z-course-card__media::after,
+.catalog__grid .z-course-card__media::after,
+.related-list .z-course-card__media::after {
+  content: none;
+  display: none;
+}
+
+.disinab-catalog__grid .z-course-card__media:hover,
+.disinab-home-catalog__grid .z-course-card__media:hover,
+.disinab-carousel__item .z-course-card__media:hover,
+.disinab-related .z-course-card__media:hover,
+.disinab-reading__course .z-course-card__media:hover,
+.path-steps .z-course-card__media:hover,
+.home-grid .z-course-card__media:hover,
+.catalog__grid .z-course-card__media:hover,
+.related-list .z-course-card__media:hover,
+.disinab-catalog__grid .z-course-card__media:focus-visible,
+.disinab-home-catalog__grid .z-course-card__media:focus-visible,
+.disinab-carousel__item .z-course-card__media:focus-visible,
+.disinab-related .z-course-card__media:focus-visible,
+.disinab-reading__course .z-course-card__media:focus-visible,
+.path-steps .z-course-card__media:focus-visible,
+.home-grid .z-course-card__media:focus-visible,
+.catalog__grid .z-course-card__media:focus-visible,
+.related-list .z-course-card__media:focus-visible {
+  text-decoration: none;
+  outline: none;
+  background: var(--zharfa-surface-base);
+}
+
+.disinab-catalog__grid .z-course-card__media img,
+.disinab-home-catalog__grid .z-course-card__media img,
+.disinab-carousel__item .z-course-card__media img,
+.disinab-related .z-course-card__media img,
+.disinab-reading__course .z-course-card__media img,
+.path-steps .z-course-card__media img,
+.home-grid .z-course-card__media img,
+.catalog__grid .z-course-card__media img,
+.related-list .z-course-card__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+  transition: none;
+}
+
+.disinab-catalog__grid .z-course-card:hover .z-course-card__media img,
+.disinab-home-catalog__grid .z-course-card:hover .z-course-card__media img,
+.disinab-carousel__item .z-course-card:hover .z-course-card__media img,
+.disinab-related .z-course-card:hover .z-course-card__media img,
+.disinab-reading__course .z-course-card:hover .z-course-card__media img,
+.path-steps .z-course-card:hover .z-course-card__media img,
+.home-grid .z-course-card:hover .z-course-card__media img,
+.catalog__grid .z-course-card:hover .z-course-card__media img,
+.related-list .z-course-card:hover .z-course-card__media img {
+  transform: none;
+  filter: none;
+  opacity: 1;
+}
+
+.disinab-catalog__grid .z-course-card__body,
+.disinab-home-catalog__grid .z-course-card__body,
+.disinab-carousel__item .z-course-card__body,
+.disinab-related .z-course-card__body,
+.disinab-reading__course .z-course-card__body,
+.path-steps .z-course-card__body,
+.home-grid .z-course-card__body,
+.catalog__grid .z-course-card__body,
+.related-list .z-course-card__body {
+  gap: 10px;
+  padding: 14px 14px 13px;
+}
+
+.disinab-catalog__grid .z-course-card__title,
+.disinab-home-catalog__grid .z-course-card__title,
+.disinab-carousel__item .z-course-card__title,
+.disinab-related .z-course-card__title,
+.disinab-reading__course .z-course-card__title,
+.path-steps .z-course-card__title,
+.home-grid .z-course-card__title,
+.catalog__grid .z-course-card__title,
+.related-list .z-course-card__title,
+.disinab-home-catalog__grid .z-course-card h3,
+.disinab-carousel__item .z-course-card h3 {
+  min-height: 0;
+  font-size: 1.18rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.disinab-catalog__grid .z-course-card__status-inline,
+.disinab-home-catalog__grid .z-course-card__status-inline,
+.disinab-carousel__item .z-course-card__status-inline,
+.home-grid .z-course-card__status-inline,
+.catalog__grid .z-course-card__status-inline,
+.related-list .z-course-card__status-inline {
+  font-size: 0.92rem;
+  color: var(--zharfa-tone);
+}
+
+.disinab-catalog__grid .z-course-card__byline,
+.disinab-home-catalog__grid .z-course-card__byline,
+.disinab-carousel__item .z-course-card__byline,
+.home-grid .z-course-card__byline,
+.catalog__grid .z-course-card__byline,
+.related-list .z-course-card__byline {
+  font-size: 0.92rem;
+}
+
+.disinab-catalog__grid .z-course-card__duration,
+.disinab-home-catalog__grid .z-course-card__duration,
+.disinab-carousel__item .z-course-card__duration,
+.home-grid .z-course-card__duration,
+.catalog__grid .z-course-card__duration,
+.related-list .z-course-card__duration {
+  font-size: 0.92rem;
+}
+
+.disinab-catalog__grid .z-course-card__price,
+.disinab-home-catalog__grid .z-course-card__price,
+.disinab-carousel__item .z-course-card__price,
+.home-grid .z-course-card__price,
+.catalog__grid .z-course-card__price,
+.related-list .z-course-card__price {
+  font-size: 1.12rem;
+}
+
+.disinab-catalog__grid .z-btn,
+.disinab-home-catalog__grid .z-btn,
+.disinab-carousel__item .z-btn,
+.disinab-related .z-btn,
+.disinab-reading__course .z-btn,
+.path-steps .z-btn,
+.home-grid .z-btn,
+.catalog__grid .z-btn,
+.related-list .z-btn {
+  min-height: 40px;
+  border-radius: 11px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.disinab-catalog__grid .course-access-note,
+.disinab-home-catalog__grid .course-access-note,
+.disinab-carousel__item .course-access-note,
+.disinab-related .course-access-note,
+.home-grid .course-access-note,
+.catalog__grid .course-access-note,
+.related-list .course-access-note {
+  margin: 0;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+}
+
+.disinab-catalog__grid .course-access-note,
+.disinab-home-catalog__grid .course-access-note,
+.disinab-carousel__item .course-access-note,
+.disinab-related .course-access-note,
+.disinab-reading__course .course-access-note,
+.path-steps .course-access-note,
+.home-grid .course-access-note,
+.catalog__grid .course-access-note,
+.related-list .course-access-note,
+.z-course-card .course-access-note {
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
 .disinab__hero,
 .presence__hero {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 18px 20px;
   align-items: start;
+}
+
+.presence__hero {
+  grid-template-columns: auto minmax(0, 1fr);
+  margin-top: 20px;
+  padding-top: 28px;
 }
 
 .disinab__mark,
@@ -10860,6 +14007,252 @@ html.is-theme-switching .course-articles {
 .presence__btn:hover {
   background: color-mix(in srgb, var(--zharfa-action-primary) 24%, transparent);
   border-color: color-mix(in srgb, var(--zharfa-action-primary) 55%, var(--zharfa-border-default));
+}
+
+.presence__btn--edit {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.presence__corner {
+  position: absolute;
+  z-index: 3;
+}
+
+.presence__corner--notes {
+  top: 14px;
+  right: 14px;
+}
+
+.presence__corner .folio-notes {
+  position: relative;
+}
+
+.presence__corner .folio-notes__bell {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 35%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(in srgb, var(--zharfa-action-primary) 14%, transparent);
+  color: var(--zharfa-text-primary);
+}
+
+.presence__corner .folio-notes__bell:hover {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 24%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 55%,
+    var(--zharfa-border-default)
+  );
+}
+
+.presence__corner .folio-notes__bell.is-unread {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 55%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
+}
+
+.presence__corner .folio-notes__count {
+  top: -5px;
+  inset-inline-start: auto;
+  inset-inline-end: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  line-height: 16px;
+}
+
+.presence__corner .folio-notes__panel,
+.disinab-notes__panel {
+  top: calc(100% + 8px);
+  inset-inline: auto;
+  right: 0;
+  width: min(17.5rem, calc(100vw - 2rem));
+  max-height: min(20rem, 62vh);
+  padding: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  background:
+    radial-gradient(
+      420px 180px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 92%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 88%, var(--zharfa-surface-card))
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 22px 40px -28px rgb(0 0 0 / 0.65);
+}
+
+.disinab-notes__aura {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.34;
+  background:
+    repeating-linear-gradient(
+      -14deg,
+      transparent 0 18px,
+      color-mix(in srgb, var(--zharfa-text-link) 5%, transparent) 18px 19px
+    );
+  mask-image: linear-gradient(140deg, #000 16%, transparent 78%);
+}
+
+.disinab-notes__plate {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  max-height: inherit;
+  padding: 10px 10px 8px;
+  overflow: auto;
+}
+
+.disinab-notes__bar.folio-notes__bar {
+  align-items: flex-start;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-notes__heading {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.disinab-notes__heading .disinab__brand {
+  margin: 0;
+  font-size: 0.68rem;
+}
+
+.disinab-notes__status {
+  margin: 0;
+  color: var(--zharfa-text-primary);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.disinab-notes__bar button {
+  flex: none;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  color: var(--zharfa-text-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.disinab-notes__bar button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 20%, transparent);
+}
+
+.disinab-notes__bar button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.disinab-notes__list.notify-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disinab-notes__item.notify-item,
+.disinab-notes__panel .notify-item,
+.presence__corner .folio-notes__panel .notify-item {
+  gap: 3px;
+  margin: 0;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+  background: transparent;
+  box-shadow: none;
+}
+
+.disinab-notes__item.notify-item:last-child,
+.disinab-notes__panel .notify-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 4px;
+}
+
+.disinab-notes__item.notify-item--unread,
+.disinab-notes__panel .notify-item--unread {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-text-primary) 8%,
+    var(--zharfa-border-default)
+  );
+  background: transparent;
+}
+
+.disinab-notes__item h2,
+.disinab-notes__panel .notify-item h2 {
+  gap: 6px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.disinab-notes__item .notify-item__dot,
+.disinab-notes__panel .notify-item__dot {
+  width: 6px;
+  height: 6px;
+}
+
+.disinab-notes__item p,
+.disinab-notes__panel .notify-item p {
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.disinab-notes__item .notify-item__time,
+.disinab-notes__panel .notify-item__time {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+.disinab-notes__panel .folio-notes__empty {
+  padding: 8px 2px 4px;
+  font-size: 0.8rem;
+}
+
+[data-theme="light"] .disinab-notes__panel,
+[data-theme="light"] .presence__corner .folio-notes__panel {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 70%, transparent),
+    0 16px 32px -24px color-mix(in srgb, #121826 18%, transparent);
 }
 
 .disinab__icon,
@@ -11357,6 +14750,10 @@ a.presence__net:hover {
   .presence__actions .z-btn {
     flex: 1;
   }
+
+  .presence__btn--edit {
+    flex: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -11379,30 +14776,74 @@ a.presence__net:hover {
     0 18px 40px -28px color-mix(in srgb, #121826 18%, transparent);
 }
 
-.admin-page__header .admin-page__eyebrow {
-  color: var(--zharfa-tone-sale);
-  font-weight: 700;
-}
-
-.admin-page__header .admin-range input,
-.admin-page__header .admin-range__submit {
-  border-radius: 12px;
-}
-
-.admin-shell__aside {
-  gap: 20px;
-  padding: 18px 16px 20px;
+/* —— دیسیناب ادمین: shell + surfaces —— */
+.disinab-admin {
+  position: relative;
+  isolation: isolate;
   background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent),
-      transparent 28%
+    radial-gradient(
+      900px 420px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent),
+      transparent 70%
     ),
-    var(--zharfa-surface-base);
-  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--zharfa-text-primary) 6%, transparent);
+    var(--zharfa-bg-canvas);
 }
 
-.admin-shell__brand-top {
+.disinab-admin__aside {
+  position: relative;
+  overflow: hidden;
+  gap: 0;
+  padding: 14px 12px 14px;
+  border-inline-end: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.disinab-admin__aside-aura {
+  position: absolute;
+  inset: 14px 12px;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 22px;
+  opacity: 0.38;
+  background:
+    repeating-linear-gradient(
+      -14deg,
+      transparent 0 22px,
+      color-mix(in srgb, var(--zharfa-text-link) 5%, transparent) 22px 23px
+    );
+  mask-image: linear-gradient(160deg, #000 18%, transparent 82%);
+}
+
+.disinab-admin__aside-plate {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: calc(100vh - 28px);
+  padding: 18px 14px 16px;
+  border-radius: 22px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  background:
+    radial-gradient(
+      520px 240px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent),
+      transparent 68%
+    ),
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 92%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 88%, var(--zharfa-surface-card))
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 28px 60px -34px rgb(0 0 0 / 0.55);
+}
+
+.disinab-admin .admin-shell__brand-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -11410,34 +14851,86 @@ a.presence__net:hover {
   width: 100%;
 }
 
-.admin-shell__brand-name {
-  font-size: clamp(1.45rem, 2.4vw, 1.7rem);
-  line-height: 1.25;
+.disinab-admin .admin-shell__brand-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
 }
 
-.admin-shell__brand-tag {
+.disinab-admin .admin-shell__brand-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-text-link) 28%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 34%, transparent),
+      color-mix(in srgb, var(--zharfa-surface-card) 70%, transparent)
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 14%, transparent),
+    0 14px 24px -18px color-mix(in srgb, var(--zharfa-action-primary) 55%, transparent);
+}
+
+.disinab-admin .admin-shell__logo {
+  width: 34px;
+  height: 34px;
+}
+
+.disinab-admin .admin-shell__brand-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.disinab-admin .admin-shell__brand-kicker {
   color: var(--zharfa-tone-sale);
+  font-size: 0.72rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
-.admin-shell__nav {
+.disinab-admin .admin-shell__brand-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.disinab-admin .admin-shell__brand-tag {
+  color: var(--zharfa-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.disinab-admin .admin-shell__nav {
   gap: 16px;
 }
 
-.admin-shell__aside .admin-menu__label {
+.disinab-admin .admin-menu__label {
   margin: 0 0 8px;
   color: var(--zharfa-tone-sale);
-  font-size: 11px;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
-.admin-shell__aside .admin-menu__group {
+.disinab-admin .admin-menu__group {
   animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--menu-i, 0) * 55ms);
 }
 
-.admin-shell__aside .admin-shell__link {
+.disinab-admin .admin-shell__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   min-height: 42px;
   padding: 8px 12px;
   border-radius: 12px;
@@ -11447,48 +14940,153 @@ a.presence__net:hover {
   animation-delay: calc(0.08s + var(--link-i, 0) * 28ms);
 }
 
-.admin-shell__aside .admin-shell__link--current {
+.disinab-admin .admin-shell__link-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.disinab-admin .admin-shell__icon {
+  flex: none;
+  color: color-mix(
+    in srgb,
+    var(--zharfa-text-link) 78%,
+    var(--zharfa-text-secondary)
+  );
+  opacity: 0.92;
+}
+
+.disinab-admin .admin-shell__link:hover .admin-shell__icon,
+.disinab-admin .admin-shell__link--current .admin-shell__icon,
+.disinab-admin .admin-shell__link--attention .admin-shell__icon {
+  color: var(--zharfa-tone-sale);
+  opacity: 1;
+}
+
+.disinab-admin .admin-shell__link-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.disinab-admin .admin-shell__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-tone-sale) 40%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-tone-sale) 18%, transparent);
+  color: var(--zharfa-tone-sale);
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 10%, transparent);
+}
+
+.disinab-admin .admin-shell__link--attention {
+  color: var(--zharfa-text-primary);
+}
+
+.disinab-admin .admin-shell__link--current {
   color: var(--zharfa-text-primary);
   background: color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent);
   border-inline-start-color: var(--zharfa-action-primary);
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
 }
 
-.admin-shell__aside-foot {
-  gap: 10px;
-  padding: 14px 12px 4px;
-  border-top: 1px solid var(--zharfa-border-default);
-  border-radius: 0 0 14px 14px;
+.disinab-admin .admin-shell__link--current .admin-shell__count {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 45%,
+    var(--zharfa-border-default)
+  );
+  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
+  color: var(--zharfa-text-primary);
 }
 
-.admin-shell__who {
+.disinab-admin .admin-shell__link-pending {
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--zharfa-action-primary);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
+  animation: admin-nav-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes admin-nav-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.disinab-admin .admin-shell__aside-foot {
+  margin-top: auto;
+  gap: 10px;
+  padding: 14px 4px 2px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-admin .admin-shell__who {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 4px;
 }
 
-.admin-shell__mark {
+.disinab-admin .admin-shell__mark {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   flex: none;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
-  color: var(--zharfa-tone-sale);
-  font-size: 14px;
-  font-weight: 700;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 13px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-tone-sale) 42%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--zharfa-tone-sale) 22%, transparent),
+      color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent) 55%,
+      color-mix(in srgb, var(--zharfa-surface-card) 70%, transparent)
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 12%, transparent),
+    0 12px 22px -16px color-mix(in srgb, var(--zharfa-tone-sale) 55%, transparent);
 }
 
-.admin-shell__role {
+.disinab-admin .admin-shell__admin-logo {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.disinab-admin .admin-shell__role {
   margin: 2px 0 0;
   color: var(--zharfa-text-secondary);
   font-size: 11px;
   font-weight: 600;
 }
 
-.admin-shell__aside .admin-shell__muted-link {
+.disinab-admin .admin-shell__muted-link {
   display: inline-flex;
   align-items: center;
   min-height: 34px;
@@ -11498,13 +15096,234 @@ a.presence__net:hover {
   text-decoration: none;
 }
 
-.admin-shell__aside .admin-shell__muted-link:hover {
+.disinab-admin .admin-shell__muted-link:hover {
   color: var(--zharfa-text-primary);
 }
 
+.disinab-admin__top {
+  margin: 14px 18px 0;
+  padding: 12px 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      480px 160px at 0% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--zharfa-surface-raised) 88%, var(--zharfa-bg-canvas));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 18px 36px -28px rgb(0 0 0 / 0.55);
+  backdrop-filter: none;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+}
+
+.disinab-admin .admin-shell__top-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+}
+
+.disinab-admin .admin-shell__top-copy {
+  display: grid;
+  gap: 1px;
+}
+
+.disinab-admin .admin-shell__top-kicker {
+  margin: 0;
+  color: var(--zharfa-tone-sale);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.disinab-admin .admin-shell__top-heading {
+  margin: 0;
+  color: var(--zharfa-text-primary);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.disinab-admin__content {
+  max-width: 1180px;
+  padding: 18px 18px 36px;
+  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.disinab-admin .admin-page__header,
+.disinab-admin .admin-kpi,
+.disinab-admin .admin-chart,
+.disinab-admin .admin-panel,
+.disinab-admin .admin-table-wrap {
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      640px 240px at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent),
+      transparent 68%
+    ),
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 92%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 88%, var(--zharfa-surface-card))
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 24px 48px -32px rgb(0 0 0 / 0.55);
+}
+
+.disinab-admin .admin-page__header {
+  gap: 18px;
+  padding: 22px 22px 18px;
+}
+
+.disinab-admin .admin-page__eyebrow,
+.disinab-admin .admin-kpis__eyebrow {
+  color: var(--zharfa-tone-sale);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.disinab-admin .admin-page__title {
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.disinab-admin .admin-page__header .admin-range {
+  padding-top: 16px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-admin .admin-page__header .admin-range input,
+.disinab-admin .admin-page__header .admin-range__submit,
+.disinab-admin .admin-search input,
+.disinab-admin .admin-search button {
+  border-radius: 12px;
+}
+
+.disinab-admin .admin-kpi {
+  border-radius: 18px;
+  padding: 16px 16px 14px;
+}
+
+.disinab-admin .admin-chart,
+.disinab-admin .admin-panel {
+  border-radius: 20px;
+  padding: 18px 18px 16px;
+}
+
+.disinab-admin .admin-table-wrap {
+  border-radius: 20px;
+  overflow: auto;
+  background:
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 92%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 88%, var(--zharfa-surface-card))
+    );
+}
+
+.disinab-admin .admin-table th {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 8%, transparent);
+}
+
+[data-theme="light"] .disinab-admin__aside-plate,
+[data-theme="light"] .disinab-admin__top,
+[data-theme="light"] .disinab-admin .admin-page__header,
+[data-theme="light"] .disinab-admin .admin-kpi,
+[data-theme="light"] .disinab-admin .admin-chart,
+[data-theme="light"] .disinab-admin .admin-panel,
+[data-theme="light"] .disinab-admin .admin-table-wrap {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 70%, transparent),
+    0 18px 40px -28px color-mix(in srgb, #121826 18%, transparent);
+}
+
+@media (max-width: 900px) {
+  /* Scrim stays inside the shell stacking context so it cannot cover the aside. */
+  .disinab-admin__scrim.nav-drawer__scrim {
+    z-index: 79;
+  }
+
+  /* Must beat later/base .disinab-admin__aside { position: relative } so the
+     drawer leaves the document flow; otherwise the main column starts blank. */
+  .disinab-admin.admin-shell .admin-shell__aside.disinab-admin__aside {
+    position: fixed;
+    z-index: 80;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    display: flex;
+    flex-direction: column;
+    width: min(22rem, 88vw);
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    padding: 0;
+    transform: translateX(100%);
+    visibility: hidden;
+  }
+
+  .disinab-admin.admin-shell.is-menu-open .admin-shell__aside.disinab-admin__aside {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .disinab-admin__aside-aura {
+    inset: 0;
+    border-radius: 0;
+  }
+
+  .disinab-admin__aside-plate {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    max-height: 100dvh;
+    overflow: hidden;
+    border-radius: 0;
+    border: 0;
+    border-inline-end: 1px solid
+      color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  }
+
+  .disinab-admin .admin-shell__brand {
+    flex: none;
+  }
+
+  .disinab-admin .admin-shell__nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .disinab-admin .admin-shell__aside-foot {
+    flex: none;
+  }
+
+  .disinab-admin__top {
+    margin: 12px 12px 0;
+    padding: 10px 12px;
+  }
+
+  .disinab-admin__content {
+    padding: 14px 12px 28px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .admin-shell__aside .admin-menu__group,
-  .admin-shell__aside .admin-shell__link {
+  .disinab-admin .admin-menu__group,
+  .disinab-admin .admin-shell__link,
+  .disinab-admin__content {
     animation: none;
   }
 }
@@ -11527,9 +15346,11 @@ a.presence__net:hover {
 }
 
 .hero.hero--search .hero__copy {
-  max-width: 46rem;
+  width: min(100%, 42rem);
+  max-width: 42rem;
   margin-inline: auto;
   gap: 18px;
+  align-items: stretch;
 }
 
 .hero.hero--search .hero__eyebrow {
@@ -11541,7 +15362,7 @@ a.presence__net:hover {
 }
 
 .hero.hero--search .hero__title {
-  max-width: 14em;
+  max-width: none;
   font-size: clamp(1.9rem, 6vw, 3rem);
   letter-spacing: -0.02em;
 }
@@ -11619,6 +15440,11 @@ a.presence__net:hover {
   margin: 0;
 }
 
+.disinab-home-catalog__plate > .disinab__plate {
+  gap: 14px;
+  padding: 18px 16px 16px;
+}
+
 .disinab-home-catalog__head.home-section__head {
   gap: 6px;
 }
@@ -11660,63 +15486,8 @@ a.presence__net:hover {
 }
 
 .disinab-home-catalog__grid.home-grid {
-  margin-top: 22px;
-  gap: 16px;
-}
-
-.disinab-home-catalog__grid .z-course-card {
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid
-    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
-  border-radius: 18px;
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
-      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
-    ),
-    var(--zharfa-surface-card);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
-    0 20px 42px -34px rgb(0 0 0 / 0.55);
-  transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.disinab-home-catalog__grid .z-course-card:hover {
-  border-color: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 42%,
-    var(--zharfa-border-default)
-  );
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
-    0 26px 48px -30px color-mix(in srgb, var(--zharfa-action-primary) 30%, transparent);
-}
-
-.disinab-home-catalog__grid .z-course-card__media,
-.disinab-home-catalog__grid .z-course-card__cover {
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
-}
-
-.disinab-home-catalog__grid .z-course-card__body {
-  padding: 14px 16px 16px;
-}
-
-.disinab-home-catalog__grid .z-course-card__title,
-.disinab-home-catalog__grid .z-course-card h3 {
-  font-weight: 800;
-  line-height: 1.45;
-}
-
-.disinab-home-catalog__grid .z-btn {
-  border-radius: 12px;
-  font-weight: 700;
+  margin-top: 16px;
+  gap: 12px;
 }
 
 @media (max-width: 720px) {
@@ -11796,11 +15567,12 @@ a.presence__net:hover {
 
 .home-path-rail__index {
   position: relative;
-  font-family: var(--zharfa-font-latin);
+  font-family: var(--zharfa-font-persian);
   font-size: clamp(2rem, 3vw, 2.6rem);
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
   color: color-mix(in srgb, var(--zharfa-text-link) 55%, transparent);
 }
 
@@ -12094,8 +15866,10 @@ a.presence__net:hover {
 }
 
 .disinab-home-notes__read.note-card__read {
+  align-self: flex-end;
   width: fit-content;
   min-height: 36px;
+  margin-top: auto;
   padding: 0 12px;
   border-radius: 999px;
   border: 1px solid
@@ -12179,14 +15953,25 @@ a.presence__net:hover {
   }
 }
 
+.course-page-shell {
+  display: contents;
+}
+
 .course-page.course-detail {
   max-width: 1080px;
   gap: 28px;
   padding-top: 28px;
+  padding-bottom: 0;
+  animation: none;
 }
 
 .course-page--dock {
-  padding-bottom: 124px;
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.shell:has(.course-page--dock) .site-footer {
+  margin-top: 12px;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
 .course-page--live .course-story__intro {
@@ -12194,10 +15979,262 @@ a.presence__net:hover {
 }
 
 .course-page .course-story {
-  gap: 18px;
+  gap: 14px;
 }
 
-.course-page .course-story__intro {
+/* —— دیسیناب: ستون اصلی و خرید دوره (مثل درگاه پرداخت) —— */
+.disinab-course-main {
+  gap: 14px;
+}
+
+.course-page .course-story__intro.disinab,
+.course-page .course-about.disinab,
+.course-page .syllabus.disinab,
+.course-page .course-notes.disinab,
+.course-page .course-buy.disinab {
+  display: block;
+  align-items: stretch;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.course-page .disinab-course-intro > .disinab__plate,
+.course-page .disinab-course-about > .disinab__plate,
+.course-page .disinab-course-syllabus > .disinab__plate,
+.course-page .disinab-course-notes > .disinab__plate,
+.course-page .disinab-course-buy > .disinab__plate {
+  gap: 10px;
+  padding: 16px 16px 14px;
+}
+
+.course-page .disinab-course-intro .course-plate {
+  margin-top: 2px;
+}
+
+.disinab-course-intro__crumbs.crumbs {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.8rem;
+}
+
+.disinab-course-intro__crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.disinab-course-intro__crumbs a:hover {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-course-intro__head,
+.disinab-course-buy__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.disinab-course-intro__head {
+  /* RTL: crumbs start (right), status badge end (left) — same row as path */
+  justify-content: space-between;
+}
+
+.disinab-course-intro__head .disinab__badge {
+  margin-inline-start: auto;
+  border-color: color-mix(in srgb, var(--zharfa-tone) 42%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-tone) 14%, transparent);
+  color: var(--zharfa-tone);
+}
+
+.disinab-course-intro__head .disinab__badge::before {
+  background: var(--zharfa-tone);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--zharfa-tone) 22%, transparent);
+}
+
+.disinab-course-buy__head .disinab__badge:not([data-tone="live"]) {
+  border-color: color-mix(in srgb, var(--zharfa-tone) 42%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-tone) 14%, transparent);
+  color: var(--zharfa-tone);
+}
+
+.disinab-course-buy__head .disinab__badge:not([data-tone="live"])::before {
+  background: var(--zharfa-tone);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--zharfa-tone) 22%, transparent);
+}
+
+.disinab-course-intro .disinab__brand,
+.disinab-course-about .disinab__brand,
+.disinab-course-syllabus .disinab__brand,
+.disinab-course-notes .disinab__brand,
+.disinab-course-buy .disinab__brand {
+  margin: 0;
+}
+
+.disinab-course-intro h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.disinab-course-intro .disinab__line,
+.disinab-course-about .disinab__line,
+.disinab-course-syllabus .disinab__line,
+.disinab-course-buy .disinab__line {
+  margin: 0;
+  max-width: 40rem;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.disinab-course-about h2,
+.disinab-course-syllabus .syllabus__head h2,
+.disinab-course-notes h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.disinab-course-buy .course-detail__price {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.disinab-course-buy .disinab__facts {
+  grid-template-columns: 1fr;
+  margin-top: 2px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+}
+
+.disinab-course-buy .disinab__facts > div,
+.disinab-course-buy .disinab__facts > div:first-child,
+.disinab-course-buy .disinab__facts > div:not(:first-child) {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-inline-start: 0;
+  padding-inline: 0;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+}
+
+.disinab-course-buy .disinab__facts > div:first-child {
+  border-top: 0;
+  padding-top: 10px;
+}
+
+.disinab-course-buy .disinab__facts dt {
+  flex: none;
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.disinab-course-buy .disinab__facts dd {
+  margin: 0;
+  text-align: start;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.disinab-course-buy__actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.disinab-course-buy__actions .z-btn {
+  min-height: 40px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.disinab-course-syllabus .syllabus__head {
+  display: grid;
+  gap: 6px;
+}
+
+.disinab-course-syllabus .syllabus__modules {
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.disinab-course-syllabus .syllabus__modules > li {
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 42%, var(--zharfa-surface-card));
+  overflow: hidden;
+}
+
+.disinab-course-syllabus .syllabus__toggle {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 10px 12px;
+  min-height: 48px;
+}
+
+.disinab-course-syllabus .syllabus__toggle-index {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent);
+  color: var(--zharfa-text-primary);
+}
+
+.disinab-course-syllabus .syllabus__modules > li.is-open .syllabus__toggle-index {
+  background: var(--zharfa-action-primary);
+  color: var(--zharfa-text-on-primary);
+}
+
+.disinab-course-syllabus .syllabus__toggle-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.disinab-course-syllabus .syllabus__toggle-summary,
+.disinab-course-syllabus .syllabus__toggle-count {
+  font-size: 0.78rem;
+}
+
+.disinab-course-syllabus .syllabus__modules > li > ol > li {
+  padding: 8px 12px;
+}
+
+.disinab-course-notes ul {
+  display: grid;
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disinab-course-notes .course-notes__item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.course-page .course-story__intro:not(.disinab) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -12215,16 +16252,29 @@ a.presence__net:hover {
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
 }
 
+.course-page .course-story__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  width: 100%;
+}
+
 .course-page .course-story .crumbs {
   margin: 0;
+  min-width: 0;
   font-size: 0.8125rem;
 }
 
 .course-page .course-story__kicker {
-  margin: 2px 0 0;
+  margin: 0;
+  margin-inline-start: auto;
+  flex: none;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-align: start;
+  white-space: nowrap;
 }
 
 .course-page .course-story h1 {
@@ -12281,8 +16331,8 @@ a.presence__net:hover {
   letter-spacing: 0.04em;
 }
 
-.course-page .course-about,
-.course-page .syllabus {
+.course-page .course-about:not(.disinab),
+.course-page .syllabus:not(.disinab) {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -12316,7 +16366,7 @@ a.presence__net:hover {
   line-height: 1.7;
 }
 
-.course-page .course-buy {
+.course-page .course-buy:not(.disinab) {
   position: static;
   top: auto;
   inset: auto;
@@ -12336,6 +16386,10 @@ a.presence__net:hover {
     var(--zharfa-surface-card);
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
   animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.course-page .course-buy.disinab {
+  scroll-margin-bottom: 110px;
 }
 
 .course-page .course-buy__label {
@@ -12398,9 +16452,9 @@ a.presence__net:hover {
   padding: 10px 14px;
 }
 
-.course-page .course-related,
-.course-page .course-notes,
-.course-page .course-articles {
+.course-page .course-related:not(.disinab),
+.course-page .course-notes:not(.disinab),
+.course-page .course-articles:not(.disinab) {
   gap: 10px;
   padding: 16px 18px 18px;
   border: 1px solid color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
@@ -12419,12 +16473,19 @@ a.presence__net:hover {
 /* —— دیسیناب: پیشنهاد هم‌موضوع (کروسل) —— */
 .course-page .course-related.disinab-related.disinab {
   gap: 0;
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+  overflow: visible;
   animation: admin-kpi-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.course-page .course-related.disinab-related > .disinab__plate {
+  gap: 14px;
+  padding: 0;
 }
 
 .disinab-related__head {
@@ -12481,7 +16542,7 @@ a.presence__net:hover {
 .disinab-carousel__list {
   display: flex;
   flex-direction: row;
-  gap: 16px;
+  gap: 12px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -12489,62 +16550,12 @@ a.presence__net:hover {
 }
 
 .disinab-carousel__item {
-  flex: 0 0 min(19.5rem, 78vw);
-  width: min(19.5rem, 78vw);
+  flex: 0 0 min(17.5rem, 78vw);
+  width: min(17.5rem, 78vw);
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
 
-.disinab-carousel__item .z-course-card {
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid
-    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
-  border-radius: 18px;
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
-      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
-    ),
-    var(--zharfa-surface-card);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
-    0 20px 42px -34px rgb(0 0 0 / 0.55);
-  transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.disinab-carousel__item .z-course-card:hover {
-  border-color: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 42%,
-    var(--zharfa-border-default)
-  );
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
-    0 26px 48px -30px
-      color-mix(in srgb, var(--zharfa-action-primary) 30%, transparent);
-}
-
-.disinab-carousel__item .z-course-card__media,
-.disinab-carousel__item .z-course-card__cover {
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
-}
-
-.disinab-carousel__item .z-course-card__title,
-.disinab-carousel__item .z-course-card h3 {
-  font-weight: 800;
-}
-
-.disinab-carousel__item .z-btn {
-  border-radius: 12px;
-  font-weight: 700;
-}
 
 .disinab-carousel__controls {
   display: flex;
@@ -12600,8 +16611,8 @@ a.presence__net:hover {
 
 @media (min-width: 960px) {
   .disinab-carousel__item {
-    flex-basis: min(22rem, 42%);
-    width: min(22rem, 42%);
+    flex-basis: min(18.5rem, 38%);
+    width: min(18.5rem, 38%);
   }
 }
 
@@ -12615,24 +16626,189 @@ a.presence__net:hover {
   }
 }
 
-.course-page .course-articles__grid {
-  margin: 0;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+/* —— دیسیناب: مقالات مرتبط دوره —— */
+.course-page .course-articles.disinab-course-articles.disinab {
+  gap: 0;
+  margin: 20px 0 0;
+  padding: 18px 0 0;
+  border: 0;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 10%, var(--zharfa-border-default));
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  animation: admin-kpi-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.course-page .course-articles .note-card {
+.course-page .disinab-course-articles > .disinab__plate {
+  gap: 14px;
+  padding: 0;
+}
+
+.disinab-course-articles__head h2 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.2vw, 1.45rem);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.disinab-course-articles__head .disinab__line {
+  margin-top: 6px;
+  max-width: 28rem;
+}
+
+.disinab-course-articles__scroller.course-articles__scroller {
+  container-type: inline-size;
+  container-name: course-articles;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-inline: -2px;
+  padding-inline: 2px;
+  padding-block: 2px 6px;
+}
+
+.disinab-course-articles__scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.disinab-course-articles__track.course-articles__track {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: max-content;
+  min-width: 100%;
+}
+
+.disinab-course-articles__track > li {
+  flex: 0 0 min(17.5rem, 78cqi);
+  width: min(17.5rem, 78cqi);
+  max-width: min(17.5rem, 78cqi);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.disinab-course-articles__card.note-card {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  overflow: hidden;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
+    ),
+    var(--zharfa-surface-card);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+    0 20px 42px -34px rgb(0 0 0 / 0.55);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.course-page .course-articles .note-card__body h3 {
+.disinab-course-articles__card.note-card:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 38%,
+    var(--zharfa-border-default)
+  );
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 26px 48px -30px
+      color-mix(in srgb, var(--zharfa-action-primary) 28%, transparent);
+}
+
+.disinab-course-articles__card .note-card__media {
+  aspect-ratio: 16 / 9;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+}
+
+.disinab-course-articles__card .note-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  padding: 14px 16px 16px;
+}
+
+.disinab-course-articles__card .note-card__meta {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.55;
 }
 
-@media (max-width: 959px) {
-  .course-page .course-articles__grid {
-    grid-template-columns: 1fr;
+.disinab-course-articles__card .note-card__body h3 {
+  margin: 0;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.disinab-course-articles__card .note-card__body h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.disinab-course-articles__card .note-card__body h3 a:hover {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-course-articles__card .note-card__summary {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.disinab-course-articles__read.note-card__read {
+  align-self: flex-end;
+  width: fit-content;
+  min-height: 36px;
+  margin-top: auto;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+  color: var(--zharfa-text-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 36px;
+  text-decoration: none;
+}
+
+.disinab-course-articles__read.note-card__read:hover {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
+  color: var(--zharfa-text-primary);
+  text-decoration: none;
+}
+
+@media (min-width: 960px) {
+  .disinab-course-articles__track > li {
+    flex-basis: min(18.5rem, 32cqi);
+    width: min(18.5rem, 32cqi);
+    max-width: min(18.5rem, 32cqi);
   }
 }
 
@@ -12658,8 +16834,21 @@ a.presence__net:hover {
     order: 1;
   }
 
-  .course-story__split > .course-buy {
+  .course-story__split > .course-buy,
+  .course-story__split > .disinab-course-buy {
     order: 2;
+  }
+
+  .course-page .disinab-course-intro > .disinab__plate,
+  .course-page .disinab-course-about > .disinab__plate,
+  .course-page .disinab-course-syllabus > .disinab__plate,
+  .course-page .disinab-course-buy > .disinab__plate {
+    gap: 10px;
+    padding: 14px 14px 12px;
+  }
+
+  .disinab-course-syllabus .syllabus__toggle {
+    padding: 10px 12px;
   }
 }
 
@@ -12677,12 +16866,18 @@ a.presence__net:hover {
     top: 96px;
   }
 
-  .course-page .course-story__intro {
+  .course-page .course-story__intro:not(.disinab) {
     padding: 16px 16px 18px;
   }
 
-  .course-page .course-story h1 {
-    font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  .course-page .disinab-course-intro > .disinab__plate,
+  .course-page .disinab-course-buy > .disinab__plate {
+    padding: 16px 14px 14px;
+  }
+
+  .course-page .course-story h1,
+  .course-page .disinab-course-intro h1 {
+    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
   }
 
   .course-page .course-plate {
@@ -12700,6 +16895,23 @@ a.presence__net:hover {
   background: color-mix(in srgb, var(--zharfa-bg-canvas) 88%, transparent);
   backdrop-filter: blur(16px);
   animation: admin-kpi-in 0.45s ease both;
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease;
+  will-change: transform, opacity;
+}
+
+.course-sticky.is-away {
+  transform: translateY(120%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-sticky {
+    transition: none;
+  }
 }
 
 .course-sticky__inner {
@@ -12843,9 +17055,13 @@ a.presence__net:hover {
 
 @media (max-width: 720px) {
   .course-page.course-detail {
-    gap: 18px;
+    gap: 16px;
     padding-top: 18px;
     padding-inline: 16px;
+  }
+
+  .course-page--dock {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .course-page .course-story__intro {
@@ -12855,9 +17071,20 @@ a.presence__net:hover {
 
   .course-page .course-about,
   .course-page .syllabus,
-  .course-page .course-related,
   .course-page .course-notes {
     padding: 14px;
+  }
+
+  .course-page .course-related:not(.disinab-related) {
+    padding: 14px;
+  }
+
+  .disinab-related__head {
+    margin-bottom: 10px;
+  }
+
+  .disinab-carousel {
+    gap: 10px;
   }
 
   .course-page .course-buy {
@@ -12883,6 +17110,7 @@ a.presence__net:hover {
 
   .course-page .syllabus__heading {
     flex: 0 0 auto;
+    width: 100%;
   }
 
   .course-page .syllabus__watch {
@@ -12994,7 +17222,7 @@ a.presence__net:hover {
 
   .z-course-card__title,
   .home-grid .z-course-card h3 {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .presence__intro h1 {
@@ -13008,6 +17236,658 @@ a.presence__net:hover {
 
   .admin-kpi__value {
     font-size: clamp(1.15rem, 4vw, 1.35rem);
+  }
+}
+
+/* —— دیسیناب: مسیر تخصص (journey) —— */
+.disinab-track-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.course-page .disinab-track > .disinab__plate,
+.disinab-tracks-page .disinab-track > .disinab__plate {
+  gap: 16px;
+  padding: 18px 18px 16px;
+}
+
+.disinab-track--course > .disinab__plate {
+  gap: 14px;
+  padding: 16px 16px 14px;
+}
+
+.disinab-track__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(9rem, 12rem);
+  gap: 14px 20px;
+  align-items: end;
+}
+
+.disinab-track__intro {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.disinab-track__head h2 {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.disinab-track__intro .disinab__line {
+  margin: 0;
+  max-width: 36rem;
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+
+.disinab-track__meter {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.disinab-track__meter-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.disinab-track__meter-track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+}
+
+.disinab-track__meter-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--zharfa-action-primary) 72%, transparent);
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.disinab-track__rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(196px, 1fr);
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 2px 0 6px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.disinab-track__step {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  min-width: 196px;
+  padding-inline: 8px;
+  scroll-snap-align: start;
+}
+
+.disinab-track__step::before {
+  content: "";
+  position: absolute;
+  top: 13px;
+  inset-inline: 0;
+  height: 1px;
+  z-index: 0;
+  background: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 22%,
+    var(--zharfa-border-default)
+  );
+}
+
+.disinab-track__step:first-child::before {
+  inset-inline-start: 50%;
+}
+
+.disinab-track__step:last-child::before {
+  inset-inline-end: 50%;
+}
+
+.disinab-track__node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-inline: auto;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 14%, var(--zharfa-border-default));
+  background: var(--zharfa-surface-card);
+  color: var(--zharfa-text-secondary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.disinab-track__step[data-owned] .disinab-track__node {
+  border-color: color-mix(in srgb, var(--zharfa-action-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--zharfa-action-primary) 14%, var(--zharfa-surface-card));
+  color: var(--zharfa-text-link);
+}
+
+.disinab-track__step[data-status="here"] .disinab-track__node {
+  border-color: color-mix(in srgb, var(--zharfa-action-primary) 55%, transparent);
+  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-surface-card));
+  color: var(--zharfa-text-link);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+}
+
+.disinab-track__card {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  min-height: 0;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 18%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 58%
+    ),
+    var(--zharfa-surface-card);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+    0 14px 28px -24px rgb(0 0 0 / 0.5);
+}
+
+.disinab-track__step[data-status="here"] .disinab-track__card {
+  border-color: color-mix(in srgb, var(--zharfa-action-primary) 42%, var(--zharfa-border-default));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 18px 34px -24px color-mix(in srgb, var(--zharfa-action-primary) 32%, transparent);
+}
+
+.disinab-track__step[data-owned] .disinab-track__card {
+  opacity: 0.96;
+}
+
+.disinab-track__step[data-status="todo"]:not([data-owned]) .disinab-track__card {
+  opacity: 0.88;
+}
+
+.disinab-track__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--zharfa-surface-base);
+  color: inherit;
+  text-decoration: none;
+  transition: none;
+}
+
+.disinab-track__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: none;
+  filter: none;
+  opacity: 1;
+  transition: none;
+}
+
+.disinab-track__media-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.disinab-track__media:hover,
+.disinab-track__media:focus-visible,
+.disinab-track__card:hover .disinab-track__media,
+.disinab-track__step:hover .disinab-track__media {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  background: var(--zharfa-surface-base);
+}
+
+.disinab-track__media:hover img,
+.disinab-track__media:focus-visible img,
+.disinab-track__card:hover .disinab-track__media img,
+.disinab-track__step:hover .disinab-track__media img {
+  transform: none;
+  filter: none;
+  opacity: 1;
+}
+
+.disinab-track__body {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px 12px;
+}
+
+.disinab-track__status {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.disinab-track__step[data-status="here"] .disinab-track__status {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-track__step[data-owned] .disinab-track__status {
+  color: color-mix(in srgb, var(--zharfa-text-link) 70%, var(--zharfa-text-secondary));
+}
+
+.disinab-track__card h3 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.disinab-track__card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.disinab-track__card h3 a:hover {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-track__focus {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.disinab-track__price {
+  margin: 2px 0 0;
+  color: var(--zharfa-text-primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+.disinab-track__foot {
+  display: grid;
+  gap: 0;
+  padding-top: 12px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+}
+
+.disinab-track__cta {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent),
+      transparent 60%
+    ),
+    color-mix(in srgb, var(--zharfa-bg-canvas) 35%, var(--zharfa-surface-card));
+}
+
+.disinab-track__cta-kicker {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.disinab-track__cta-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--zharfa-text-primary);
+}
+
+.disinab-track__cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 2px;
+}
+
+.disinab-track__cta-btn.z-btn {
+  width: fit-content;
+  min-height: 38px;
+  padding-inline: 14px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.disinab-track__cta-quiet {
+  color: var(--zharfa-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.disinab-track__cta-quiet:hover {
+  color: var(--zharfa-text-link);
+  text-decoration: underline;
+}
+
+.disinab-track__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 14px;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.disinab-track__links a {
+  color: var(--zharfa-text-link);
+  text-decoration: none;
+}
+
+.disinab-track__links a:hover {
+  text-decoration: underline;
+}
+
+.disinab-track__latest {
+  color: var(--zharfa-text-secondary);
+}
+
+.disinab-track__alts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  padding: 0 4px;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.8rem;
+}
+
+.disinab-track__alts p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.disinab-track__alts ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disinab-track__alts a {
+  color: var(--zharfa-text-link);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.disinab-track__alts a:hover {
+  text-decoration: underline;
+}
+
+.disinab-track__split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.disinab-track__milestones {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 35%, transparent);
+}
+
+.disinab-track__milestones h3 {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.disinab-track__milestones ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disinab-track__milestones li {
+  display: grid;
+  gap: 2px;
+}
+
+.disinab-track__milestones li[data-here] a {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-track__milestones a {
+  color: var(--zharfa-text-primary);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+.disinab-track__milestones a:hover {
+  color: var(--zharfa-text-link);
+}
+
+.disinab-track__milestones span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.disinab-track__empty {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.78rem;
+}
+
+.disinab-account-menu {
+  margin: 0 0 16px;
+}
+
+.disinab-account-menu ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 3px;
+  list-style: none;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  background: color-mix(in srgb, var(--zharfa-surface-card) 90%, transparent);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.disinab-account-menu a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.disinab-account-menu a:hover {
+  color: var(--zharfa-text-primary);
+  text-decoration: none;
+}
+
+.disinab-account-menu a[aria-current="page"] {
+  color: var(--zharfa-text-primary);
+  background: color-mix(in srgb, var(--zharfa-action-primary) 14%, transparent);
+}
+
+.disinab-tracks-page {
+  display: grid;
+  gap: 16px;
+  padding-block: 4px 40px;
+}
+
+.disinab-tracks-page__hero > .disinab__plate {
+  gap: 10px;
+  padding: 18px 18px 16px;
+}
+
+.disinab-tracks-page__hero h1 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.8vw, 1.65rem);
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.disinab-tracks-page__stat {
+  margin: 2px 0 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.disinab-tracks-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disinab-tracks-overview__card {
+  display: grid;
+  gap: 8px;
+  padding: 14px 14px 12px;
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 8%, transparent),
+      transparent 60%
+    ),
+    var(--zharfa-surface-card);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+  transition: border-color 0.2s ease;
+}
+
+.disinab-tracks-overview__card:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 38%,
+    var(--zharfa-border-default)
+  );
+  text-decoration: none;
+}
+
+.disinab-tracks-overview__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.disinab-tracks-overview__top strong {
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.disinab-tracks-overview__top span {
+  flex: none;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.disinab-tracks-overview__card p {
+  margin: 0;
+  color: var(--zharfa-text-secondary);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 860px) {
+  .disinab-track__head {
+    grid-template-columns: 1fr;
+  }
+
+  .disinab-track__foot {
+    grid-template-columns: 1fr;
+  }
+
+  .disinab-track__links {
+    justify-content: flex-start;
+  }
+
+  .disinab-track__split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .disinab-track__rail {
+    grid-auto-columns: minmax(188px, 78vw);
+  }
+
+  .course-page .disinab-track > .disinab__plate,
+  .disinab-track--course > .disinab__plate {
+    padding: 14px;
   }
 }
 

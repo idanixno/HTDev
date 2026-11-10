@@ -1,13 +1,27 @@
 import { absoluteUrl } from "./site-url";
 
+const AUTHOR = {
+  "@type": "Person" as const,
+  name: "آرمان راد",
+  url: absoluteUrl("/"),
+};
+
+const PUBLISHER = {
+  "@type": "Organization" as const,
+  name: "ژرفا",
+  url: absoluteUrl("/"),
+  logo: {
+    "@type": "ImageObject" as const,
+    url: absoluteUrl("/artwork/courses/clean-architecture.svg"),
+  },
+};
+
 export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "ژرفا",
-    url: absoluteUrl("/"),
+    ...PUBLISHER,
     description:
-      "آموزش فنی یک مدرس؛ دوره‌ها جدا فروخته می‌شوند و ویدیو در اسپات‌پلیر پخش می‌شود.",
+      "ژرفا اطلس یادگیری عمیقِ آرمان راد است؛ از اولین مسئله تا تصمیم‌های معماری، با دوره و مسیر روشن.",
   };
 }
 
@@ -18,6 +32,7 @@ export function websiteJsonLd() {
     name: "ژرفا",
     url: absoluteUrl("/"),
     inLanguage: "fa-IR",
+    publisher: PUBLISHER,
     potentialAction: {
       "@type": "SearchAction",
       target: `${absoluteUrl("/courses")}?q={search_term_string}`,
@@ -55,15 +70,8 @@ export function courseJsonLd(input: {
     inLanguage: "fa",
     url: input.url,
     image: input.image ?? undefined,
-    provider: {
-      "@type": "Organization",
-      name: "ژرفا",
-      url: absoluteUrl("/"),
-    },
-    instructor: {
-      "@type": "Person",
-      name: "آرمان راد",
-    },
+    provider: PUBLISHER,
+    instructor: AUTHOR,
   };
 }
 
@@ -74,22 +82,101 @@ export function articleJsonLd(input: {
   datePublished?: string | null;
   dateModified?: string | null;
   image?: string | null;
+  readingMinutes?: number | null;
+  wordCount?: number | null;
+  articleSection?: string;
 }) {
+  const image = input.image
+    ? input.image.startsWith("http")
+      ? input.image
+      : absoluteUrl(input.image)
+    : undefined;
+
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: input.headline,
     description: input.description,
-    inLanguage: "fa",
-    mainEntityOfPage: input.url,
-    datePublished: input.datePublished ?? undefined,
-    dateModified: input.dateModified ?? undefined,
-    image: input.image ?? undefined,
-    author: { "@type": "Person", name: "آرمان راد" },
-    publisher: {
-      "@type": "Organization",
-      name: "ژرفا",
-      url: absoluteUrl("/"),
+    inLanguage: "fa-IR",
+    isAccessibleForFree: true,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": input.url,
     },
+    url: input.url,
+    datePublished: input.datePublished ?? undefined,
+    dateModified: input.dateModified ?? input.datePublished ?? undefined,
+    image: image
+      ? {
+          "@type": "ImageObject",
+          url: image,
+        }
+      : undefined,
+    author: AUTHOR,
+    publisher: PUBLISHER,
+    articleSection: input.articleSection ?? "مقالات",
+    timeRequired:
+      input.readingMinutes && input.readingMinutes > 0
+        ? `PT${Math.round(input.readingMinutes)}M`
+        : undefined,
+    wordCount: input.wordCount ?? undefined,
+    isPartOf: {
+      "@type": "Blog",
+      name: "مقالات ژرفا",
+      url: absoluteUrl("/journal"),
+    },
+  };
+}
+
+export function articlePageGraph(input: {
+  headline: string;
+  description: string;
+  path: string;
+  datePublished?: string | null;
+  dateModified?: string | null;
+  image?: string | null;
+  readingMinutes?: number | null;
+  wordCount?: number | null;
+}) {
+  const url = absoluteUrl(input.path);
+  const crumbs = breadcrumbJsonLd([
+    { name: "خانه", path: "/" },
+    { name: "مقالات", path: "/journal" },
+    { name: input.headline, path: input.path },
+  ]);
+  const post = articleJsonLd({
+    ...input,
+    url,
+  });
+  const { "@context": _c1, ...crumbNode } = crumbs;
+  const { "@context": _c2, ...postNode } = post;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      crumbNode,
+      postNode,
+      {
+        "@type": "WebPage",
+        "@id": url,
+        url,
+        name: input.headline,
+        description: input.description,
+        inLanguage: "fa-IR",
+        isPartOf: {
+          "@type": "WebSite",
+          name: "ژرفا",
+          url: absoluteUrl("/"),
+        },
+        primaryImageOfPage: input.image
+          ? {
+              "@type": "ImageObject",
+              url: input.image.startsWith("http")
+                ? input.image
+                : absoluteUrl(input.image),
+            }
+          : undefined,
+      },
+    ],
   };
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AdminShell } from "../../components/admin/admin-shell";
 import { requireOwner } from "../../components/admin/require-owner";
+import { fetchAdminNavBadges } from "../../lib/admin";
 import { privateMetadata } from "../../lib/seo";
 
 export const metadata: Metadata = privateMetadata("پنل مدیریت");
@@ -11,8 +12,15 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const user = await requireOwner();
+  const badges = await fetchAdminNavBadges();
 
   return (
-    <AdminShell displayName={user.displayName}>{children}</AdminShell>
+    <div className="shell shell--admin">
+      <main className="shell__main">
+        <AdminShell displayName={user.displayName} badges={badges}>
+          {children}
+        </AdminShell>
+      </main>
+    </div>
   );
 }

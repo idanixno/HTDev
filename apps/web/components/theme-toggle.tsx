@@ -14,11 +14,12 @@ function SunIcon() {
       aria-hidden="true"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.7"
+      strokeWidth="1.8"
       strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none" />
-      <path d="M12 2.8v2.2M12 19v2.2M2.8 12h2.2M19 12h2.2M5.1 5.1l1.6 1.6M17.3 17.3l1.6 1.6M5.1 18.9l1.6-1.6M17.3 6.7l1.6-1.6" />
+      <circle cx="12" cy="12" r="3.6" />
+      <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.05 5.05l1.55 1.55M17.4 17.4l1.55 1.55M5.05 18.95l1.55-1.55M17.4 6.6l1.55-1.55" />
     </svg>
   );
 }
@@ -31,9 +32,13 @@ function MoonIcon() {
       width="20"
       height="20"
       aria-hidden="true"
-      fill="currentColor"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <path d="M16.4 2.8A9.2 9.2 0 0 0 3.7 14.3 9.4 9.4 0 1 0 16.4 2.8Z" />
+      <path d="M19.2 13.6A7.4 7.4 0 0 1 10.4 4.8 7.5 7.5 0 1 0 19.2 13.6Z" />
     </svg>
   );
 }

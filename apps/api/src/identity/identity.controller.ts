@@ -72,9 +72,10 @@ export class IdentityController {
   ) {
     const result = await this.identity.register(dto, clientMeta(req));
     setSessionCookie(res, result.sessionToken, result.expiresAt);
+    // Prefer header over JSON body so browser XSS cannot scrape the raw token.
+    res.setHeader("x-session-token", result.sessionToken);
     return {
       user: result.user,
-      sessionToken: result.sessionToken,
       expiresAt: result.expiresAt.toISOString(),
     };
   }
@@ -89,9 +90,9 @@ export class IdentityController {
   ) {
     const result = await this.identity.login(dto, clientMeta(req));
     setSessionCookie(res, result.sessionToken, result.expiresAt);
+    res.setHeader("x-session-token", result.sessionToken);
     return {
       user: result.user,
-      sessionToken: result.sessionToken,
       expiresAt: result.expiresAt.toISOString(),
     };
   }

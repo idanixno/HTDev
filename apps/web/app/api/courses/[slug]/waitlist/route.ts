@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { apiBaseUrl } from "../../../../../lib/auth-constants";
+import { assertSameOrigin } from "../../../../../lib/csrf";
 
 type Params = { params: Promise<{ slug: string }> };
 
 export async function POST(request: Request, { params }: Params) {
+  const blocked = assertSameOrigin(request);
+  if (blocked) return blocked;
+
   const { slug } = await params;
   let body: unknown;
   try {

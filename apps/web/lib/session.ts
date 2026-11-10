@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { apiBaseUrl, SESSION_COOKIE_NAME } from "./auth-constants";
 
 export type PublicUser = {
@@ -9,6 +10,8 @@ export type PublicUser = {
   displayName: string;
   telegramHandle: string | null;
   githubHandle: string | null;
+  linkedinHandle: string | null;
+  stackOverflowHandle: string | null;
   role: "STUDENT" | "OWNER";
   emailVerified: boolean;
   phoneVerified: boolean;
@@ -19,7 +22,8 @@ export async function getSessionToken(): Promise<string | undefined> {
   return jar.get(SESSION_COOKIE_NAME)?.value;
 }
 
-export async function fetchCurrentUser(): Promise<PublicUser | null> {
+/** Dedupes /identity/me within a single RSC request (layout + page). */
+export const fetchCurrentUser = cache(async (): Promise<PublicUser | null> => {
   const token = await getSessionToken();
   if (!token) return null;
 
@@ -37,4 +41,4 @@ export async function fetchCurrentUser(): Promise<PublicUser | null> {
   } catch {
     return null;
   }
-}
+});

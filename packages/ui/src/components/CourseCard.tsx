@@ -14,13 +14,67 @@ export type CourseCardProps = HTMLAttributes<HTMLElement> & {
   href?: string;
   coverSrc?: string;
   coverAlt?: string;
-  priceLabel: ReactNode;
+  priceLabel?: ReactNode;
   compareAtLabel?: ReactNode;
   discountLabel?: ReactNode;
+  /** Recording / offer status shown in the body meta row. */
   statusLabel?: ReactNode;
-  meta?: ReactNode;
+  /** Secondary meta (instructor / category) opposite the status. */
+  byline?: ReactNode;
+  /** Duration shown with a clock in the foot row. */
+  durationLabel?: ReactNode;
   action?: ReactNode;
 };
+
+function ClockIcon() {
+  return (
+    <svg
+      className="z-course-card__clock"
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      aria-hidden="true"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="8.25"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path
+        d="M12 8.25V12l2.75 1.75"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function StatusCheck() {
+  return (
+    <svg
+      className="z-course-card__check"
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      aria-hidden="true"
+    >
+      <path
+        d="M5.5 12.5 10 17l8.5-9.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export function CourseCard({
   availability = "publishedPaid",
@@ -32,7 +86,8 @@ export function CourseCard({
   compareAtLabel,
   discountLabel,
   statusLabel,
-  meta,
+  byline,
+  durationLabel,
   action,
   className,
   ...rest
@@ -45,6 +100,9 @@ export function CourseCard({
     .filter(Boolean)
     .join(" ");
 
+  const showCheck =
+    availability === "publishedPaid" || availability === "publishedFree";
+
   const media = (
     <>
       {coverSrc ? (
@@ -56,9 +114,6 @@ export function CourseCard({
       )}
       {discountLabel ? (
         <span className="z-course-card__discount">{discountLabel}</span>
-      ) : null}
-      {statusLabel ? (
-        <span className="z-course-card__status">{statusLabel}</span>
       ) : null}
     </>
   );
@@ -76,15 +131,42 @@ export function CourseCard({
         <h3 className="z-course-card__title">
           {href ? <a href={href}>{title}</a> : title}
         </h3>
-        <p className="z-course-card__price-row">
-          <span className="z-course-card__prices">
-            <span className="z-course-card__price">{priceLabel}</span>
-            {compareAtLabel ? (
-              <s className="z-course-card__compare">{compareAtLabel}</s>
+
+        {statusLabel || byline ? (
+          <div className="z-course-card__meta-row">
+            {statusLabel ? (
+              <span className="z-course-card__status-inline">
+                {showCheck ? <StatusCheck /> : null}
+                {statusLabel}
+              </span>
+            ) : (
+              <span />
+            )}
+            {byline ? (
+              <span className="z-course-card__byline">{byline}</span>
             ) : null}
-          </span>
-          {meta ? <span className="z-course-card__meta">{meta}</span> : null}
-        </p>
+          </div>
+        ) : null}
+
+        <div className="z-course-card__foot">
+          {durationLabel ? (
+            <span className="z-course-card__duration">
+              <ClockIcon />
+              {durationLabel}
+            </span>
+          ) : (
+            <span className="z-course-card__duration z-course-card__duration--empty" />
+          )}
+          {priceLabel ? (
+            <p className="z-course-card__prices">
+              <span className="z-course-card__price">{priceLabel}</span>
+              {compareAtLabel ? (
+                <s className="z-course-card__compare">{compareAtLabel}</s>
+              ) : null}
+            </p>
+          ) : null}
+        </div>
+
         {action ? <div className="z-course-card__action">{action}</div> : null}
       </div>
     </article>

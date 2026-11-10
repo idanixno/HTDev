@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { Button, Field, Notice } from "@zharfa/ui";
 import { authFetch } from "../../lib/api-client";
+import { AssetImageField } from "./asset-image-field";
 import { MarkdownEditor } from "./markdown-editor";
 import { SeoAssistantPanel } from "./seo-assistant-panel";
 
@@ -351,15 +352,15 @@ export function CourseEditorForm({
             value={values.sortOrder}
             onChange={(e) => patch({ sortOrder: e.target.value })}
           />
-          <Field
+          <AssetImageField
             id="course-cover"
             name="coverAsset"
-            label="مسیر تصویر جلد"
-            mono
-            dir="ltr"
+            label="تصویر جلد"
+            className="editor-form__wide"
             value={values.coverAsset}
-            onChange={(e) => patch({ coverAsset: e.target.value })}
-            placeholder="/artwork/courses/…"
+            placeholder="/artwork/courses/… یا آپلود"
+            disabled={loading}
+            onChange={(coverAsset) => patch({ coverAsset })}
           />
           <div className="video-source editor-form__wide">
             <label className="z-field" htmlFor="course-preview">

@@ -1,38 +1,93 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, type MouseEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import type { ChromeGroup } from "../lib/site-chrome";
+import { DisinabStatus } from "./disinab";
+import { useSessionAuthed } from "./header-account";
 import { ThemeToggle } from "./theme-toggle";
 import { useMenuDrawer } from "./use-menu-drawer";
 
-const GROUPS = [
-  {
-    label: "یادگیری",
-    links: [
-      { href: "/courses", label: "دوره‌ها" },
-      { href: "/paths", label: "مسیرهای یادگیری" },
-      { href: "/journal", label: "مقالات" },
-    ],
-  },
-  {
-    label: "ژرفا",
-    links: [
-      { href: "/faq", label: "پرسش‌ها" },
-      { href: "/terms", label: "شرایط استفاده" },
-    ],
-  },
-] as const;
+function isCurrent(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
-export function MobileNav({ authed }: { authed: boolean }) {
-  const pathname = usePathname();
+function DrawerLink({
+  href,
+  current,
+  className,
+  onNavigate,
+  children,
+}: {
+  href: string;
+  current?: boolean;
+  className: string;
+  onNavigate: (href: string, current: boolean) => void;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={className}
+      aria-current={current ? "page" : undefined}
+      prefetch
+      onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+        event.preventDefault();
+        onNavigate(href, Boolean(current));
+      }}
+    >
+      {children}
+    </Link>
+  );
+}
+
+export function MobileNav({
+  groups,
+  brandName,
+  menuTitle,
+  menuLine,
+  guestCtaLabel,
+  guestCtaHref,
+  authedCtaLabel,
+  authedCtaHref,
+  showThemeToggle = true,
+}: {
+  groups: ChromeGroup[];
+  brandName: string;
+  menuTitle: string;
+  menuLine: string;
+  guestCtaLabel: string;
+  guestCtaHref: string;
+  authedCtaLabel: string;
+  authedCtaHref: string;
+  showThemeToggle?: boolean;
+}) {
+  const pathname = usePathname() || "";
+  const router = useRouter();
   const panelRef = useRef<HTMLElement>(null);
   const { open, close, toggle } = useMenuDrawer("(max-width: 1100px)");
+  const authed = useSessionAuthed();
 
   useEffect(() => {
     if (open) panelRef.current?.focus();
   }, [open]);
+
+  function navigate(href: string, current: boolean) {
+    if (!current) {
+      router.push(href);
+    }
+    window.setTimeout(() => {
+      close();
+    }, 0);
+  }
+
+  const accountHref = authed ? authedCtaHref : guestCtaHref;
+  const accountLabel = authed ? authedCtaLabel : guestCtaLabel;
+  const accountCurrent = authed
+    ? pathname === authedCtaHref || pathname.startsWith(`${authedCtaHref}/`)
+    : pathname === guestCtaHref;
 
   return (
     <div className="mobile-nav">
@@ -55,67 +110,122 @@ export function MobileNav({ authed }: { authed: boolean }) {
             <>
               <button
                 type="button"
-                className="nav-drawer__scrim"
+                className="nav-drawer__scrim disinab-nav-drawer__scrim"
                 aria-label="بستن منو"
                 onClick={close}
               />
               <nav
                 ref={panelRef}
                 id="mobile-nav-panel"
-                className="nav-drawer__panel"
+                className="nav-drawer__panel disinab-nav-drawer"
                 role="dialog"
                 aria-modal="true"
                 aria-label="منوی صفحه"
                 tabIndex={-1}
               >
-                <div className="nav-drawer__bar">
-                  <p>منو</p>
-                  <button type="button" className="nav-drawer__close" onClick={close}>
-                    بستن
-                  </button>
-                </div>
-                <div className="nav-drawer__body">
-                  {GROUPS.map((group) => (
-                    <section key={group.label} className="mobile-nav__group">
-                      <p className="mobile-nav__label">{group.label}</p>
-                      <ul>
-                        {group.links.map((link) => (
-                          <li key={link.href}>
-                            <Link
-                              href={link.href}
-                              aria-current={
-                                pathname === link.href ||
-                                pathname.startsWith(`${link.href}/`)
-                                  ? "page"
-                                  : undefined
-                              }
-                            >
-                              {link.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </section>
-                  ))}
-                  <section className="mobile-nav__group">
-                    <p className="mobile-nav__label">حساب</p>
-                    <ul>
+                <div className="disinab-nav-drawer__aura" aria-hidden="true" />
+                <div className="disinab-nav-drawer__inner">
+                  <header className="disinab-nav-drawer__head">
+                    <div className="disinab-nav-drawer__title">
+                      <p className="disinab__brand">{brandName}</p>
+                      <h2>{menuTitle}</h2>
+                      <p className="disinab__line">{menuLine}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="disinab-nav-drawer__close"
+                      aria-label="بستن"
+                      onClick={close}
+                    >
+                      <svg
+                        className="disinab-nav-drawer__close-icon"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        aria-hidden="true"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      >
+                        <path d="M6 6l12 12M18 6L6 18" />
+                      </svg>
+                    </button>
+                  </header>
+
+                  <div className="disinab-nav-drawer__body">
+                    <ul className="disinab-nav-drawer__list">
                       <li>
-                        <Link
-                          href="/cart"
-                          aria-current={pathname === "/cart" ? "page" : undefined}
+                        <DrawerLink
+                          href={accountHref}
+                          current={accountCurrent}
+                          className={
+                            "disinab-nav-drawer__link" +
+                            (accountCurrent ? " is-current" : "")
+                          }
+                          onNavigate={navigate}
                         >
-                          سبد خرید
-                        </Link>
+                          <span>{accountLabel}</span>
+                          {accountCurrent ? (
+                            <span
+                              className="disinab-nav-drawer__dot"
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                        </DrawerLink>
                       </li>
+                      {groups.flatMap((group) =>
+                        group.links.map((link) => {
+                          const current = isCurrent(pathname, link.href);
+                          return (
+                            <li key={`${link.href}-${link.label}`}>
+                              <DrawerLink
+                                href={link.href}
+                                current={current}
+                                className={
+                                  "disinab-nav-drawer__link" +
+                                  (current ? " is-current" : "")
+                                }
+                                onNavigate={navigate}
+                              >
+                                <span>{link.label}</span>
+                                {current ? (
+                                  <span
+                                    className="disinab-nav-drawer__dot"
+                                    aria-hidden="true"
+                                  />
+                                ) : null}
+                              </DrawerLink>
+                            </li>
+                          );
+                        }),
+                      )}
                       <li>
-                        <Link href={authed ? "/dashboard" : "/login"}>
-                          {authed ? "حساب من" : "ورود"}
-                        </Link>
+                        <DrawerLink
+                          href="/cart"
+                          current={pathname === "/cart"}
+                          className={
+                            "disinab-nav-drawer__link" +
+                            (pathname === "/cart" ? " is-current" : "")
+                          }
+                          onNavigate={navigate}
+                        >
+                          <span>سبد خرید</span>
+                          {pathname === "/cart" ? (
+                            <span
+                              className="disinab-nav-drawer__dot"
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                        </DrawerLink>
                       </li>
                     </ul>
-                    <ThemeToggle />
-                  </section>
+                  </div>
+
+                  <footer className="disinab-nav-drawer__foot">
+                    <DisinabStatus host="zharfa.ir" live />
+                    {showThemeToggle ? <ThemeToggle /> : null}
+                  </footer>
                 </div>
               </nav>
             </>,

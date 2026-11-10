@@ -109,10 +109,7 @@ export class CommerceController {
     query: Record<string, string>,
     res: Response,
   ) {
-    const web =
-      query.web ||
-      process.env.WEB_ORIGIN?.split(",")[0]?.trim() ||
-      "http://localhost:3000";
+    const web = this.resolveWebOrigin(query.web);
 
     try {
       const result = await this.commerce.handleCallback(provider, query);
@@ -134,5 +131,29 @@ export class CommerceController {
     } catch {
       return res.redirect(302, `${web}/payments/failure`);
     }
+  }
+
+  /** Only configured WEB_ORIGIN / SITE_URL — blocks open redirects via ?web=. */
+  private resolveWebOrigin(raw: string | undefined): string {
+    const allow = [
+      process.env.WEB_ORIGIN ?? "",
+      process.env.NEXT_PUBLIC_SITE_URL ?? "",
+    ]
+      .flatMap((s) => s.split(","))
+      .map((s) => s.trim().replace(/\/$/, ""))
+      .filter(Boolean);
+    if (process.env.NODE_ENV !== "production") {
+      allow.push("http://localhost:3000", "http://127.0.0.1:3000");
+    }
+    const unique = Array.from(new Set(allow));
+    const fallback = unique[0] ?? "http://localhost:3000";
+    if (!raw?.trim()) return fallback;
+    try {
+      const origin = new URL(raw.trim()).origin;
+      if (unique.includes(origin)) return origin;
+    } catch {
+      /* ignore */
+    }
+    return fallback;
   }
 }

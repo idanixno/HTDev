@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import {
+  OWNER_MARKER_COOKIE,
+  createOwnerMarker,
+  verifyOwnerMarker,
+} from "./lib/owner-marker";
 import { applySecurityHeaders } from "./lib/security-headers";
 
 const SESSION_COOKIE_NAME = "zharfa_session";
@@ -43,9 +48,7 @@ function reportSuspiciousProbe(request: NextRequest, pathname: string) {
     process.env.API_INTERNAL_URL ??
     process.env.NEXT_PUBLIC_API_URL ??
     "http://127.0.0.1:4000";
-  const hook =
-    process.env.INTERNAL_SECURITY_TOKEN?.trim() ||
-    process.env.SESSION_SECRET?.trim();
+  const hook = process.env.INTERNAL_SECURITY_TOKEN?.trim();
   if (!hook) return;
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -66,6 +69,16 @@ function reportSuspiciousProbe(request: NextRequest, pathname: string) {
   }).catch(() => undefined);
 }
 
+function clearOwnerMarker(res: NextResponse) {
+  res.cookies.set(OWNER_MARKER_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+}
+
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const { pathname } = request.nextUrl;
@@ -73,16 +86,31 @@ export async function middleware(request: NextRequest) {
   const enableHsts = process.env.ENABLE_HSTS === "true";
   const hiddenAdmin = isHiddenAdmin(pathname);
   reportSuspiciousProbe(request, pathname);
-  const owner = hiddenAdmin && token ? await isOwner(token) : false;
+
+  let owner = false;
+  let mintOwnerMarker: string | null = null;
+  if (hiddenAdmin && token) {
+    const existing = request.cookies.get(OWNER_MARKER_COOKIE)?.value;
+    if (await verifyOwnerMarker(token, existing)) {
+      owner = true;
+    } else {
+      owner = await isOwner(token);
+      if (owner) {
+        mintOwnerMarker = await createOwnerMarker(token);
+      }
+    }
+  }
 
   if (hiddenAdmin && !owner) {
     if (process.env.MAINTENANCE_MODE === "true") {
       const redirect = NextResponse.redirect(new URL("/maintenance", request.url));
       applySecurityHeaders(redirect.headers, { pathname, isDev, enableHsts });
+      clearOwnerMarker(redirect);
       return redirect;
     }
     const rewrite = NextResponse.rewrite(new URL("/internal-missing", request.url));
     applySecurityHeaders(rewrite.headers, { pathname, isDev, enableHsts });
+    clearOwnerMarker(rewrite);
     return rewrite;
   }
 
@@ -131,15 +159,27 @@ export async function middleware(request: NextRequest) {
     request: { headers: requestHeaders },
   });
   applySecurityHeaders(response.headers, { pathname, isDev, enableHsts });
+
+  if (mintOwnerMarker) {
+    response.cookies.set(OWNER_MARKER_COOKIE, mintOwnerMarker, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 12,
+    });
+  } else if (!token) {
+    clearOwnerMarker(response);
+  }
+
   return response;
 }
 
 export const config = {
   matcher: [
     /*
-     * Apply auth gates + security headers to app routes.
-     * Exclude Next internals and static assets (robots/sitemap are included).
+     * Auth gates + security headers. Skip Next internals and static assets.
      */
-    "/((?!_next/static|_next/image|favicon.ico|artwork/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|artwork/|media/|previews/).*)",
   ],
 };

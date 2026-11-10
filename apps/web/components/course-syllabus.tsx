@@ -2,16 +2,20 @@
 
 import { useState, type CSSProperties } from "react";
 import type { PublicCourseModule } from "../lib/catalog";
+import { DisinabPlate } from "./disinab";
 import { LessonWatch } from "./lesson-preview-player";
 
 export function CourseSyllabus({
   modules,
   isFree,
   spotPlayerProtected,
+  authed = false,
 }: {
   modules: PublicCourseModule[];
   isFree: boolean;
   spotPlayerProtected: boolean;
+  /** Watch button only for signed-in visitors. */
+  authed?: boolean;
 }) {
   const [openIds, setOpenIds] = useState<Set<string>>(
     () => new Set(modules[0] ? [modules[0].id] : []),
@@ -31,11 +35,14 @@ export function CourseSyllabus({
     : "هر جلسه ویدیو دارد. با مشاهده همین‌جا پخش می‌شود.";
 
   return (
-    <section className="syllabus" aria-labelledby="curriculum">
+    <DisinabPlate
+      className="syllabus disinab-course-syllabus"
+      aria-labelledby="curriculum"
+    >
       <header className="syllabus__head">
-        <p className="course-section__eyebrow">برنامه</p>
+        <p className="disinab__brand">برنامه</p>
         <h2 id="curriculum">سرفصل</h2>
-        <p>{blurb}</p>
+        <p className="disinab__line">{blurb}</p>
       </header>
       {modules.length === 0 ? (
         <p className="syllabus__empty">سرفصل هنوز منتشر نشده است.</p>
@@ -65,15 +72,12 @@ export function CourseSyllabus({
                     </span>
                     <span className="syllabus__toggle-copy">
                       <span className="syllabus__toggle-name">{mod.title}</span>
-                      {mod.summary ? (
-                        <span className="syllabus__toggle-summary">
-                          {mod.summary}
-                        </span>
-                      ) : null}
+                      <span className="syllabus__toggle-summary">
+                        {mod.summary
+                          ? mod.summary
+                          : `${mod.lessons.length.toLocaleString("fa-IR")} درس`}
+                      </span>
                     </span>
-                    <em className="syllabus__toggle-count">
-                      {mod.lessons.length.toLocaleString("fa-IR")} درس
-                    </em>
                     <span className="syllabus__chevron" aria-hidden="true" />
                   </button>
                 </h3>
@@ -103,7 +107,7 @@ export function CourseSyllabus({
                                 دقیقه
                               </time>
                             ) : null}
-                            {lesson.videoAsset ? (
+                            {authed && lesson.videoAsset ? (
                               <LessonWatch
                                 src={lesson.videoAsset}
                                 title={lesson.title}
@@ -122,6 +126,6 @@ export function CourseSyllabus({
           })}
         </ol>
       )}
-    </section>
+    </DisinabPlate>
   );
 }

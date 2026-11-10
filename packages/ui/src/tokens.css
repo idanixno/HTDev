@@ -41,6 +41,8 @@
   --zharfa-tone-warning: #e39a62;
   --zharfa-tone-success: var(--zharfa-status-success);
   --zharfa-tone-danger: var(--zharfa-status-error);
+  /* Urgency / savings — coral, readable on navy plates */
+  --zharfa-tone-discount: #ff9b8a;
 
   /* Chart series — derived from role colors (admin analytics). */
   --zharfa-chart-1: var(--zharfa-action-primary);
@@ -142,6 +144,8 @@
   --zharfa-tone-warning: #b45309;
   --zharfa-tone-success: var(--zharfa-status-success);
   --zharfa-tone-danger: var(--zharfa-status-error);
+  /* Urgency / savings — warm red on light surfaces */
+  --zharfa-tone-discount: #c2410c;
 
   --zharfa-chart-1: var(--zharfa-action-primary);
   --zharfa-chart-2: var(--zharfa-accent-concept);

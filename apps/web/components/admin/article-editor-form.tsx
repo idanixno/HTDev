@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { Button, Field, Notice } from "@zharfa/ui";
 import { authFetch } from "../../lib/api-client";
+import { AssetImageField } from "./asset-image-field";
 import { MarkdownEditor } from "./markdown-editor";
 import { SeoAssistantPanel } from "./seo-assistant-panel";
 
@@ -226,14 +227,15 @@ export function ArticleEditorForm({
             }}
           />
         </div>
-        <Field
+        <AssetImageField
           id="article-cover"
           name="coverAsset"
-          label="تصویر"
-          mono
-          dir="ltr"
+          label="تصویر کاور"
+          className="editor-form__wide"
           value={values.coverAsset}
-          onChange={(e) => patch({ coverAsset: e.target.value })}
+          placeholder="/artwork/… یا آپلود"
+          disabled={loading}
+          onChange={(coverAsset) => patch({ coverAsset })}
         />
         <Field
           id="article-minutes"

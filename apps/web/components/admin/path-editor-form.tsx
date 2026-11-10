@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Button, Field, Notice } from "@zharfa/ui";
 import { authFetch } from "../../lib/api-client";
+import { AssetImageField } from "./asset-image-field";
 import { MarkdownEditor } from "./markdown-editor";
 
 export type PathEditorInitial = {
@@ -135,13 +136,14 @@ export function PathEditorForm({
           value={values.description}
           onChange={(description) => patch({ description })}
         />
-        <Field
+        <AssetImageField
           id="path-cover"
           label="تصویر کاور"
-          mono
-          dir="ltr"
+          className="editor-form__wide"
           value={values.coverAsset}
-          onChange={(e) => patch({ coverAsset: e.target.value })}
+          placeholder="/artwork/paths/… یا آپلود"
+          disabled={loading}
+          onChange={(coverAsset) => patch({ coverAsset })}
         />
         <Field
           id="path-sort"

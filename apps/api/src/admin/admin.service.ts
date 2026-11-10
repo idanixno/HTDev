@@ -16,10 +16,15 @@ import {
 } from "@zharfa/database";
 import { decimalToNumber, formatTomanLabel } from "../catalog/pricing";
 import {
+  canTransitionOrder,
+} from "../commerce/order-status";
+import {
   MESSAGING_PROVIDER,
   type MessagingProvider,
 } from "../identity/messaging/messaging.types";
+import { mergeSiteChrome } from "../cms/site-chrome";
 import { PrismaService } from "../prisma/prisma.service";
+import { SpotPlayerService } from "../spotplayer/spotplayer.service";
 import { AuditService } from "./audit.service";
 import type {
   CreatePathStepDto,
@@ -33,8 +38,21 @@ import type {
   UpsertModuleDto,
   UpdateFooterCmsDto,
   UpdateHomeCmsDto,
+  UpdatePathsCmsDto,
   UpdatePathStepDto,
 } from "./dto/admin.dto";
+
+/** Admin may also force-confirm offline payment → PAID. */
+function canAdminTransitionOrder(from: OrderStatus, to: OrderStatus): boolean {
+  if (canTransitionOrder(from, to)) return true;
+  if (
+    to === OrderStatus.PAID &&
+    (from === OrderStatus.PENDING || from === OrderStatus.FAILED)
+  ) {
+    return true;
+  }
+  return false;
+}
 
 @Injectable()
 export class AdminService {
@@ -43,6 +61,7 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly spotplayer: SpotPlayerService,
     @Inject(MESSAGING_PROVIDER)
     private readonly messaging: MessagingProvider,
   ) {}
@@ -759,6 +778,7 @@ export class AdminService {
   async listOrders(query: {
     q?: string;
     status?: string;
+    licenseStatus?: string;
     page?: number;
     pageSize?: number;
   }) {
@@ -767,6 +787,25 @@ export class AdminService {
     const where: Prisma.OrderWhereInput = {};
     if (query.status && Object.values(OrderStatus).includes(query.status as OrderStatus)) {
       where.status = query.status as OrderStatus;
+    }
+    const licenseStatuses = [
+      "PENDING",
+      "QUEUED",
+      "IN_PROGRESS",
+      "SUCCEEDED",
+      "FAILED",
+    ] as const;
+    if (
+      query.licenseStatus &&
+      licenseStatuses.includes(
+        query.licenseStatus as (typeof licenseStatuses)[number],
+      )
+    ) {
+      where.spotPlayerLicenses = {
+        some: {
+          status: query.licenseStatus as (typeof licenseStatuses)[number],
+        },
+      };
     }
     if (query.q) {
       where.OR = [
@@ -794,6 +833,16 @@ export class AdminService {
           course: {
             select: { id: true, slug: true, title: true },
           },
+          spotPlayerLicenses: {
+            select: {
+              id: true,
+              status: true,
+              lastError: true,
+              updatedAt: true,
+            },
+            orderBy: { updatedAt: "desc" },
+            take: 1,
+          },
         },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
@@ -802,22 +851,246 @@ export class AdminService {
     ]);
 
     return {
-      items: rows.map((o) => ({
-        id: o.id,
-        status: o.status,
-        paymentProvider: o.paymentProvider,
-        amountToman: decimalToNumber(o.amountToman),
-        amountLabel: formatTomanLabel(o.amountToman),
-        couponCode: o.couponCode,
-        paidAt: o.paidAt?.toISOString() ?? null,
-        createdAt: o.createdAt.toISOString(),
-        user: o.user,
-        course: o.course,
-      })),
+      items: rows.map((o) => {
+        const license = o.spotPlayerLicenses[0] ?? null;
+        return {
+          id: o.id,
+          status: o.status,
+          paymentProvider: o.paymentProvider,
+          amountToman: decimalToNumber(o.amountToman),
+          amountLabel: formatTomanLabel(o.amountToman),
+          couponCode: o.couponCode,
+          paidAt: o.paidAt?.toISOString() ?? null,
+          createdAt: o.createdAt.toISOString(),
+          user: o.user,
+          course: o.course,
+          license: license
+            ? {
+                id: license.id,
+                status: license.status,
+                lastError: license.lastError,
+              }
+            : null,
+        };
+      }),
       page,
       pageSize,
       total,
       totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    };
+  }
+
+  async getOrder(id: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        course: {
+          select: { id: true, slug: true, title: true, offerKind: true },
+        },
+        spotPlayerLicenses: {
+          orderBy: { updatedAt: "desc" },
+          select: {
+            id: true,
+            status: true,
+            lastError: true,
+            attemptCount: true,
+            lastAttemptAt: true,
+            provisionedAt: true,
+            licenseKey: true,
+            licenseUrl: true,
+            spotPlayerLicenseId: true,
+            accessSource: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        transactions: {
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: {
+            id: true,
+            provider: true,
+            status: true,
+            amountToman: true,
+            gatewayRefId: true,
+            failureReason: true,
+            createdAt: true,
+            verifiedAt: true,
+          },
+        },
+      },
+    });
+    if (!order) throw new NotFoundException("سفارش یافت نشد.");
+
+    const allowedNext = Object.values(OrderStatus).filter(
+      (to) => to !== order.status && canAdminTransitionOrder(order.status, to),
+    );
+
+    return {
+      id: order.id,
+      status: order.status,
+      paymentProvider: order.paymentProvider,
+      amountToman: decimalToNumber(order.amountToman),
+      amountLabel: formatTomanLabel(order.amountToman),
+      couponCode: order.couponCode,
+      paidAt: order.paidAt?.toISOString() ?? null,
+      createdAt: order.createdAt.toISOString(),
+      updatedAt: order.updatedAt.toISOString(),
+      user: order.user,
+      course: order.course,
+      allowedNextStatuses: allowedNext,
+      licenses: order.spotPlayerLicenses.map((lic) => ({
+        id: lic.id,
+        status: lic.status,
+        lastError: lic.lastError,
+        attemptCount: lic.attemptCount,
+        lastAttemptAt: lic.lastAttemptAt?.toISOString() ?? null,
+        provisionedAt: lic.provisionedAt?.toISOString() ?? null,
+        /** Full key only when SUCCEEDED — never invent. */
+        licenseKey:
+          lic.status === "SUCCEEDED" && lic.licenseKey ? lic.licenseKey : null,
+        licenseUrl:
+          lic.status === "SUCCEEDED" && lic.licenseUrl ? lic.licenseUrl : null,
+        spotPlayerLicenseId:
+          lic.status === "SUCCEEDED" ? lic.spotPlayerLicenseId : null,
+        accessSource: lic.accessSource,
+        createdAt: lic.createdAt.toISOString(),
+        updatedAt: lic.updatedAt.toISOString(),
+      })),
+      payments: order.transactions.map((tx) => ({
+        id: tx.id,
+        provider: tx.provider,
+        status: tx.status,
+        amountLabel: formatTomanLabel(tx.amountToman),
+        gatewayRefId: tx.gatewayRefId,
+        failureReason: tx.failureReason,
+        createdAt: tx.createdAt.toISOString(),
+        verifiedAt: tx.verifiedAt?.toISOString() ?? null,
+      })),
+    };
+  }
+
+  async updateOrderStatus(actorId: string, id: string, nextStatusRaw: string) {
+    if (!Object.values(OrderStatus).includes(nextStatusRaw as OrderStatus)) {
+      throw new BadRequestException("وضعیت سفارش نامعتبر است.");
+    }
+    const nextStatus = nextStatusRaw as OrderStatus;
+
+    const order = await this.prisma.order.findUnique({ where: { id } });
+    if (!order) throw new NotFoundException("سفارش یافت نشد.");
+
+    if (order.status === nextStatus) {
+      return this.getOrder(id);
+    }
+    if (!canAdminTransitionOrder(order.status, nextStatus)) {
+      throw new ConflictException(
+        `انتقال وضعیت از ${order.status} به ${nextStatus} مجاز نیست.`,
+      );
+    }
+
+    const becomingPaid =
+      nextStatus === OrderStatus.PAID && order.status !== OrderStatus.PAID;
+
+    await this.prisma.$transaction(async (db) => {
+      await db.order.update({
+        where: { id },
+        data: {
+          status: nextStatus,
+          paidAt: becomingPaid ? new Date() : order.paidAt,
+        },
+      });
+
+      if (becomingPaid) {
+        await db.enrollment.upsert({
+          where: {
+            userId_courseId: {
+              userId: order.userId,
+              courseId: order.courseId,
+            },
+          },
+          create: {
+            userId: order.userId,
+            courseId: order.courseId,
+          },
+          update: {},
+        });
+      }
+    });
+
+    if (becomingPaid) {
+      try {
+        await this.spotplayer.queueAfterPaidOrder(id);
+      } catch (err) {
+        this.logger.warn(
+          `queueAfterPaidOrder after admin confirm failed (${id}): ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        );
+      }
+    }
+
+    await this.audit.record({
+      actorId,
+      action: "order.status_update",
+      entityType: "Order",
+      entityId: id,
+      summary: `تغییر وضعیت سفارش به ${nextStatus}`,
+      metadata: { from: order.status, to: nextStatus },
+    });
+
+    return this.getOrder(id);
+  }
+
+  async retryOrderLicense(actorId: string, id: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        spotPlayerLicenses: {
+          orderBy: { updatedAt: "desc" },
+          take: 1,
+        },
+      },
+    });
+    if (!order) throw new NotFoundException("سفارش یافت نشد.");
+
+    if (order.status !== OrderStatus.PAID) {
+      throw new ConflictException(
+        "صدور لایسنس فقط برای سفارش پرداخت‌شده ممکن است. ابتدا وضعیت را تأیید کنید.",
+      );
+    }
+
+    const existing = order.spotPlayerLicenses[0] ?? null;
+    let note: string;
+
+    if (!existing) {
+      await this.spotplayer.queueAfterPaidOrder(id);
+      note = "درخواست صدور لایسنس در صف قرار گرفت.";
+    } else {
+      const result = await this.spotplayer.retryLicense(existing.id);
+      note = result.note;
+    }
+
+    await this.audit.record({
+      actorId,
+      action: "order.license_retry",
+      entityType: "Order",
+      entityId: id,
+      summary: note,
+      metadata: { licenseId: existing?.id ?? null },
+    });
+
+    return {
+      note,
+      order: await this.getOrder(id),
     };
   }
 
@@ -1056,14 +1329,73 @@ export class AdminService {
     }));
   }
 
+  async getPathsCms() {
+    const row = await this.prisma.cmsPathsContent.findUnique({
+      where: { id: "paths" },
+    });
+    if (!row) {
+      return {
+        id: "paths",
+        title: "نقشهٔ راه یادگیری",
+        lead:
+          "مسیرهای پیشنهادی برای یادگیری عمیق. دوره‌ها را به ترتیب ببینید.",
+        seoTitle: "نقشهٔ راه",
+        seoDescription:
+          "ترتیب پیشنهادی دوره‌های ژرفا — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
+        updatedAt: null,
+      };
+    }
+    return {
+      id: row.id,
+      title: row.title,
+      lead: row.lead,
+      seoTitle: row.seoTitle,
+      seoDescription: row.seoDescription,
+      updatedAt: row.updatedAt.toISOString(),
+    };
+  }
+
+  async updatePathsCms(actorId: string, dto: UpdatePathsCmsDto) {
+    const row = await this.prisma.cmsPathsContent.upsert({
+      where: { id: "paths" },
+      create: {
+        id: "paths",
+        title: dto.title,
+        lead: dto.lead ?? null,
+        seoTitle: dto.seoTitle ?? null,
+        seoDescription: dto.seoDescription ?? null,
+      },
+      update: {
+        title: dto.title,
+        lead: dto.lead ?? null,
+        seoTitle: dto.seoTitle ?? null,
+        seoDescription: dto.seoDescription ?? null,
+      },
+    });
+
+    await this.audit.record({
+      actorId,
+      action: "cms.paths.update",
+      entityType: "CmsPathsContent",
+      entityId: "paths",
+      summary: "به‌روزرسانی محتوای صفحهٔ نقشهٔ راه",
+    });
+
+    return this.getPathsCms().then(() => ({
+      id: row.id,
+      title: row.title,
+      updatedAt: row.updatedAt.toISOString(),
+    }));
+  }
+
   async getFooterCms() {
     const row = await this.prisma.cmsFooterContent.findUnique({
       where: { id: "footer" },
     });
+    const chrome = mergeSiteChrome(row);
     return {
       id: "footer",
-      enamadHtml: row?.enamadHtml ?? null,
-      paymentGatewayHtml: row?.paymentGatewayHtml ?? null,
+      ...chrome,
       updatedAt: row?.updatedAt.toISOString() ?? null,
     };
   }
@@ -1071,16 +1403,69 @@ export class AdminService {
   async updateFooterCms(actorId: string, dto: UpdateFooterCmsDto) {
     const enamadHtml = normalizeEmbedHtml(dto.enamadHtml);
     const paymentGatewayHtml = normalizeEmbedHtml(dto.paymentGatewayHtml);
+    const draft = mergeSiteChrome({
+      brandName: dto.brandName,
+      brandTagline: dto.brandTagline,
+      brandKicker: dto.brandKicker,
+      footerBlurb: dto.footerBlurb,
+      headerLinks: dto.headerLinks,
+      footerGroups: dto.footerGroups,
+      mobileGroups: dto.mobileGroups,
+      guestCtaLabel: dto.guestCtaLabel,
+      guestCtaHref: dto.guestCtaHref,
+      authedCtaLabel: dto.authedCtaLabel,
+      authedCtaHref: dto.authedCtaHref,
+      showCart: dto.showCart,
+      showThemeToggle: dto.showThemeToggle,
+      trustsLabel: dto.trustsLabel,
+      mobileMenuTitle: dto.mobileMenuTitle,
+      mobileMenuLine: dto.mobileMenuLine,
+      enamadHtml,
+      paymentGatewayHtml,
+    });
+
     const row = await this.prisma.cmsFooterContent.upsert({
       where: { id: "footer" },
       create: {
         id: "footer",
-        enamadHtml,
-        paymentGatewayHtml,
+        brandName: draft.brandName,
+        brandTagline: draft.brandTagline,
+        brandKicker: draft.brandKicker,
+        footerBlurb: draft.footerBlurb,
+        headerLinks: draft.headerLinks,
+        footerGroups: draft.footerGroups,
+        mobileGroups: draft.mobileGroups,
+        guestCtaLabel: draft.guestCtaLabel,
+        guestCtaHref: draft.guestCtaHref,
+        authedCtaLabel: draft.authedCtaLabel,
+        authedCtaHref: draft.authedCtaHref,
+        showCart: draft.showCart,
+        showThemeToggle: draft.showThemeToggle,
+        trustsLabel: draft.trustsLabel,
+        mobileMenuTitle: draft.mobileMenuTitle,
+        mobileMenuLine: draft.mobileMenuLine,
+        enamadHtml: draft.enamadHtml,
+        paymentGatewayHtml: draft.paymentGatewayHtml,
       },
       update: {
-        enamadHtml,
-        paymentGatewayHtml,
+        brandName: draft.brandName,
+        brandTagline: draft.brandTagline,
+        brandKicker: draft.brandKicker,
+        footerBlurb: draft.footerBlurb,
+        headerLinks: draft.headerLinks,
+        footerGroups: draft.footerGroups,
+        mobileGroups: draft.mobileGroups,
+        guestCtaLabel: draft.guestCtaLabel,
+        guestCtaHref: draft.guestCtaHref,
+        authedCtaLabel: draft.authedCtaLabel,
+        authedCtaHref: draft.authedCtaHref,
+        showCart: draft.showCart,
+        showThemeToggle: draft.showThemeToggle,
+        trustsLabel: draft.trustsLabel,
+        mobileMenuTitle: draft.mobileMenuTitle,
+        mobileMenuLine: draft.mobileMenuLine,
+        enamadHtml: draft.enamadHtml,
+        paymentGatewayHtml: draft.paymentGatewayHtml,
       },
     });
 
@@ -1089,13 +1474,12 @@ export class AdminService {
       action: "cms.footer.update",
       entityType: "CmsFooterContent",
       entityId: "footer",
-      summary: "به‌روزرسانی نشان‌های اعتماد فوتر",
+      summary: "به‌روزرسانی هدر، فوتر و نشان‌های اعتماد",
     });
 
     return {
       id: row.id,
-      enamadHtml: row.enamadHtml,
-      paymentGatewayHtml: row.paymentGatewayHtml,
+      ...mergeSiteChrome(row),
       updatedAt: row.updatedAt.toISOString(),
     };
   }
@@ -1147,6 +1531,120 @@ export class AdminService {
       entityType: "CmsFaqItem",
       entityId: id,
       summary: "حذف FAQ",
+    });
+    return { ok: true };
+  }
+
+  async listCoursePurchaseNotes(opts: {
+    scope?: "global" | "course";
+    courseId?: string;
+    includeUnpublished?: boolean;
+  }) {
+    const includeUnpublished = opts.includeUnpublished !== false;
+    const where =
+      opts.scope === "global" || (!opts.scope && !opts.courseId)
+        ? {
+            courseId: null as string | null,
+            ...(includeUnpublished ? {} : { published: true }),
+          }
+        : opts.courseId
+          ? {
+              courseId: opts.courseId,
+              ...(includeUnpublished ? {} : { published: true }),
+            }
+          : includeUnpublished
+            ? {}
+            : { published: true };
+
+    const rows = await this.prisma.coursePurchaseNote.findMany({
+      where,
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      include: {
+        course: { select: { id: true, slug: true, title: true } },
+      },
+    });
+
+    return rows.map((n) => ({
+      id: n.id,
+      body: n.body,
+      courseId: n.courseId,
+      sortOrder: n.sortOrder,
+      published: n.published,
+      updatedAt: n.updatedAt.toISOString(),
+      course: n.course,
+      scope: n.courseId ? ("course" as const) : ("global" as const),
+    }));
+  }
+
+  async upsertCoursePurchaseNote(
+    actorId: string,
+    dto: {
+      body: string;
+      courseId?: string | null;
+      sortOrder?: number;
+      published?: boolean;
+    },
+    id?: string,
+  ) {
+    const courseId =
+      dto.courseId === undefined || dto.courseId === null || dto.courseId === ""
+        ? null
+        : dto.courseId;
+
+    if (courseId) {
+      await this.requireCourse(courseId);
+    }
+
+    const data = {
+      body: dto.body.trim(),
+      courseId,
+      sortOrder: dto.sortOrder ?? 0,
+      published: dto.published ?? true,
+    };
+
+    const note = id
+      ? await this.prisma.coursePurchaseNote.update({ where: { id }, data })
+      : await this.prisma.coursePurchaseNote.create({ data });
+
+    await this.audit.record({
+      actorId,
+      action: id
+        ? "cms.course_purchase_note.update"
+        : "cms.course_purchase_note.create",
+      entityType: "CoursePurchaseNote",
+      entityId: note.id,
+      summary: courseId
+        ? id
+          ? "به‌روزرسانی نکتهٔ اختصاصی دوره"
+          : "ایجاد نکتهٔ اختصاصی دوره"
+        : id
+          ? "به‌روزرسانی نکتهٔ عمومی خرید"
+          : "ایجاد نکتهٔ عمومی خرید",
+    });
+
+    return {
+      id: note.id,
+      body: note.body,
+      courseId: note.courseId,
+      sortOrder: note.sortOrder,
+      published: note.published,
+      updatedAt: note.updatedAt.toISOString(),
+      scope: note.courseId ? ("course" as const) : ("global" as const),
+    };
+  }
+
+  async deleteCoursePurchaseNote(actorId: string, id: string) {
+    const existing = await this.prisma.coursePurchaseNote.findUnique({
+      where: { id },
+    });
+    if (!existing) throw new NotFoundException("نکته یافت نشد.");
+    await this.prisma.coursePurchaseNote.delete({ where: { id } });
+    await this.audit.record({
+      actorId,
+      action: "cms.course_purchase_note.delete",
+      entityType: "CoursePurchaseNote",
+      entityId: id,
+      summary: "حذف نکتهٔ قبل از خرید",
     });
     return { ok: true };
   }
@@ -1246,14 +1744,17 @@ export class AdminService {
   }
 }
 
-/** Keep owner-provided badge embeds, strip scripts, collapse empty to null. */
+/** Keep owner-provided badge embeds, strip scripts/frames, collapse empty to null. */
 function normalizeEmbedHtml(raw: string | null | undefined): string | null {
   if (raw == null) return null;
   const trimmed = raw.trim();
   if (!trimmed) return null;
-  const withoutScripts = trimmed
+  const cleaned = trimmed
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<(iframe|object|embed|link|meta|base|form)\b[^>]*>[\s\S]*?<\/\1>/gi, "")
+    .replace(/<(iframe|object|embed|link|meta|base|form)\b[^>]*\/?>/gi, "")
     .replace(/on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/\s(href|src|action)\s*=\s*(['"]?)\s*javascript:[^'"\s>]*/gi, "")
     .trim();
-  return withoutScripts ? withoutScripts.slice(0, 12000) : null;
+  return cleaned ? cleaned.slice(0, 12000) : null;
 }

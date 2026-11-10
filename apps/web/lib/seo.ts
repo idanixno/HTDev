@@ -17,6 +17,9 @@ export function buildPageMetadata(input: {
   noIndex?: boolean;
   imagePath?: string | null;
   kind?: "website" | "article";
+  publishedTime?: string | null;
+  modifiedTime?: string | null;
+  authors?: string[];
 }): Metadata {
   const url = absoluteUrl(input.path);
   const image = input.imagePath
@@ -26,6 +29,7 @@ export function buildPageMetadata(input: {
     : absoluteUrl("/artwork/courses/clean-architecture.svg");
   const description =
     input.description.trim() || siteMetadataBase.description;
+  const isArticle = input.kind === "article";
 
   return {
     title: input.title,
@@ -34,14 +38,25 @@ export function buildPageMetadata(input: {
     robots: input.noIndex
       ? { index: false, follow: false, nocache: true }
       : { index: true, follow: true },
+    authors: (input.authors ?? (isArticle ? ["آرمان راد"] : undefined))?.map(
+      (name) => ({ name }),
+    ),
     openGraph: {
-      type: input.kind === "article" ? "article" : "website",
+      type: isArticle ? "article" : "website",
       locale: "fa_IR",
       url,
       siteName: "ژرفا",
       title: input.title,
       description,
       images: [{ url: image, alt: input.title }],
+      ...(isArticle
+        ? {
+            publishedTime: input.publishedTime ?? undefined,
+            modifiedTime:
+              input.modifiedTime ?? input.publishedTime ?? undefined,
+            authors: input.authors ?? ["آرمان راد"],
+          }
+        : {}),
     },
     twitter: {
       card: "summary_large_image",

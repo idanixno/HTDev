@@ -1,75 +1,74 @@
 import Link from "next/link";
-import { fetchFooterTrusts } from "../lib/catalog";
-
-const LEARN = [
-  { href: "/courses", label: "دوره‌ها" },
-  { href: "/paths", label: "مسیرهای یادگیری" },
-  { href: "/journal", label: "مقالات" },
-] as const;
-
-const STUDIO = [
-  { href: "/faq", label: "پرسش‌های رایج" },
-  { href: "/terms", label: "شرایط استفاده" },
-] as const;
+import { fetchSiteChrome } from "../lib/catalog";
+import { ZharfaLogo } from "./zharfa-logo";
 
 export async function SiteFooter() {
-  const trusts = await fetchFooterTrusts();
-  const hasEnamad = Boolean(trusts.enamadHtml?.trim());
-  const hasGateway = Boolean(trusts.paymentGatewayHtml?.trim());
+  const chrome = await fetchSiteChrome();
+  const hasEnamad = Boolean(chrome.enamadHtml?.trim());
+  const hasGateway = Boolean(chrome.paymentGatewayHtml?.trim());
   const showTrusts = hasEnamad || hasGateway;
 
   return (
-    <footer className="site-footer">
+    <footer className="site-footer disinab-footer">
       <div
         className={
-          "site-footer__inner" +
+          "site-footer__inner disinab-footer__plate" +
           (showTrusts ? " site-footer__inner--with-trusts" : "")
         }
       >
-        <div className="site-footer__brand">
-          <p className="site-footer__name">ژرفا</p>
-          <p>
-            آموزش فنی یک مدرس. هر دوره جدا فروخته می‌شود و ویدیوی محافظت‌شده در
-            اسپات‌پلیر پخش می‌شود.
-          </p>
+        <div className="site-footer__brand disinab-footer__brand">
+          <div className="disinab-footer__brand-row">
+            <span className="disinab-footer__mark" aria-hidden="true">
+              <ZharfaLogo className="disinab-footer__logo" decorative />
+            </span>
+            <div className="disinab-footer__brand-copy">
+              {chrome.brandKicker ? (
+                <p className="disinab__brand">{chrome.brandKicker}</p>
+              ) : null}
+              <p className="site-footer__name">{chrome.brandName}</p>
+            </div>
+          </div>
+          {chrome.footerBlurb ? (
+            <p className="disinab__line disinab-footer__line">
+              {chrome.footerBlurb}
+            </p>
+          ) : null}
         </div>
-        <div className="site-footer__menus">
-          <nav aria-label="یادگیری">
-            <p className="site-footer__label">یادگیری</p>
-            <ul>
-              {LEARN.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href}>{link.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <nav aria-label="ژرفا">
-            <p className="site-footer__label">ژرفا</p>
-            <ul>
-              {STUDIO.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href}>{link.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+        <div className="site-footer__menus disinab-footer__menus">
+          {chrome.footerGroups.map((group) => (
+            <nav
+              key={group.label}
+              aria-label={group.label}
+              className="disinab-footer__group"
+            >
+              <p className="disinab__brand site-footer__label">{group.label}</p>
+              <ul>
+                {group.links.map((link) => (
+                  <li key={`${group.label}-${link.href}-${link.label}`}>
+                    <Link href={link.href}>{link.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
         </div>
         {showTrusts ? (
-          <div className="site-footer__trusts">
-            <p className="site-footer__label">اعتماد و پرداخت</p>
+          <div className="site-footer__trusts disinab-footer__trusts">
+            <p className="disinab__brand site-footer__label">
+              {chrome.trustsLabel}
+            </p>
             <div className="site-footer__badges">
               {hasEnamad ? (
                 <div
                   className="site-footer__badge"
-                  dangerouslySetInnerHTML={{ __html: trusts.enamadHtml! }}
+                  dangerouslySetInnerHTML={{ __html: chrome.enamadHtml! }}
                 />
               ) : null}
               {hasGateway ? (
                 <div
                   className="site-footer__badge"
                   dangerouslySetInnerHTML={{
-                    __html: trusts.paymentGatewayHtml!,
+                    __html: chrome.paymentGatewayHtml!,
                   }}
                 />
               ) : null}

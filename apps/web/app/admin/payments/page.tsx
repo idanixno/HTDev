@@ -2,6 +2,7 @@ import { Badge, Notice } from "@zharfa/ui";
 import { PaymentGatewayAdminForm } from "../../../components/admin/payment-gateway-form";
 import { providerLabel } from "../../../lib/commerce-shared";
 import { fetchAdminGateways } from "../../../lib/admin";
+import { integrationStatusLabel } from "../../../lib/status-labels";
 
 export default async function AdminPaymentsPage() {
   const data = await fetchAdminGateways();
@@ -72,7 +73,9 @@ export default async function AdminPaymentsPage() {
                     <td>
                       {g.usableAtCheckout
                         ? "قابل خرید"
-                        : g.integrationStatus ?? "—"}
+                        : g.integrationStatus
+                          ? integrationStatusLabel(g.integrationStatus)
+                          : "—"}
                     </td>
                   </tr>
                 ))}

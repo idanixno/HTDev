@@ -4,7 +4,14 @@ import {
   fetchAdminLicenses,
   fetchSpotDiagnostics,
   fetchSpotMappings,
+  licenseStatusLabel,
+  type SpotPlayerLicenseStatus,
 } from "../../../lib/spotplayer";
+import {
+  configSourceLabel,
+  credentialsStatusLabel,
+  integrationStatusLabel,
+} from "../../../lib/status-labels";
 
 export default async function AdminSpotPlayerPage() {
   const [diagnostics, mappings, licenses] = await Promise.all([
@@ -48,12 +55,14 @@ export default async function AdminSpotPlayerPage() {
             {diagnostics.config.integrationStatus === "IMPLEMENTED"
               ? "کلید API تنظیم شده و صدور لایسنس می‌تواند انجام شود."
               : "اعتبارنامه اسپات‌پلیر تنظیم نشده است. تا تنظیم کلید API، صدور لایسنس ناموفق می‌ماند."}{" "}
-            وضعیت: {diagnostics.config.integrationStatus} · اعتبارنامه:{" "}
-            {diagnostics.config.credentialsStatus}
+            وضعیت:{" "}
+            {integrationStatusLabel(diagnostics.config.integrationStatus)} ·
+            اعتبارنامه:{" "}
+            {credentialsStatusLabel(diagnostics.config.credentialsStatus)}
             {diagnostics.config.apiKeyMasked
               ? ` · ${diagnostics.config.apiKeyMasked}`
               : " · بدون کلید"}{" "}
-            · منبع: {diagnostics.config.source}
+            · منبع: {configSourceLabel(diagnostics.config.source)}
           </Notice>
 
           <SpotPlayerAdminForm initial={diagnostics.config} />
@@ -110,7 +119,9 @@ export default async function AdminSpotPlayerPage() {
                     .map((lic) => (
                       <li key={lic.id}>
                         {lic.course?.title ?? lic.id} · {lic.user?.username} ·{" "}
-                        {lic.status}
+                        {licenseStatusLabel(
+                          lic.status as SpotPlayerLicenseStatus,
+                        )}
                         {lic.lastError ? ` — ${lic.lastError}` : ""}
                       </li>
                     ))}

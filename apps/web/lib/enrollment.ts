@@ -1,23 +1,25 @@
 import { fetchMyOrders } from "./commerce";
-import { SAMPLE_LICENSES } from "./sample-licenses";
 import { fetchMySpotAccess } from "./spotplayer";
 
-export async function userOwnsCourse(slug: string): Promise<boolean> {
+/** Courses the signed-in user actually owns (paid or free access) — never demo seeds. */
+export async function ownedCourseSlugs(): Promise<Set<string>> {
   const [orders, access] = await Promise.all([
     fetchMyOrders(),
     fetchMySpotAccess(),
   ]);
-
-  if (orders.some((order) => order.status === "PAID" && order.course.slug === slug)) {
-    return true;
+  const slugs = new Set<string>();
+  for (const order of orders) {
+    if (order.status === "PAID" && order.course?.slug) {
+      slugs.add(order.course.slug);
+    }
   }
-
-  if (access?.items.some((item) => item.course?.slug === slug)) {
-    return true;
+  for (const item of access?.items ?? []) {
+    if (item.course?.slug) slugs.add(item.course.slug);
   }
+  return slugs;
+}
 
-  return (
-    process.env.NODE_ENV === "development" &&
-    SAMPLE_LICENSES.some((item) => item.course.slug === slug)
-  );
+export async function userOwnsCourse(slug: string): Promise<boolean> {
+  const owned = await ownedCourseSlugs();
+  return owned.has(slug);
 }

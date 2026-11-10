@@ -985,7 +985,39 @@ async function seedCms(admin: { id: string }) {
     update: { summary: "ایجاد FAQهای اولیه" },
   });
 
-  return { home: 1, faq: faqs.length };
+  const purchaseNotes = [
+    {
+      id: "seed_purchase_note_price",
+      body: "قیمت به تومان است و تخفیف فقط روی سرور حساب می‌شود.",
+      sortOrder: 1,
+    },
+    {
+      id: "seed_purchase_note_faq",
+      body: "پرسش‌های عمومی در [پرسش‌های رایج](/faq) جمع شده‌اند.",
+      sortOrder: 2,
+    },
+  ];
+
+  for (const note of purchaseNotes) {
+    await prisma.coursePurchaseNote.upsert({
+      where: { id: note.id },
+      create: {
+        id: note.id,
+        courseId: null,
+        body: note.body,
+        sortOrder: note.sortOrder,
+        published: true,
+      },
+      update: {
+        courseId: null,
+        body: note.body,
+        sortOrder: note.sortOrder,
+        published: true,
+      },
+    });
+  }
+
+  return { home: 1, faq: faqs.length, purchaseNotes: purchaseNotes.length };
 }
 
 async function seedJournal(admin: { id: string }) {

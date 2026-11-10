@@ -68,6 +68,13 @@ export async function fetchAdminAnalytics(range?: {
   return adminFetch<AnalyticsDashboard>(`/admin/analytics/dashboard${suffix}`);
 }
 
+export type AdminNavBadges = Record<string, number>;
+
+export async function fetchAdminNavBadges(): Promise<AdminNavBadges> {
+  const data = await adminFetch<{ badges: AdminNavBadges }>("/admin/nav-badges");
+  return data?.badges ?? {};
+}
+
 export async function fetchAdminCourses(q?: string) {
   const qs = q ? `?q=${encodeURIComponent(q)}` : "";
   return adminFetch<
@@ -233,10 +240,12 @@ export async function fetchAdminCategories() {
 
 export async function fetchAdminOrders(query?: {
   status?: string;
+  licenseStatus?: string;
   q?: string;
 }) {
   const qs = new URLSearchParams();
   if (query?.status) qs.set("status", query.status);
+  if (query?.licenseStatus) qs.set("licenseStatus", query.licenseStatus);
   if (query?.q) qs.set("q", query.q);
   const suffix = qs.toString() ? `?${qs}` : "";
   return adminFetch<
@@ -255,8 +264,71 @@ export async function fetchAdminOrders(query?: {
         email: string;
       };
       course: { id: string; slug: string; title: string };
+      license: {
+        id: string;
+        status: string;
+        lastError: string | null;
+      } | null;
     }>
   >(`/admin/orders${suffix}`);
+}
+
+export type AdminOrderDetail = {
+  id: string;
+  status: string;
+  paymentProvider: string | null;
+  amountToman: number;
+  amountLabel: string;
+  couponCode: string | null;
+  paidAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  allowedNextStatuses: string[];
+  user: {
+    id: string;
+    username: string;
+    displayName: string;
+    email: string;
+    phone: string | null;
+  };
+  course: {
+    id: string;
+    slug: string;
+    title: string;
+    offerKind: string;
+  };
+  licenses: Array<{
+    id: string;
+    status: string;
+    lastError: string | null;
+    attemptCount: number;
+    lastAttemptAt: string | null;
+    provisionedAt: string | null;
+    licenseKey: string | null;
+    licenseUrl: string | null;
+    spotPlayerLicenseId: string | null;
+    accessSource: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  payments: Array<{
+    id: string;
+    provider: string;
+    status: string;
+    amountLabel: string;
+    gatewayRefId: string | null;
+    failureReason: string | null;
+    createdAt: string;
+    verifiedAt: string | null;
+  }>;
+};
+
+export async function fetchAdminOrder(
+  id: string,
+): Promise<AdminOrderDetail | null> {
+  return adminFetch<AdminOrderDetail>(
+    `/admin/orders/${encodeURIComponent(id)}`,
+  );
 }
 
 export async function fetchAdminCustomers(q?: string) {
@@ -326,9 +398,42 @@ export async function fetchAdminHomeCms() {
   }>("/admin/cms/home");
 }
 
+export async function fetchAdminPathsCms() {
+  return adminFetch<{
+    id: string;
+    title: string;
+    lead: string | null;
+    seoTitle: string | null;
+    seoDescription: string | null;
+    updatedAt: string | null;
+  }>("/admin/cms/paths");
+}
+
 export async function fetchAdminFooterCms() {
   return adminFetch<{
     id: string;
+    brandName: string;
+    brandTagline: string;
+    brandKicker: string;
+    footerBlurb: string;
+    headerLinks: Array<{ href: string; label: string; match?: string }>;
+    footerGroups: Array<{
+      label: string;
+      links: Array<{ href: string; label: string }>;
+    }>;
+    mobileGroups: Array<{
+      label: string;
+      links: Array<{ href: string; label: string }>;
+    }>;
+    guestCtaLabel: string;
+    guestCtaHref: string;
+    authedCtaLabel: string;
+    authedCtaHref: string;
+    showCart: boolean;
+    showThemeToggle: boolean;
+    trustsLabel: string;
+    mobileMenuTitle: string;
+    mobileMenuLine: string;
     enamadHtml: string | null;
     paymentGatewayHtml: string | null;
     updatedAt: string | null;
@@ -367,8 +472,8 @@ export async function fetchAdminActivity(q?: string) {
 }
 
 export function formatTomanFa(n: number): string {
-  if (!n) return "۰ تومان";
-  return `${n.toLocaleString("fa-IR")} تومان`;
+  if (!n) return "۰ هزارتومن";
+  return `${Math.round(n / 1000).toLocaleString("fa-IR")} هزارتومن`;
 }
 
 export function formatDateFa(iso: string): string {

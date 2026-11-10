@@ -41,7 +41,7 @@ Scope: local-first personal education platform (one instructor). Persian RTL web
 | CSRF on cookie auth | Mitigated: SameSite=Lax + Origin/Referer check on auth BFF POSTs | No synchronizer CSRF token yet |
 | Auth brute-force | Mitigated: rate limit per IP+bucket (Redis if up, else memory) | Memory limiter is per-process; multi-instance needs Redis |
 | Account enumeration on recovery | Mitigated: uniform response shape | Timing side-channels not fully equalized |
-| Ticket attachment malware / path traversal | Mitigated: MIME allowlist, size cap, magic-byte check, opaque keys, `..` reject, auth download | No AV scanning; local disk not MinIO yet |
+| Ticket attachment malware / XSS / path traversal | Mitigated: MIME allowlist, size cap, magic bytes, content heuristics (XSS/PDF JS/EICAR), optional ClamAV, opaque keys, `..` reject, auth download with nosniff+CSP sandbox | ClamAV optional unless `CLAMAV_REQUIRED`; local disk not MinIO yet |
 | Admin access by obscurity | Mitigated: `OwnerGuard` + web `requireOwner` | Session fixation not separately rotated on privilege change (single role model) |
 | Private page indexing | Mitigated: `robots.txt` disallow + metadata `noindex` + `X-Robots-Tag` | Misconfigured `NEXT_PUBLIC_SITE_URL` can skew sitemap host |
 | Dependency / supply chain | Not automated in CI yet | Manual review still required |

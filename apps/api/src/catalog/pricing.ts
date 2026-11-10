@@ -12,18 +12,16 @@ export function decimalToNumber(value: DecimalLike): number {
 }
 
 /**
- * Format Toman for Persian UI. Whole tomans omit decimals; fractional keep up to 2 places.
+ * Format Toman for Persian UI as colloquial «هزارتومن» (÷1000).
+ * Stored amounts stay in full toman; display drops three zeros.
  */
 export function formatTomanLabel(value: DecimalLike): string {
   const amount = toDecimal(value);
-  if (amount.isZero()) return "۰ تومان";
+  if (amount.isZero()) return "۰ هزارتومن";
 
-  const asNumber = amount.toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP).toNumber();
-  const formatted = asNumber.toLocaleString("fa-IR", {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: Number.isInteger(asNumber) ? 0 : 1,
-  });
-  return `${formatted} تومان`;
+  const asNumber = amount.toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP).toNumber();
+  const display = Math.round(asNumber / 1000);
+  return `${display.toLocaleString("fa-IR")} هزارتومن`;
 }
 
 export function priceLabelForOffer(input: {

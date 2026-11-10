@@ -70,43 +70,37 @@ export function CartView() {
                   className="cart-line disinab-cart__line"
                   style={{ "--line-i": index } as CSSProperties}
                 >
-                  <div className="cart-line__top">
-                    <span className="cart-line__index" aria-hidden="true">
-                      {(index + 1).toLocaleString("fa-IR")}
-                    </span>
-                    <Link href={item.href} className="cart-line__media">
-                      {item.coverAsset ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.coverAsset} alt="" />
-                      ) : (
-                        <span>ژرفا</span>
-                      )}
-                    </Link>
-                    <div className="cart-line__body">
-                      <h3>
-                        <Link href={item.href}>{item.title}</Link>
-                      </h3>
-                      <p className="cart-line__price">
-                        <strong>{item.priceLabel}</strong>
-                        {item.compareAtLabel ? (
-                          <s>{item.compareAtLabel}</s>
-                        ) : null}
-                        {item.discountLabel ? (
-                          <em>{item.discountLabel}</em>
-                        ) : null}
-                      </p>
-                    </div>
+                  <span className="cart-line__index" aria-hidden="true">
+                    {(index + 1).toLocaleString("fa-IR")}
+                  </span>
+                  <Link href={item.href} className="cart-line__media">
+                    {item.coverAsset ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.coverAsset} alt="" />
+                    ) : (
+                      <span>ژرفا</span>
+                    )}
+                  </Link>
+                  <div className="cart-line__body">
+                    <h3>
+                      <Link href={item.href}>{item.title}</Link>
+                    </h3>
+                    <p className="cart-line__price">
+                      <strong>{item.priceLabel}</strong>
+                      {item.compareAtLabel ? <s>{item.compareAtLabel}</s> : null}
+                      {item.discountLabel ? <em>{item.discountLabel}</em> : null}
+                    </p>
                   </div>
                   <div className="cart-line__actions">
                     <Button href={`/courses/${item.slug}/purchase`}>
-                      پرداخت این دوره
+                      پرداخت
                     </Button>
                     <button
                       type="button"
                       className="cart-line__remove"
                       onClick={() => removeCourseFromCart(item.id)}
                     >
-                      حذف از سبد
+                      حذف
                     </button>
                   </div>
                 </li>
@@ -124,7 +118,7 @@ export function CartView() {
               <h2 id="cart-invoice-heading">فاکتور سبد</h2>
             </header>
 
-            <ul className="cart-invoice__rows">
+            <ul className="cart-invoice__rows disinab-cart__invoice-rows">
               {items.map((item) => (
                 <li key={item.id}>
                   <span>{item.title}</span>
@@ -133,7 +127,7 @@ export function CartView() {
               ))}
             </ul>
 
-            <dl className="cart-invoice__totals">
+            <dl className="cart-invoice__totals disinab-cart__totals">
               <div>
                 <dt>جمع قبل از تخفیف</dt>
                 <dd>{summary.compareLabel}</dd>

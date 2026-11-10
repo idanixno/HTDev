@@ -59,10 +59,12 @@ export function NotificationsPanel({
       : "اعلان‌ها";
 
   return (
-    <div className="folio-notes" id="notes" ref={rootRef}>
+    <div className="folio-notes disinab-notes" id="notes" ref={rootRef}>
       <button
         type="button"
-        className="folio-notes__bell"
+        className={
+          "folio-notes__bell" + (unreadCount > 0 ? " is-unread" : "")
+        }
         aria-label={label}
         aria-expanded={open}
         aria-controls={panelId}
@@ -77,54 +79,61 @@ export function NotificationsPanel({
       </button>
       {open ? (
         <div
-          className="folio-notes__panel"
+          className="folio-notes__panel disinab-notes__panel"
           id={panelId}
           role="region"
           aria-label="اعلان‌ها"
         >
-          <div className="folio-notes__bar">
-            <p>
-              {unreadCount > 0
-                ? `${unreadCount.toLocaleString("fa-IR")} خوانده‌نشده`
-                : "اعلانی نمانده"}
-            </p>
-            {unreadCount > 0 ? (
-              <button type="button" disabled={pending} onClick={markAll}>
-                همه را خواندم
-              </button>
-            ) : null}
+          <div className="disinab-notes__aura" aria-hidden="true" />
+          <div className="disinab-notes__plate">
+            <header className="folio-notes__bar disinab-notes__bar">
+              <div className="disinab-notes__heading">
+                <p className="disinab__brand">ژرفا · اعلان</p>
+                <p className="disinab-notes__status">
+                  {unreadCount > 0
+                    ? `${unreadCount.toLocaleString("fa-IR")} خوانده‌نشده`
+                    : "اعلانی نمانده"}
+                </p>
+              </div>
+              {unreadCount > 0 ? (
+                <button type="button" disabled={pending} onClick={markAll}>
+                  همه را خواندم
+                </button>
+              ) : null}
+            </header>
+            {items.length === 0 ? (
+              <p className="folio-notes__empty">اعلانی نیست.</p>
+            ) : (
+              <ul className="notify-list disinab-notes__list">
+                {items.map((n) => (
+                  <li
+                    key={n.id}
+                    className={
+                      "notify-item disinab-notes__item" +
+                      (n.readAt ? "" : " notify-item--unread")
+                    }
+                  >
+                    <h2>
+                      {n.readAt ? null : (
+                        <span className="notify-item__dot" aria-hidden="true" />
+                      )}
+                      {n.title}
+                    </h2>
+                    <p>{n.body}</p>
+                    <time className="notify-item__time" dateTime={n.createdAt}>
+                      {new Date(n.createdAt).toLocaleString("fa-IR", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          {items.length === 0 ? (
-            <p className="folio-notes__empty">اعلانی نیست.</p>
-          ) : (
-            <ul className="notify-list">
-              {items.map((n) => (
-                <li
-                  key={n.id}
-                  className={
-                    "notify-item" + (n.readAt ? "" : " notify-item--unread")
-                  }
-                >
-                  <h2>
-                    {n.readAt ? null : (
-                      <span className="notify-item__dot" aria-hidden="true" />
-                    )}
-                    {n.title}
-                  </h2>
-                  <p>{n.body}</p>
-                  <time className="notify-item__time" dateTime={n.createdAt}>
-                    {new Date(n.createdAt).toLocaleString("fa-IR", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </time>
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
       ) : null}
     </div>
@@ -133,7 +142,7 @@ export function NotificationsPanel({
 
 function BellIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
       <path
         d="M6.2 9.2a5.8 5.8 0 0 1 11.6 0c0 4.6 1.6 6.2 2.2 6.8H4c.6-.6 2.2-2.2 2.2-6.8Z"
         fill="none"

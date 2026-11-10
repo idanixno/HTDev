@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Badge, Button, Notice } from "@zharfa/ui";
 import { fetchAdminCourses, formatDateFa } from "../../../lib/admin";
+import {
+  offerKindLabel,
+  publicationStatusLabel,
+} from "../../../lib/status-labels";
 
 export default async function AdminCoursesPage({
   searchParams,
@@ -62,9 +66,11 @@ export default async function AdminCoursesPage({
                     <div className="admin-table__muted">{c.slug}</div>
                   </td>
                   <td>
-                    <Badge status="information">{c.publicationStatus}</Badge>
+                    <Badge status="information">
+                      {publicationStatusLabel(c.publicationStatus)}
+                    </Badge>
                   </td>
-                  <td>{c.offerKind}</td>
+                  <td>{offerKindLabel(c.offerKind)}</td>
                   <td>{c.priceLabel}</td>
                   <td>{c.category?.title ?? "—"}</td>
                   <td>{c.orderCount.toLocaleString("fa-IR")}</td>

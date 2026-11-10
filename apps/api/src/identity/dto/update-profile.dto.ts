@@ -19,18 +19,25 @@ function stripAt(value: string | null): string | null {
   return value.replace(/^@+/, "");
 }
 
+function normalizeLinkedin(value: string | null): string | null {
+  if (!value) return null;
+  return value
+    .replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//i, "")
+    .replace(/\/+$/, "");
+}
+
+function normalizeStackOverflow(value: string | null): string | null {
+  if (!value) return null;
+  return value
+    .replace(/^https?:\/\/(www\.)?stackoverflow\.com\/users\//i, "")
+    .replace(/\/+$/, "");
+}
+
 export class UpdateProfileDto {
   @IsString({ message: "نام نمایشی باید متن باشد." })
   @MinLength(2, { message: "نام نمایشی حداقل ۲ نویسه است." })
   @MaxLength(80, { message: "نام نمایشی بیش از حد بلند است." })
   displayName!: string;
-
-  @IsOptional()
-  @Transform(({ value }) => emptyToNull(value))
-  @ValidateIf((_, value) => value != null)
-  @IsString({ message: "شماره موبایل باید متن باشد." })
-  @MaxLength(32, { message: "شماره موبایل بیش از حد بلند است." })
-  phone?: string | null;
 
   @IsOptional()
   @Transform(({ value }) => stripAt(emptyToNull(value)))
@@ -51,4 +58,24 @@ export class UpdateProfileDto {
     message: "نام کاربری گیت‌هاب معتبر نیست.",
   })
   githubHandle?: string | null;
+
+  @IsOptional()
+  @Transform(({ value }) => normalizeLinkedin(emptyToNull(value)))
+  @ValidateIf((_, value) => value != null)
+  @IsString({ message: "لینکدین باید متن باشد." })
+  @MaxLength(100, { message: "نام کاربری لینکدین بیش از حد بلند است." })
+  @Matches(/^[A-Za-z0-9](?:[A-Za-z0-9_-]{0,98}[A-Za-z0-9])?$/, {
+    message: "نام کاربری لینکدین معتبر نیست.",
+  })
+  linkedinHandle?: string | null;
+
+  @IsOptional()
+  @Transform(({ value }) => normalizeStackOverflow(emptyToNull(value)))
+  @ValidateIf((_, value) => value != null)
+  @IsString({ message: "استک‌اورفلو باید متن باشد." })
+  @MaxLength(80, { message: "شناسه استک‌اورفلو بیش از حد بلند است." })
+  @Matches(/^\d+(?:\/[A-Za-z0-9_-]+)?$/, {
+    message: "شناسه استک‌اورفلو معتبر نیست.",
+  })
+  stackOverflowHandle?: string | null;
 }
