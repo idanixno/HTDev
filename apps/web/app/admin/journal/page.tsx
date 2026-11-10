@@ -11,21 +11,21 @@ export default async function AdminJournalPage() {
         <div>
           <p className="admin-page__eyebrow">انتشار</p>
           <h1 id="admin-journal-heading" className="admin-page__title">
-            یادداشت‌ها
+            مقالات
           </h1>
           <p className="admin-page__subtitle">
             نوشته‌های آموزشی عمومی. فقط موارد منتشرشده در سایت دیده می‌شوند.
           </p>
         </div>
-        <Button href="/admin/journal/new">یادداشت جدید</Button>
+        <Button href="/admin/journal/new">مقاله جدید</Button>
       </header>
       {!articles ? (
         <Notice tone="error" title="خطا">
-          دریافت یادداشت‌ها ممکن نشد.
+          دریافت مقالات ممکن نشد.
         </Notice>
       ) : articles.length === 0 ? (
         <Notice tone="information" title="خالی">
-          هنوز یادداشتی ثبت نشده است.
+          هنوز مقاله‌ای ثبت نشده است.
         </Notice>
       ) : (
         <div className="admin-table-wrap">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button, Notice } from "@zharfa/ui";
 import type { AdminGateway } from "../../lib/admin";
+import { providerLabel } from "../../lib/commerce-shared";
 
 export function PaymentGatewayAdminForm({
   gateways,
@@ -59,7 +60,14 @@ export function PaymentGatewayAdminForm({
       <ul className="admin-gateway-forms">
         {items.map((g) => (
           <li key={g.provider} className="admin-gateway-forms__item">
-            <h3>{g.provider}</h3>
+            <h3>{providerLabel(g.provider)}</h3>
+            {g.provider === "AQAYE_PARDAKHT" ? (
+              <p className="admin-page__hint">
+                سندباکس روشن = پین رسمی <code>sandbox</code> بدون نیاز به پین
+                واقعی. برای تولید: پین را در{" "}
+                <code>AQAYE_PARDAKHT_PIN</code> بگذارید و سندباکس را خاموش کنید.
+              </p>
+            ) : null}
             <label className="admin-check">
               <input
                 type="checkbox"

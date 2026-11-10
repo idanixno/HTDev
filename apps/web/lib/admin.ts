@@ -103,8 +103,13 @@ export type AdminCourseDraft = {
   featured: boolean;
   sortOrder: number;
   coverAsset: string | null;
+  previewAsset: string | null;
   indexLabel: string | null;
   diagramKind: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  ogImage: string | null;
+  noIndex: boolean;
   modules: Array<{
     id: string;
     title: string;
@@ -117,6 +122,8 @@ export type AdminCourseDraft = {
       sortOrder: number;
       durationMinutes: number | null;
       isPreview: boolean;
+      previewAsset: string | null;
+      videoAsset: string | null;
       moduleId: string | null;
     }>;
   }>;
@@ -133,6 +140,10 @@ export type AdminArticleDraft = {
   summary: string | null;
   body: string;
   coverAsset: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  ogImage: string | null;
+  noIndex: boolean;
   published: boolean;
   readingMinutes: number | null;
   sortOrder: number;
@@ -156,6 +167,54 @@ export async function fetchAdminArticles() {
 export async function fetchAdminArticle(id: string) {
   return adminFetch<AdminArticleDraft>(
     `/admin/articles/${encodeURIComponent(id)}`,
+  );
+}
+
+export type AdminPathStepSummary = {
+  id: string;
+  slug: string;
+  title: string;
+  sortOrder: number;
+  noIndex: boolean;
+  updatedAt: string;
+};
+
+export type AdminPath = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  description: string | null;
+  coverAsset: string | null;
+  published: boolean;
+  sortOrder: number;
+  steps: AdminPathStepSummary[];
+};
+
+export async function fetchAdminPaths() {
+  return adminFetch<AdminPath[]>("/admin/paths");
+}
+
+export async function fetchAdminPath(pathId: string) {
+  return adminFetch<AdminPath>(`/admin/paths/${encodeURIComponent(pathId)}`);
+}
+
+export async function fetchAdminPathStep(pathId: string, stepId: string) {
+  return adminFetch<{
+    id: string;
+    slug: string;
+    title: string;
+    summary: string | null;
+    body: string;
+    seoTitle: string | null;
+    seoDescription: string | null;
+    ogImage: string | null;
+    noIndex: boolean;
+    sortOrder: number;
+    path: { id: string; title: string; slug: string };
+    course: { title: string; slug: string } | null;
+  }>(
+    `/admin/paths/${encodeURIComponent(pathId)}/steps/${encodeURIComponent(stepId)}`,
   );
 }
 
@@ -218,19 +277,21 @@ export async function fetchAdminCustomers(q?: string) {
   >(`/admin/customers${qs}`);
 }
 
+export type AdminCoupon = {
+  id: string;
+  code: string;
+  discountType: string;
+  percentOff: number | null;
+  amountOffToman: number | null;
+  minOrderToman: number | null;
+  maxDiscountToman: number | null;
+  redemptionCount: number;
+  maxRedemptions: number | null;
+  active: boolean;
+};
+
 export async function fetchAdminCoupons() {
-  return adminFetch<
-    Array<{
-      id: string;
-      code: string;
-      discountType: string;
-      percentOff: number | null;
-      amountOffToman: number | null;
-      redemptionCount: number;
-      maxRedemptions: number | null;
-      active: boolean;
-    }>
-  >("/admin/coupons");
+  return adminFetch<AdminCoupon[]>("/admin/coupons");
 }
 
 export type AdminGateway = {
@@ -263,6 +324,15 @@ export async function fetchAdminHomeCms() {
     secondaryCtaHref: string | null;
     updatedAt: string | null;
   }>("/admin/cms/home");
+}
+
+export async function fetchAdminFooterCms() {
+  return adminFetch<{
+    id: string;
+    enamadHtml: string | null;
+    paymentGatewayHtml: string | null;
+    updatedAt: string | null;
+  }>("/admin/cms/footer");
 }
 
 export async function fetchAdminFaq() {

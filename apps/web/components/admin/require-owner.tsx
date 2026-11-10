@@ -1,14 +1,9 @@
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { fetchCurrentUser, type PublicUser } from "../../lib/session";
 
-/** Server-side OWNER gate — never rely on hidden URLs alone. */
-export async function requireOwner(nextPath: string): Promise<PublicUser> {
+/** Owner-only gate. Everyone else gets the same 404 as a missing page. */
+export async function requireOwner(): Promise<PublicUser> {
   const user = await fetchCurrentUser();
-  if (!user) {
-    redirect(`/login?next=${encodeURIComponent(nextPath)}`);
-  }
-  if (user.role !== "OWNER") {
-    redirect("/forbidden");
-  }
+  if (!user || user.role !== "OWNER") notFound();
   return user;
 }

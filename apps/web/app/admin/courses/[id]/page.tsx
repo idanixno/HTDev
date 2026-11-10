@@ -20,7 +20,7 @@ export default async function EditCoursePage({ params }: { params: Params }) {
           <p className="admin-page__eyebrow">کاتالوگ</p>
           <h1 className="admin-page__title">{course.title}</h1>
           <p className="admin-page__subtitle">
-            ویرایش مشخصات، قیمت، انتشار و سرفصل.
+            مشخصات، قیمت و انتشار را ویرایش کنید. سرفصل و جلسه را اضافه، ویرایش یا حذف کنید و برای هر جلسه ویدیو بگذارید.
           </p>
         </div>
       </header>
@@ -47,8 +47,13 @@ export default async function EditCoursePage({ params }: { params: Params }) {
           featured: course.featured,
           sortOrder: String(course.sortOrder),
           coverAsset: course.coverAsset ?? "",
+          previewAsset: course.previewAsset ?? "",
           indexLabel: course.indexLabel ?? "",
           diagramKind: course.diagramKind,
+          seoTitle: course.seoTitle ?? "",
+          seoDescription: course.seoDescription ?? "",
+          ogImage: course.ogImage ?? "",
+          noIndex: course.noIndex ?? false,
         }}
       />
       <CurriculumEditor course={course} />

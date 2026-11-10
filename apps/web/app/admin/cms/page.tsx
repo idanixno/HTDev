@@ -1,9 +1,17 @@
-import { Badge, Notice } from "@zharfa/ui";
-import { fetchAdminFaq, fetchAdminHomeCms } from "../../../lib/admin";
+import Link from "next/link";
+import { Badge, Button, Notice } from "@zharfa/ui";
+import { FooterCmsEditorForm } from "../../../components/admin/footer-cms-editor-form";
+import { HomeCmsEditorForm } from "../../../components/admin/home-cms-editor-form";
+import {
+  fetchAdminFaq,
+  fetchAdminFooterCms,
+  fetchAdminHomeCms,
+} from "../../../lib/admin";
 
 export default async function AdminCmsPage() {
-  const [home, faq] = await Promise.all([
+  const [home, footer, faq] = await Promise.all([
     fetchAdminHomeCms(),
+    fetchAdminFooterCms(),
     fetchAdminFaq(),
   ]);
 
@@ -16,9 +24,10 @@ export default async function AdminCmsPage() {
             CMS پایه
           </h1>
           <p className="admin-page__subtitle">
-            محتوای صفحهٔ خانه و پرسش‌های متداول.
+            صفحهٔ خانه، نشان‌های فوتر، و پرسش‌های متداول.
           </p>
         </div>
+        <Button href="/admin/cms/faq/new">پرسش جدید</Button>
       </header>
 
       {!home ? (
@@ -28,46 +37,53 @@ export default async function AdminCmsPage() {
       ) : (
         <article className="admin-panel">
           <h2>صفحهٔ خانه</h2>
-          <dl className="admin-dl">
-            <div>
-              <dt>ابرو</dt>
-              <dd>{home.heroEyebrow ?? "—"}</dd>
-            </div>
-            <div>
-              <dt>عنوان</dt>
-              <dd>{home.heroTitle}</dd>
-            </div>
-            <div>
-              <dt>زیرعنوان</dt>
-              <dd>{home.heroSubtitle ?? "—"}</dd>
-            </div>
-            <div>
-              <dt>CTA اصلی</dt>
-              <dd>
-                {home.primaryCtaLabel ?? "—"}
-                {home.primaryCtaHref ? ` → ${home.primaryCtaHref}` : ""}
-              </dd>
-            </div>
-            <div>
-              <dt>CTA فرعی</dt>
-              <dd>
-                {home.secondaryCtaLabel ?? "—"}
-                {home.secondaryCtaHref ? ` → ${home.secondaryCtaHref}` : ""}
-              </dd>
-            </div>
-          </dl>
+          <HomeCmsEditorForm
+            initial={{
+              heroEyebrow: home.heroEyebrow ?? "",
+              heroTitle: home.heroTitle,
+              heroSubtitle: home.heroSubtitle ?? "",
+              primaryCtaLabel: home.primaryCtaLabel ?? "",
+              primaryCtaHref: home.primaryCtaHref ?? "",
+              secondaryCtaLabel: home.secondaryCtaLabel ?? "",
+              secondaryCtaHref: home.secondaryCtaHref ?? "",
+            }}
+          />
         </article>
       )}
 
-      <article className="admin-panel" style={{ marginTop: "var(--zharfa-space-24)" }}>
-        <h2>پرسش‌های متداول</h2>
+      <article
+        className="admin-panel"
+        style={{ marginTop: "var(--zharfa-space-24)" }}
+      >
+        <h2>نشان‌های فوتر</h2>
+        {!footer ? (
+          <Notice tone="error" title="خطا">
+            خواندن نشان‌های فوتر ممکن نشد.
+          </Notice>
+        ) : (
+          <FooterCmsEditorForm
+            initial={{
+              enamadHtml: footer.enamadHtml ?? "",
+              paymentGatewayHtml: footer.paymentGatewayHtml ?? "",
+            }}
+          />
+        )}
+      </article>
+
+      <article
+        className="admin-panel"
+        style={{ marginTop: "var(--zharfa-space-24)" }}
+      >
+        <div className="admin-page__header" style={{ marginBottom: "1rem" }}>
+          <h2>پرسش‌های متداول</h2>
+        </div>
         {!faq ? (
           <Notice tone="error" title="خطا">
             خواندن FAQ ممکن نشد.
           </Notice>
         ) : faq.length === 0 ? (
           <Notice tone="information" title="خالی">
-            هنوز سؤالی ثبت نشده.
+            هنوز سؤالی ثبت نشده. با «پرسش جدید» شروع کنید.
           </Notice>
         ) : (
           <div className="admin-table-wrap">
@@ -83,7 +99,12 @@ export default async function AdminCmsPage() {
                 {faq.map((f) => (
                   <tr key={f.id}>
                     <td>
-                      <div className="admin-table__primary">{f.question}</div>
+                      <Link
+                        href={`/admin/cms/faq/${f.id}`}
+                        className="admin-table__primary"
+                      >
+                        {f.question}
+                      </Link>
                       <div className="admin-table__muted">{f.answer}</div>
                     </td>
                     <td>{f.sortOrder}</td>

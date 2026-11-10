@@ -6,7 +6,7 @@ import { assertSameOrigin } from "./csrf";
 export async function proxyAdminJson(
   request: Request,
   apiPath: string,
-  method: "POST" | "PATCH" | "DELETE",
+  method: "GET" | "POST" | "PATCH" | "DELETE",
 ) {
   const blocked = assertSameOrigin(request);
   if (blocked) return blocked;
@@ -14,10 +14,11 @@ export async function proxyAdminJson(
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE_NAME)?.value;
   if (!token) {
-    return NextResponse.json({ message: "ورود لازم است." }, { status: 401 });
+    return NextResponse.json({ message: "یافت نشد." }, { status: 404 });
   }
 
-  const body = method === "DELETE" ? undefined : await request.text();
+  const body =
+    method === "DELETE" || method === "GET" ? undefined : await request.text();
   const res = await fetch(`${apiBaseUrl()}${apiPath}`, {
     method,
     headers: {
@@ -26,8 +27,12 @@ export async function proxyAdminJson(
       ...(body ? { "Content-Type": "application/json" } : {}),
     },
     body: body && body.length > 0 ? body : undefined,
+    cache: "no-store",
   });
 
   const data = await res.json().catch(() => ({ message: "خطای سرور" }));
+  if (res.status === 401 || res.status === 403) {
+    return NextResponse.json({ message: "یافت نشد." }, { status: 404 });
+  }
   return NextResponse.json(data, { status: res.status });
 }

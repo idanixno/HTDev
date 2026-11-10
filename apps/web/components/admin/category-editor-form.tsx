@@ -57,6 +57,30 @@ export function CategoryEditorForm({
     }
   }
 
+  async function removeCategory() {
+    if (!categoryId) return;
+    if (
+      !window.confirm(
+        "این دسته حذف شود؟ دوره‌های مرتبط بدون دسته می‌مانند.",
+      )
+    ) {
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      await authFetch(`/api/admin/categories/${categoryId}`, {
+        method: "DELETE",
+      });
+      router.push("/admin/categories");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "حذف دسته ناموفق بود.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <form className="editor-form" onSubmit={onSubmit}>
       {error ? (
@@ -91,6 +115,16 @@ export function CategoryEditorForm({
         <Button href="/admin/categories" variant="secondary">
           بازگشت
         </Button>
+        {categoryId ? (
+          <Button
+            type="button"
+            variant="danger"
+            loading={loading}
+            onClick={removeCategory}
+          >
+            حذف دسته
+          </Button>
+        ) : null}
       </div>
     </form>
   );

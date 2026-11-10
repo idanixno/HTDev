@@ -37,11 +37,19 @@ export default async function AdminSpotPlayerPage() {
             tone={
               diagnostics.config.integrationStatus === "IMPLEMENTED"
                 ? "success"
-                : "information"
+                : "warning"
             }
-            title={`وضعیت: ${diagnostics.config.integrationStatus}`}
+            title={
+              diagnostics.config.integrationStatus === "IMPLEMENTED"
+                ? "پیکربندی کامل است"
+                : "پیکربندی ناقص"
+            }
           >
-            اعتبارنامه: {diagnostics.config.credentialsStatus}
+            {diagnostics.config.integrationStatus === "IMPLEMENTED"
+              ? "کلید API تنظیم شده و صدور لایسنس می‌تواند انجام شود."
+              : "اعتبارنامه اسپات‌پلیر تنظیم نشده است. تا تنظیم کلید API، صدور لایسنس ناموفق می‌ماند."}{" "}
+            وضعیت: {diagnostics.config.integrationStatus} · اعتبارنامه:{" "}
+            {diagnostics.config.credentialsStatus}
             {diagnostics.config.apiKeyMasked
               ? ` · ${diagnostics.config.apiKeyMasked}`
               : " · بدون کلید"}{" "}

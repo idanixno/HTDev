@@ -1,12 +1,21 @@
 import { proxyAdminJson } from "../../../../../lib/admin-proxy";
 
-type Params = Promise<{ id: string }>;
+type Ctx = { params: Promise<{ id: string }> };
 
-export async function PATCH(request: Request, { params }: { params: Params }) {
-  const { id } = await params;
+export async function PATCH(request: Request, ctx: Ctx) {
+  const { id } = await ctx.params;
   return proxyAdminJson(
     request,
     `/admin/categories/${encodeURIComponent(id)}`,
     "PATCH",
+  );
+}
+
+export async function DELETE(request: Request, ctx: Ctx) {
+  const { id } = await ctx.params;
+  return proxyAdminJson(
+    request,
+    `/admin/categories/${encodeURIComponent(id)}`,
+    "DELETE",
   );
 }

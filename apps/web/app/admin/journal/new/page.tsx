@@ -6,7 +6,7 @@ export default function NewArticlePage() {
       <header className="admin-page__header">
         <div>
           <p className="admin-page__eyebrow">انتشار</p>
-          <h1 className="admin-page__title">یادداشت جدید</h1>
+          <h1 className="admin-page__title">مقاله جدید</h1>
         </div>
       </header>
       <ArticleEditorForm />

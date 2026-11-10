@@ -25,6 +25,10 @@ export default async function EditArticlePage({ params }: { params: Params }) {
           summary: article.summary ?? "",
           body: article.body,
           coverAsset: article.coverAsset ?? "",
+          seoTitle: article.seoTitle ?? "",
+          seoDescription: article.seoDescription ?? "",
+          ogImage: article.ogImage ?? "",
+          noIndex: article.noIndex,
           published: article.published,
           readingMinutes:
             article.readingMinutes == null ? "" : String(article.readingMinutes),

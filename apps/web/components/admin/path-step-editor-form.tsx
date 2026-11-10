@@ -1,0 +1,255 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { FormEvent, useMemo, useState } from "react";
+import { Button, Field, Notice } from "@zharfa/ui";
+import { authFetch } from "../../lib/api-client";
+import { MarkdownEditor } from "./markdown-editor";
+import { SeoAssistantPanel } from "./seo-assistant-panel";
+
+export type PathStepEditorInitial = {
+  slug: string;
+  title: string;
+  summary: string;
+  body: string;
+  seoTitle: string;
+  seoDescription: string;
+  ogImage: string;
+  noIndex: boolean;
+  sortOrder: string;
+};
+
+const EMPTY: PathStepEditorInitial = {
+  slug: "",
+  title: "",
+  summary: "",
+  body: "",
+  seoTitle: "",
+  seoDescription: "",
+  ogImage: "",
+  noIndex: false,
+  sortOrder: "",
+};
+
+export function PathStepEditorForm({
+  pathId,
+  stepId,
+  initial,
+}: {
+  pathId: string;
+  stepId?: string;
+  initial?: Partial<PathStepEditorInitial>;
+}) {
+  const router = useRouter();
+  const [values, setValues] = useState<PathStepEditorInitial>({
+    ...EMPTY,
+    ...initial,
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const seoValues = useMemo(
+    () => ({
+      entityType: "PATH_STEP" as const,
+      entityId: stepId,
+      title: values.title,
+      slug: values.slug,
+      seoTitle: values.seoTitle,
+      seoDescription: values.seoDescription,
+      summary: values.summary,
+      body: values.body,
+      coverAsset: "",
+      ogImage: values.ogImage,
+      noIndex: values.noIndex,
+      published: true,
+    }),
+    [stepId, values],
+  );
+
+  function patch(partial: Partial<PathStepEditorInitial>) {
+    setValues((prev) => ({ ...prev, ...partial }));
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    const body = {
+      slug: values.slug.trim(),
+      title: values.title.trim(),
+      summary: values.summary.trim() || null,
+      body: values.body,
+      seoTitle: values.seoTitle.trim() || null,
+      seoDescription: values.seoDescription.trim() || null,
+      ogImage: values.ogImage.trim() || null,
+      noIndex: values.noIndex,
+      ...(values.sortOrder.trim()
+        ? { sortOrder: Number(values.sortOrder) }
+        : {}),
+    };
+    try {
+      const saved = await authFetch<{ id: string }>(
+        stepId
+          ? `/api/admin/paths/${pathId}/steps/${stepId}`
+          : `/api/admin/paths/${pathId}/steps`,
+        {
+          method: stepId ? "PATCH" : "POST",
+          body: JSON.stringify(body),
+        },
+      );
+      router.push(`/admin/paths/${pathId}/steps/${saved.id}`);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "ذخیرهٔ گام ناموفق بود.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function removeStep() {
+    if (!stepId) return;
+    if (!window.confirm("این گام حذف شود؟")) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await authFetch(`/api/admin/paths/${pathId}/steps/${stepId}`, {
+        method: "DELETE",
+      });
+      router.push(`/admin/paths/${pathId}`);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "حذف گام ناموفق بود.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form className="editor-form" onSubmit={onSubmit}>
+      {error ? (
+        <Notice tone="error" title="ذخیره نشد">
+          {error}
+        </Notice>
+      ) : null}
+      <div className="editor-form__grid">
+        <Field
+          id="step-title"
+          name="title"
+          label="عنوان"
+          value={values.title}
+          onChange={(e) => patch({ title: e.target.value })}
+          required
+        />
+        <Field
+          id="step-slug"
+          name="slug"
+          label="اسلاگ"
+          mono
+          dir="ltr"
+          value={values.slug}
+          onChange={(e) => patch({ slug: e.target.value })}
+          required
+        />
+        <Field
+          id="step-sort"
+          name="sortOrder"
+          label="ترتیب"
+          type="number"
+          value={values.sortOrder}
+          onChange={(e) => patch({ sortOrder: e.target.value })}
+        />
+        <Field
+          id="step-summary"
+          name="summary"
+          label="خلاصه"
+          className="editor-form__wide"
+          value={values.summary}
+          onChange={(e) => patch({ summary: e.target.value })}
+        />
+        <MarkdownEditor
+          id="step-body"
+          name="body"
+          label="متن"
+          maxLength={60000}
+          rows={18}
+          value={values.body}
+          onChange={(body) => patch({ body })}
+          hint="عنوان فرم، h1 صفحه است. از نوار ابزار برای بولد، لینک، عکس، ویدیو، جدول، دوره و پرسش‌وپاسخ استفاده کنید."
+        />
+        <div className="editor-form__wide editor-seo-row">
+          <fieldset className="editor-seo">
+            <legend>سئو</legend>
+            <Field
+              id="step-seo-title"
+              name="seoTitle"
+              label="عنوان سئو"
+              value={values.seoTitle}
+              onChange={(e) => patch({ seoTitle: e.target.value })}
+            />
+            <label className="z-field">
+              <span className="z-field__label">توضیح سئو</span>
+              <textarea
+                className="z-field__control"
+                name="seoDescription"
+                rows={3}
+                maxLength={320}
+                value={values.seoDescription}
+                onChange={(e) => patch({ seoDescription: e.target.value })}
+              />
+            </label>
+            <Field
+              id="step-og"
+              name="ogImage"
+              label="تصویر اشتراک‌گذاری"
+              mono
+              dir="ltr"
+              value={values.ogImage}
+              onChange={(e) => patch({ ogImage: e.target.value })}
+            />
+            <label className="editor-check">
+              <input
+                type="checkbox"
+                name="noIndex"
+                checked={values.noIndex}
+                onChange={(e) => patch({ noIndex: e.target.checked })}
+              />
+              <span>در موتور جستجو ایندکس نشود</span>
+            </label>
+          </fieldset>
+          <SeoAssistantPanel
+            values={seoValues}
+            onApply={(partial) => {
+              const next: Partial<PathStepEditorInitial> = {};
+              if (partial.title != null) next.title = partial.title;
+              if (partial.slug != null) next.slug = partial.slug;
+              if (partial.seoTitle != null) next.seoTitle = partial.seoTitle;
+              if (partial.seoDescription != null)
+                next.seoDescription = partial.seoDescription;
+              if (partial.summary != null) next.summary = partial.summary;
+              if (partial.body != null) next.body = partial.body;
+              patch(next);
+            }}
+          />
+        </div>
+      </div>
+      <div className="editor-form__actions">
+        <Button type="submit" loading={loading}>
+          {stepId ? "ذخیرهٔ گام" : "ایجاد گام"}
+        </Button>
+        <Button href={`/admin/paths/${pathId}`} variant="secondary">
+          بازگشت
+        </Button>
+        {stepId ? (
+          <Button
+            type="button"
+            variant="danger"
+            loading={loading}
+            onClick={removeStep}
+          >
+            حذف گام
+          </Button>
+        ) : null}
+      </div>
+    </form>
+  );
+}
