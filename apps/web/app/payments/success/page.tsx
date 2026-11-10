@@ -29,8 +29,8 @@ export default async function PaymentSuccessPage({
       </h1>
       <p className="payment-result__subtitle">
         {reallyPaid
-          ? "سفارش پس از verify سمت سرور به‌عنوان پرداخت‌شده ثبت شد."
-          : "صرف بازگشت از درگاه کافی نیست — اگر وضعیت PAID نیست، هنوز موفق نشده‌اید."}
+          ? "سفارش به‌عنوان پرداخت‌شده ثبت شد."
+          : "پرداخت هنوز تأیید نشده است."}
       </p>
 
       {order ? (
@@ -71,14 +71,13 @@ export default async function PaymentSuccessPage({
       )}
 
       {!reallyPaid ? (
-        <Notice tone="error" title="هنوز پرداخت‌شده نیست">
-          بدون verify موفق، دسترسی داده نمی‌شود.
+        <Notice tone="information" title="پرداخت هنوز تأیید نشده">
+          دسترسی دوره بعد از تأیید پرداخت فعال می‌شود.
         </Notice>
       ) : (
-        <Notice tone="information" title="دسترسی ویدئو">
-          پرداخت ثبت شد. صدور لایسنس اسپات‌پلیر محور جداگانه‌ای است — وضعیت را در{" "}
-          <Link href="/dashboard/access">صفحه دسترسی</Link> ببینید. کلید فقط پس
-          از پاسخ واقعی ارائه‌دهنده نمایش داده می‌شود.
+        <Notice tone="success" title="پرداخت ثبت شد">
+          وضعیت دوره را در{" "}
+          <Link href="/dashboard#courses">حساب من</Link> ببینید.
         </Notice>
       )}
 

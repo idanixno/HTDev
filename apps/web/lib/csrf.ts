@@ -15,7 +15,21 @@ function allowedOrigins(): string[] {
     .split(",")
     .map((s) => s.trim().replace(/\/$/, ""))
     .filter(Boolean);
-  return Array.from(new Set([primary, ...extras]));
+  const origins = [primary, ...extras];
+  if (process.env.NODE_ENV !== "production") {
+    for (const origin of [...origins]) {
+      try {
+        const url = new URL(origin);
+        if (url.hostname === "localhost") url.hostname = "127.0.0.1";
+        else if (url.hostname === "127.0.0.1") url.hostname = "localhost";
+        else continue;
+        origins.push(url.origin);
+      } catch {
+        /* ignore malformed configured origins */
+      }
+    }
+  }
+  return Array.from(new Set(origins));
 }
 
 function originFromUrl(value: string | null): string | null {

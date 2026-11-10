@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge, Button, Notice } from "@zharfa/ui";
-import { fetchCurrentUser } from "../../../lib/session";
+import { DisinabBadge, DisinabPlate } from "../../../components/disinab";
 import {
   fetchMyTickets,
   ticketStatusBadge,
   ticketStatusLabel,
 } from "../../../lib/tickets";
+import { fetchCurrentUser } from "../../../lib/session";
 
 export default async function TicketsPage() {
   const user = await fetchCurrentUser();
@@ -15,50 +16,56 @@ export default async function TicketsPage() {
   const tickets = await fetchMyTickets();
 
   return (
-    <section className="dashboard" aria-labelledby="tickets-heading">
-      <header className="dashboard__header">
-        <div>
-          <p className="dashboard__eyebrow">پشتیبانی</p>
-          <h1 id="tickets-heading" className="dashboard__title">
-            تیکت‌های من
-          </h1>
-          <p className="dashboard__subtitle">
-            پشتیبانی داخلی ژرفا — گفتگو، وضعیت و پیوست‌های امن.
-          </p>
-        </div>
-        <div className="dashboard__actions">
-          <Button href="/dashboard/tickets/new" variant="primary">
-            تیکت جدید
-          </Button>
-          <Link href="/dashboard">بازگشت</Link>
-        </div>
-      </header>
+    <div className="disinab-tickets">
+      <DisinabPlate
+        className="disinab-tickets__plate"
+        aria-labelledby="tickets-heading"
+      >
+        <header className="disinab-tickets__head">
+          <div>
+            <p className="disinab__brand">پشتیبانی اختصاصی</p>
+            <h1 id="tickets-heading">تیکت‌های من</h1>
+            <p className="disinab__line">
+              گفتگو با تیم ژرفا؛ هر تیکت یک رشتهٔ پیگیری جدا است.
+            </p>
+          </div>
+          <div className="disinab-tickets__actions">
+            <DisinabBadge tone="accent">سیستم تیکت</DisinabBadge>
+            <Button href="/dashboard/tickets/new">تیکت جدید</Button>
+            <Link className="disinab-tickets__back" href="/dashboard">
+              بازگشت به حساب
+            </Link>
+          </div>
+        </header>
 
-      {tickets.length === 0 ? (
-        <Notice tone="information" title="تیکتی نیست">
-          هنوز تیکتی ثبت نکرده‌اید. از{" "}
-          <Link href="/dashboard/tickets/new">فرم تیکت جدید</Link> شروع کنید.
-        </Notice>
-      ) : (
-        <ul className="ticket-list">
-          {tickets.map((t) => (
-            <li key={t.id} className="ticket-list__item">
-              <div>
-                <h2>
-                  <Link href={`/dashboard/tickets/${t.id}`}>{t.subject}</Link>
-                </h2>
-                <p className="ticket-list__meta">
-                  {t.course ? `${t.course.title} · ` : null}
-                  {new Date(t.updatedAt).toLocaleString("fa-IR")}
-                </p>
-              </div>
-              <Badge status={ticketStatusBadge(t.status)}>
-                {ticketStatusLabel(t.status)}
-              </Badge>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+        {tickets.length === 0 ? (
+          <Notice tone="information" title="تیکتی نیست">
+            هنوز گفتگویی باز نشده. برای شروع یک{" "}
+            <Link href="/dashboard/tickets/new">تیکت جدید</Link> بسازید.
+          </Notice>
+        ) : (
+          <ul className="disinab-tickets__list">
+            {tickets.map((ticket) => (
+              <li key={ticket.id} className="disinab-tickets__item">
+                <div>
+                  <h2>
+                    <Link href={`/dashboard/tickets/${ticket.id}`}>
+                      {ticket.subject}
+                    </Link>
+                  </h2>
+                  <p>
+                    {ticket.course ? `${ticket.course.title} · ` : null}
+                    {new Date(ticket.updatedAt).toLocaleString("fa-IR")}
+                  </p>
+                </div>
+                <Badge status={ticketStatusBadge(ticket.status)}>
+                  {ticketStatusLabel(ticket.status)}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </DisinabPlate>
+    </div>
   );
 }

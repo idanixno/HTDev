@@ -7,6 +7,8 @@ export type PublicUser = {
   email: string;
   phone: string | null;
   displayName: string;
+  telegramHandle: string | null;
+  githubHandle: string | null;
   role: "STUDENT" | "OWNER";
   emailVerified: boolean;
   phoneVerified: boolean;

@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Badge, Notice } from "@zharfa/ui";
-import { fetchCurrentUser } from "../../../../lib/session";
 import {
   fetchAdminTickets,
   ticketStatusBadge,
@@ -23,10 +21,6 @@ export default async function AdminTicketsPage({
 }: {
   searchParams: Promise<{ status?: string; q?: string }>;
 }) {
-  const user = await fetchCurrentUser();
-  if (!user) redirect("/login?next=/dashboard/admin/tickets");
-  if (user.role !== "OWNER") redirect("/dashboard");
-
   const sp = await searchParams;
   const status =
     sp.status &&

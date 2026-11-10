@@ -1,35 +1,59 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DisinabBadge, DisinabPlate } from "../../../../components/disinab";
 import { TicketCreateForm } from "../../../../components/ticket-create-form";
-import { fetchCourses } from "../../../../lib/catalog";
+import { SAMPLE_LICENSES } from "../../../../lib/sample-licenses";
 import { fetchCurrentUser } from "../../../../lib/session";
+import { fetchMySpotAccess } from "../../../../lib/spotplayer";
 
 export default async function NewTicketPage() {
   const user = await fetchCurrentUser();
   if (!user) redirect("/login?next=/dashboard/tickets/new");
 
-  const catalog = await fetchCourses({ pageSize: 50 });
-  const courses = catalog.items.map((c) => ({
-    slug: c.slug,
-    title: c.title,
-  }));
+  const access = await fetchMySpotAccess();
+  const licenses =
+    access?.items?.length
+      ? access.items
+      : process.env.NODE_ENV === "development"
+        ? SAMPLE_LICENSES
+        : [];
+
+  const seen = new Set<string>();
+  const courses = licenses.flatMap((lic) => {
+    const slug = lic.course?.slug;
+    const title = lic.course?.title;
+    if (!slug || !title || seen.has(slug)) return [];
+    seen.add(slug);
+    return [{ slug, title }];
+  });
 
   return (
-    <section className="dashboard" aria-labelledby="new-ticket-heading">
-      <header className="dashboard__header">
-        <div>
-          <p className="dashboard__eyebrow">پشتیبانی</p>
-          <h1 id="new-ticket-heading" className="dashboard__title">
-            تیکت جدید
-          </h1>
-          <p className="dashboard__subtitle">
-            موضوع، شرح، و در صورت نیاز لینک دوره را وارد کنید.
-          </p>
-        </div>
-        <Link href="/dashboard/tickets">بازگشت به فهرست</Link>
-      </header>
+    <div className="disinab-tickets">
+      <DisinabPlate
+        className="disinab-tickets__plate"
+        aria-labelledby="new-ticket-heading"
+      >
+        <header className="disinab-tickets__head">
+          <div>
+            <p className="disinab__brand">پشتیبانی اختصاصی</p>
+            <h1 id="new-ticket-heading">تیکت جدید</h1>
+            <p className="disinab__line">
+              موضوع، شرح، و در صورت نیاز یکی از دوره‌های خودتان را انتخاب کنید.
+            </p>
+          </div>
+          <div className="disinab-tickets__actions">
+            <DisinabBadge tone="live">ثبت درخواست</DisinabBadge>
+            <Link className="disinab-tickets__back" href="/dashboard/tickets">
+              فهرست تیکت‌ها
+            </Link>
+            <Link className="disinab-tickets__back" href="/dashboard">
+              بازگشت به حساب
+            </Link>
+          </div>
+        </header>
 
-      <TicketCreateForm courses={courses} />
-    </section>
+        <TicketCreateForm courses={courses} />
+      </DisinabPlate>
+    </div>
   );
 }

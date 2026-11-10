@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Notice } from "@zharfa/ui";
 import {
   fetchMyOrder,
   orderStatusLabel,
@@ -42,19 +41,8 @@ export default async function PaymentFailurePage({
             <dt>مبلغ</dt>
             <dd>{order.amountLabel}</dd>
           </div>
-          {order.latestTransaction?.failureReason ? (
-            <div>
-              <dt>دلیل</dt>
-              <dd>{order.latestTransaction.failureReason}</dd>
-            </div>
-          ) : null}
         </dl>
       ) : null}
-
-      <Notice tone="error" title="بدون دسترسی ساختگی">
-        حتی اگر صفحهٔ بانک چیزی نشان داده باشد، تا verify سرور موفق نشود، وضعیت
-        PAID ثبت نمی‌شود.
-      </Notice>
 
       <p className="payment-result__links">
         {order?.course ? (

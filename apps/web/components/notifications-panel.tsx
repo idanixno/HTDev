@@ -1,8 +1,7 @@
 "use client";
 
+import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Button, Notice } from "@zharfa/ui";
 import { authFetch } from "../lib/api-client";
 import type { PublicNotification } from "../lib/notification-shared";
 
@@ -14,7 +13,35 @@ export function NotificationsPanel({
   unreadCount: number;
 }) {
   const router = useRouter();
+  const panelId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    function openFromHash() {
+      if (window.location.hash === "#notes") setOpen(true);
+    }
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+    return () => window.removeEventListener("hashchange", openFromHash);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    function onPointer(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [open]);
 
   async function markAll() {
     setPending(true);
@@ -26,53 +53,101 @@ export function NotificationsPanel({
     }
   }
 
-  return (
-    <div className="notify-panel">
-      <div className="notify-panel__bar">
-        <p>
-          {unreadCount > 0
-            ? `${unreadCount.toLocaleString("fa-IR")} خوانده‌نشده`
-            : "همه خوانده شده‌اند"}
-        </p>
-        {unreadCount > 0 ? (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={pending}
-            onClick={markAll}
-          >
-            علامت‌گذاری همه به‌عنوان خوانده
-          </Button>
-        ) : null}
-      </div>
+  const label =
+    unreadCount > 0
+      ? `اعلان‌ها، ${unreadCount.toLocaleString("fa-IR")} خوانده‌نشده`
+      : "اعلان‌ها";
 
-      {items.length === 0 ? (
-        <Notice tone="information" title="اعلانی نیست">
-          پس از رویدادهایی مثل ثبت‌نام، پرداخت تأییدشده، یا پاسخ تیکت اینجا دیده
-          می‌شوند.
-        </Notice>
-      ) : (
-        <ul className="notify-list">
-          {items.map((n) => (
-            <li
-              key={n.id}
-              className={
-                "notify-item" + (n.readAt ? "" : " notify-item--unread")
-              }
-            >
-              <h2>{n.title}</h2>
-              <p>{n.body}</p>
-              <p className="notify-item__meta">
-                {n.eventType} ·{" "}
-                {new Date(n.createdAt).toLocaleString("fa-IR")}
-                {n.deliveries?.length
-                  ? ` · ${n.deliveries.map((d) => `${d.channel}:${d.status}`).join("، ")}`
-                  : null}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
+  return (
+    <div className="folio-notes" id="notes" ref={rootRef}>
+      <button
+        type="button"
+        className="folio-notes__bell"
+        aria-label={label}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <BellIcon />
+        {unreadCount > 0 ? (
+          <span className="folio-notes__count">
+            {unreadCount.toLocaleString("fa-IR")}
+          </span>
+        ) : null}
+      </button>
+      {open ? (
+        <div
+          className="folio-notes__panel"
+          id={panelId}
+          role="region"
+          aria-label="اعلان‌ها"
+        >
+          <div className="folio-notes__bar">
+            <p>
+              {unreadCount > 0
+                ? `${unreadCount.toLocaleString("fa-IR")} خوانده‌نشده`
+                : "اعلانی نمانده"}
+            </p>
+            {unreadCount > 0 ? (
+              <button type="button" disabled={pending} onClick={markAll}>
+                همه را خواندم
+              </button>
+            ) : null}
+          </div>
+          {items.length === 0 ? (
+            <p className="folio-notes__empty">اعلانی نیست.</p>
+          ) : (
+            <ul className="notify-list">
+              {items.map((n) => (
+                <li
+                  key={n.id}
+                  className={
+                    "notify-item" + (n.readAt ? "" : " notify-item--unread")
+                  }
+                >
+                  <h2>
+                    {n.readAt ? null : (
+                      <span className="notify-item__dot" aria-hidden="true" />
+                    )}
+                    {n.title}
+                  </h2>
+                  <p>{n.body}</p>
+                  <time className="notify-item__time" dateTime={n.createdAt}>
+                    {new Date(n.createdAt).toLocaleString("fa-IR", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
     </div>
+  );
+}
+
+function BellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        d="M6.2 9.2a5.8 5.8 0 0 1 11.6 0c0 4.6 1.6 6.2 2.2 6.8H4c.6-.6 2.2-2.2 2.2-6.8Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10 18.2a2 2 0 0 0 4 0"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }

@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Notice } from "@zharfa/ui";
-import { fetchCurrentUser } from "../../../../lib/session";
 import {
   fetchAdminLicenses,
   fetchSpotDiagnostics,
@@ -10,12 +8,6 @@ import {
 import { SpotPlayerAdminForm } from "../../../../components/spotplayer-admin-form";
 
 export default async function SpotPlayerAdminPage() {
-  const user = await fetchCurrentUser();
-  if (!user) redirect("/login?next=/dashboard/admin/spotplayer");
-  if (user.role !== "OWNER") {
-    redirect("/dashboard");
-  }
-
   const [diagnostics, mappings, licenses] = await Promise.all([
     fetchSpotDiagnostics(),
     fetchSpotMappings(),
@@ -48,11 +40,19 @@ export default async function SpotPlayerAdminPage() {
             tone={
               diagnostics.config.integrationStatus === "IMPLEMENTED"
                 ? "success"
-                : "information"
+                : "warning"
             }
-            title={`وضعیت: ${diagnostics.config.integrationStatus}`}
+            title={
+              diagnostics.config.integrationStatus === "IMPLEMENTED"
+                ? "پیکربندی کامل است"
+                : "پیکربندی ناقص"
+            }
           >
-            اعتبارنامه: {diagnostics.config.credentialsStatus}
+            {diagnostics.config.integrationStatus === "IMPLEMENTED"
+              ? "کلید API تنظیم شده و صدور لایسنس می‌تواند انجام شود."
+              : "اعتبارنامه اسپات‌پلیر تنظیم نشده است. تا تنظیم کلید API، صدور لایسنس ناموفق می‌ماند."}{" "}
+            وضعیت: {diagnostics.config.integrationStatus} · اعتبارنامه:{" "}
+            {diagnostics.config.credentialsStatus}
             {diagnostics.config.apiKeyMasked
               ? ` · ${diagnostics.config.apiKeyMasked}`
               : " · بدون کلید"}{" "}

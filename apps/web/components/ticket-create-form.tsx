@@ -12,7 +12,6 @@ export function TicketCreateForm({ courses }: { courses: CourseOption[] }) {
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [courseSlug, setCourseSlug] = useState("");
-  const [telegramRef, setTelegramRef] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -27,7 +26,6 @@ export function TicketCreateForm({ courses }: { courses: CourseOption[] }) {
           subject,
           description,
           courseSlug: courseSlug || undefined,
-          telegramRef: telegramRef || undefined,
         }),
       });
       router.push(`/dashboard/tickets/${ticket.id}`);
@@ -39,7 +37,7 @@ export function TicketCreateForm({ courses }: { courses: CourseOption[] }) {
   }
 
   return (
-    <form className="ticket-form" onSubmit={onSubmit}>
+    <form className="ticket-form disinab-tickets__form" onSubmit={onSubmit}>
       {error ? (
         <Notice tone="error" title="خطا">
           {error}
@@ -65,8 +63,13 @@ export function TicketCreateForm({ courses }: { courses: CourseOption[] }) {
         className="ticket-form__select"
         value={courseSlug}
         onChange={(e) => setCourseSlug(e.target.value)}
+        disabled={courses.length === 0}
       >
-        <option value="">— بدون دوره —</option>
+        <option value="">
+          {courses.length === 0
+            ? "— هنوز دوره‌ای در حساب نیست —"
+            : "— بدون دوره —"}
+        </option>
         {courses.map((c) => (
           <option key={c.slug} value={c.slug}>
             {c.title}
@@ -86,19 +89,6 @@ export function TicketCreateForm({ courses }: { courses: CourseOption[] }) {
         minLength={10}
         rows={6}
       />
-
-      <Field
-        id="ticket-telegram"
-        label="آیدی تلگرام (اختیاری — فقط مکمل)"
-        name="telegramRef"
-        value={telegramRef}
-        onChange={(e) => setTelegramRef(e.target.value)}
-        placeholder="@username"
-        maxLength={120}
-      />
-      <p className="ticket-form__hint">
-        پشتیبانی اصلی از طریق همین تیکت است؛ تلگرام فقط برای هماهنگی اختیاری.
-      </p>
 
       <Button type="submit" variant="primary" disabled={pending}>
         {pending ? "در حال ثبت…" : "ثبت تیکت"}

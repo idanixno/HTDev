@@ -15,7 +15,13 @@ async function parseError(res: Response): Promise<string> {
   try {
     const data = (await res.json()) as {
       message?: string | string[];
+      code?: string;
     };
+    if (data.code === "AI_NOT_CONFIGURED") {
+      return typeof data.message === "string"
+        ? data.message
+        : "کلید OpenAI پیکربندی نشده است.";
+    }
     if (Array.isArray(data.message)) return data.message.join("، ");
     if (typeof data.message === "string") return data.message;
   } catch {

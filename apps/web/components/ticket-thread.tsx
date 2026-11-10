@@ -58,10 +58,10 @@ export function TicketThread({
   }
 
   return (
-    <div className="ticket-thread">
+    <div className="ticket-thread disinab-tickets__thread">
       <header className="ticket-thread__head">
         <div>
-          <h1 className="ticket-thread__title">{ticket.subject}</h1>
+          <h2 className="ticket-thread__title">{ticket.subject}</h2>
           <p className="ticket-thread__meta">
             {ticket.course ? (
               <>
@@ -125,7 +125,7 @@ export function TicketThread({
             value={body}
             onChange={(e) => setBody(e.target.value)}
             required
-            rows={4}
+            rows={3}
           />
           <Button type="submit" variant="primary" disabled={pending}>
             {pending ? "…" : "ارسال پاسخ"}
@@ -137,9 +137,9 @@ export function TicketThread({
         </Notice>
       )}
 
-      {ticket.allowedTransitions.length > 0 ? (
+      {isAdmin && ticket.allowedTransitions.length > 0 ? (
         <div className="ticket-thread__actions">
-          <p>{isAdmin ? "تغییر وضعیت (ادمین)" : "اقدامات مجاز"}</p>
+          <p>تغییر وضعیت (ادمین)</p>
           <div className="ticket-thread__btns">
             {ticket.allowedTransitions.map((s) => (
               <Button
@@ -152,6 +152,23 @@ export function TicketThread({
                 {ticketStatusLabel(s)}
               </Button>
             ))}
+          </div>
+        </div>
+      ) : null}
+
+      {!isAdmin &&
+      (ticket.status === "CLOSED" || ticket.status === "RESOLVED") ? (
+        <div className="ticket-thread__actions">
+          <p>اقدامات مجاز</p>
+          <div className="ticket-thread__btns">
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={pending}
+              onClick={() => onStatus("OPEN")}
+            >
+              بازگشایی تیکت
+            </Button>
           </div>
         </div>
       ) : null}
