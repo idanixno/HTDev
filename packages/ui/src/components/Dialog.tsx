@@ -7,14 +7,15 @@ import {
   type HTMLAttributes,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "./Button";
 
 export type DialogProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
   open: boolean;
   title: ReactNode;
   children: ReactNode;
-  indexLabel?: string;
-  footnote?: ReactNode;
+  indexLabel?: ReactNode | null;
+  footnote?: ReactNode | null;
   cancelLabel?: string;
   confirmLabel?: string;
   onCancel: () => void;
@@ -26,8 +27,8 @@ export function Dialog({
   open,
   title,
   children,
-  indexLabel = "۰۷",
-  footnote = "تمرکز در dialog حبس شود؛ Escape برای خروج امن؛ بازگشت تمرکز به محرک.",
+  indexLabel = null,
+  footnote = null,
   cancelLabel = "لغو",
   confirmLabel = "تأیید",
   onCancel,
@@ -49,6 +50,9 @@ export function Dialog({
       'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
     );
     focusable?.[0]?.focus();
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -77,15 +81,17 @@ export function Dialog({
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
       previouslyFocused.current?.focus?.();
     };
   }, [open, onCancel]);
 
   if (!open) return null;
+  if (typeof document === "undefined") return null;
 
   const classes = ["z-dialog", className ?? ""].filter(Boolean).join(" ");
 
-  return (
+  return createPortal(
     <div
       className="z-dialog-backdrop"
       onMouseDown={(event) => {
@@ -122,6 +128,7 @@ export function Dialog({
         </div>
         {footnote ? <p className="z-dialog__footnote">{footnote}</p> : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

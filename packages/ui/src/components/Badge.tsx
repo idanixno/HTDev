@@ -4,10 +4,10 @@ import type { HTMLAttributes, ReactNode } from "react";
 export type BadgeStatus = "success" | "pending" | "failure" | "information";
 
 const DEFAULT_LABELS: Record<BadgeStatus, string> = {
-  success: "منتشرشده",
-  pending: "رایگان",
-  failure: "پیش‌فروش",
-  information: "ناموفق",
+  success: "تأییدشده",
+  pending: "در انتظار",
+  failure: "ناموفق",
+  information: "اطلاع",
 };
 
 export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
