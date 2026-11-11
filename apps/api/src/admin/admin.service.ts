@@ -197,7 +197,7 @@ export class AdminService {
     });
     if (pending.length === 0) return;
 
-    const body = `ژرفا: دوره «${title}» منتشر شد. ثبت‌نام: /courses/${slug}`;
+    const body = `DXCode: دوره «${title}» منتشر شد. ثبت‌نام: /courses/${slug}`;
     const now = new Date();
     for (const row of pending) {
       try {
@@ -1268,12 +1268,16 @@ export class AdminService {
       return {
         id: "home",
         heroEyebrow: null,
-        heroTitle: "ژرفا",
+        heroTitle: "DXCode",
         heroSubtitle: null,
         primaryCtaLabel: null,
         primaryCtaHref: null,
         secondaryCtaLabel: null,
         secondaryCtaHref: null,
+        announcementEnabled: false,
+        announcementText: null,
+        announcementHref: null,
+        announcementCtaLabel: null,
         updatedAt: null,
       };
     }
@@ -1286,11 +1290,19 @@ export class AdminService {
       primaryCtaHref: row.primaryCtaHref,
       secondaryCtaLabel: row.secondaryCtaLabel,
       secondaryCtaHref: row.secondaryCtaHref,
+      announcementEnabled: row.announcementEnabled,
+      announcementText: row.announcementText,
+      announcementHref: row.announcementHref,
+      announcementCtaLabel: row.announcementCtaLabel,
       updatedAt: row.updatedAt.toISOString(),
     };
   }
 
   async updateHomeCms(actorId: string, dto: UpdateHomeCmsDto) {
+    const announcementEnabled = dto.announcementEnabled === true;
+    const announcementText = dto.announcementText?.trim() || null;
+    const announcementHref = dto.announcementHref?.trim() || null;
+    const announcementCtaLabel = dto.announcementCtaLabel?.trim() || null;
     const row = await this.prisma.cmsHomeContent.upsert({
       where: { id: "home" },
       create: {
@@ -1302,6 +1314,10 @@ export class AdminService {
         primaryCtaHref: dto.primaryCtaHref ?? null,
         secondaryCtaLabel: dto.secondaryCtaLabel ?? null,
         secondaryCtaHref: dto.secondaryCtaHref ?? null,
+        announcementEnabled,
+        announcementText,
+        announcementHref,
+        announcementCtaLabel,
       },
       update: {
         heroEyebrow: dto.heroEyebrow ?? null,
@@ -1311,6 +1327,10 @@ export class AdminService {
         primaryCtaHref: dto.primaryCtaHref ?? null,
         secondaryCtaLabel: dto.secondaryCtaLabel ?? null,
         secondaryCtaHref: dto.secondaryCtaHref ?? null,
+        announcementEnabled,
+        announcementText,
+        announcementHref,
+        announcementCtaLabel,
       },
     });
 
@@ -1341,7 +1361,7 @@ export class AdminService {
           "مسیرهای پیشنهادی برای یادگیری عمیق. دوره‌ها را به ترتیب ببینید.",
         seoTitle: "نقشهٔ راه",
         seoDescription:
-          "ترتیب پیشنهادی دوره‌های ژرفا — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
+          "ترتیب پیشنهادی دوره‌های DXCode — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
         updatedAt: null,
       };
     }

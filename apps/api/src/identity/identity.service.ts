@@ -213,11 +213,11 @@ export class IdentityService {
 
     // Only deliver OTP when a real user matched a valid destination
     if (validDestination && userId) {
-      const body = `کد بازیابی ژرفا: ${code}\nاعتبار تا ${expiresAt.toISOString()}`;
+      const body = `کد بازیابی DXCode: ${code}\nاعتبار تا ${expiresAt.toISOString()}`;
       if (channel === OtpChannel.EMAIL) {
         await this.messaging.sendEmail({
           to: normalized,
-          subject: "کد بازیابی رمز عبور ژرفا",
+          subject: "کد بازیابی رمز عبور DXCode",
           body,
         });
       } else {

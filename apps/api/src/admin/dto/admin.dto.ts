@@ -421,6 +421,25 @@ export class UpdateHomeCmsDto {
   @IsString()
   @MaxLength(200)
   secondaryCtaHref?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  announcementEnabled?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  announcementText?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  announcementHref?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  announcementCtaLabel?: string | null;
 }
 
 export class UpdatePathsCmsDto {
@@ -463,7 +482,7 @@ export class UpdateFooterCmsDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(400)
+  @MaxLength(900)
   footerBlurb?: string | null;
 
   @IsOptional()

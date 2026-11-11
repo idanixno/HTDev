@@ -8,7 +8,7 @@ const AUTHOR = {
 
 const PUBLISHER = {
   "@type": "Organization" as const,
-  name: "ژرفا",
+  name: "DXCode",
   url: absoluteUrl("/"),
   logo: {
     "@type": "ImageObject" as const,
@@ -21,7 +21,7 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     ...PUBLISHER,
     description:
-      "ژرفا اطلس یادگیری عمیقِ آرمان راد است؛ از اولین مسئله تا تصمیم‌های معماری، با دوره و مسیر روشن.",
+      "DXCode — یادگیری عمیق فناوری؛ از اولین مسئله تا تصمیم‌های مهندسی، با دوره و مسیر روشن.",
   };
 }
 
@@ -29,7 +29,7 @@ export function websiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "ژرفا",
+    name: "DXCode",
     url: absoluteUrl("/"),
     inLanguage: "fa-IR",
     publisher: PUBLISHER,
@@ -122,7 +122,7 @@ export function articleJsonLd(input: {
     wordCount: input.wordCount ?? undefined,
     isPartOf: {
       "@type": "Blog",
-      name: "مقالات ژرفا",
+      name: "مقالات DXCode",
       url: absoluteUrl("/journal"),
     },
   };
@@ -165,7 +165,7 @@ export function articlePageGraph(input: {
         inLanguage: "fa-IR",
         isPartOf: {
           "@type": "WebSite",
-          name: "ژرفا",
+          name: "DXCode",
           url: absoluteUrl("/"),
         },
         primaryImageOfPage: input.image

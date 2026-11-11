@@ -182,7 +182,7 @@ export class SeoService {
     try {
       const result = await this.ai.completeJson({
         system: [
-          "You are an SEO assistant for a Persian (fa-IR) technical education site named ژرفا.",
+          "You are an SEO assistant for a Persian (fa-IR) technical education site named DXCode.",
           "Return ONLY valid JSON. Do not invent course features, prices, reviews, or statistics.",
           "Preserve the author's meaning and factual claims. Prefer clear Persian.",
           "Fields: suggestion (string), alternatives (string[] optional), rationale (string).",

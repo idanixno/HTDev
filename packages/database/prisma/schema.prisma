@@ -772,6 +772,12 @@ model CmsHomeContent {
   primaryCtaHref   String?
   secondaryCtaLabel String?
   secondaryCtaHref String?
+  /// When true and announcementText is set, show a strip at the top of the home page.
+  announcementEnabled Boolean @default(false)
+  announcementText    String?
+  /// Optional link for the announcement CTA (relative or https).
+  announcementHref    String?
+  announcementCtaLabel String?
   updatedAt        DateTime @updatedAt
   createdAt        DateTime @default(now())
 }
@@ -791,7 +797,7 @@ model CmsPathsContent {
 model CmsFooterContent {
   id                   String   @id @default("footer")
   /// Brand wordmark (header + footer).
-  brandName            String   @default("ژرفا")
+  brandName            String   @default("DXCode")
   /// Header tagline next to brand.
   brandTagline         String?
   /// Footer kicker above brand (e.g. استودیو).

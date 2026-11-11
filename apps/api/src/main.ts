@@ -2,10 +2,19 @@ import "reflect-metadata";
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import cookieParser from "cookie-parser";
+import { createRequire } from "node:module";
 import { AppModule } from "./app.module";
 import { securityHeadersMiddleware } from "./security/security-headers.middleware";
 
+const requireConfig = createRequire(__filename);
+const { assertProductionEnv } = requireConfig(
+  "@zharfa/config/assert-production-env",
+) as {
+  assertProductionEnv: (role: "api" | "worker" | "web") => void;
+};
+
 async function bootstrap() {
+  assertProductionEnv("api");
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.use(securityHeadersMiddleware);

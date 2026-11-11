@@ -33,11 +33,11 @@ export type SiteChrome = {
 };
 
 export const DEFAULT_SITE_CHROME: SiteChrome = {
-  brandName: "ژرفا",
-  brandTagline: "اطلس یادگیری عمیق",
+  brandName: "DXCode",
+  brandTagline: "LEARN · BUILD · GROW",
   brandKicker: "استودیو",
   footerBlurb:
-    "ژرفا اطلس یادگیری عمیقِ آرمان راد است؛ از اولین مسئله تا تصمیم‌های معماری، با دوره و مسیر روشن.",
+    "DXCode جایی است برای یادگیری عمیق فناوری؛ از اولین مسئله تا تصمیم‌های مهندسی. دوره، مسیر روشن و تمرین واقعی — تا مهارت قابل‌اتکا بسازی، نه فقط تئوری حفظ‌کردنی.",
   headerLinks: [
     { href: "/courses", label: "دوره‌ها", match: "/courses" },
     { href: "/paths", label: "مسیرها", match: "/paths" },
@@ -53,7 +53,7 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
       ],
     },
     {
-      label: "ژرفا",
+      label: "درباره",
       links: [
         { href: "/faq", label: "پرسش‌های رایج" },
         { href: "/terms", label: "شرایط استفاده" },
@@ -70,7 +70,7 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
       ],
     },
     {
-      label: "ژرفا",
+      label: "درباره",
       links: [
         { href: "/faq", label: "پرسش‌ها" },
         { href: "/terms", label: "شرایط استفاده" },
@@ -132,8 +132,9 @@ export function parseChromeGroups(
   for (const item of raw) {
     if (!item || typeof item !== "object") continue;
     const row = item as Record<string, unknown>;
-    const label = cleanText(row.label, 40);
-    if (!label) continue;
+    const rawLabel = cleanText(row.label, 40);
+    if (!rawLabel) continue;
+    const label = rawLabel === "DXCode" ? "درباره" : rawLabel;
     const links = parseChromeLinks(row.links, []);
     if (links.length === 0) continue;
     groups.push({ label, links });
@@ -169,7 +170,7 @@ export function mergeSiteChrome(row: {
     brandName: cleanText(row.brandName, 40) ?? d.brandName,
     brandTagline: cleanText(row.brandTagline, 80) ?? d.brandTagline,
     brandKicker: cleanText(row.brandKicker, 40) ?? d.brandKicker,
-    footerBlurb: cleanText(row.footerBlurb, 400) ?? d.footerBlurb,
+    footerBlurb: cleanText(row.footerBlurb, 900) ?? d.footerBlurb,
     headerLinks: parseChromeLinks(row.headerLinks, d.headerLinks),
     footerGroups: parseChromeGroups(row.footerGroups, d.footerGroups),
     mobileGroups: parseChromeGroups(

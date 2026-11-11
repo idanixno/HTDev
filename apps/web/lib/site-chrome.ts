@@ -31,11 +31,11 @@ export type SiteChrome = {
 };
 
 export const DEFAULT_SITE_CHROME: SiteChrome = {
-  brandName: "ژرفا",
-  brandTagline: "اطلس یادگیری عمیق",
+  brandName: "DXCode",
+  brandTagline: "LEARN · BUILD · GROW",
   brandKicker: "استودیو",
   footerBlurb:
-    "ژرفا اطلس یادگیری عمیقِ آرمان راد است؛ از اولین مسئله تا تصمیم‌های معماری، با دوره و مسیر روشن.",
+    "DXCode جایی است برای یادگیری عمیق فناوری؛ از اولین مسئله تا تصمیم‌های مهندسی. دوره، مسیر روشن و تمرین واقعی — تا مهارت قابل‌اتکا بسازی، نه فقط تئوری حفظ‌کردنی.",
   headerLinks: [
     { href: "/courses", label: "دوره‌ها", match: "/courses" },
     { href: "/paths", label: "مسیرها", match: "/paths" },
@@ -51,7 +51,7 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
       ],
     },
     {
-      label: "ژرفا",
+      label: "درباره",
       links: [
         { href: "/faq", label: "پرسش‌های رایج" },
         { href: "/terms", label: "شرایط استفاده" },
@@ -68,7 +68,7 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
       ],
     },
     {
-      label: "ژرفا",
+      label: "درباره",
       links: [
         { href: "/faq", label: "پرسش‌ها" },
         { href: "/terms", label: "شرایط استفاده" },
@@ -87,4 +87,3 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
   enamadHtml: null,
   paymentGatewayHtml: null,
 };
-

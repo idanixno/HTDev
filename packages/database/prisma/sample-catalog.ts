@@ -521,7 +521,7 @@ export const EXTRA_COURSES: SeedCourse[] = [
         ],
       },
       {
-        title: "تمرین ژرفا",
+        title: "تمرین DXCode",
         lessons: [
           { title: "سفارش، پرداخت و دسترسی سه چیزند", durationMinutes: 22 },
           { title: "بازبینی واژه‌های یک صفحهٔ خرید", durationMinutes: 16 },
@@ -700,7 +700,7 @@ export const EXTRA_ARTICLES = [
     id: "seed_article_status",
     slug: "three-words-for-access",
     title: "سفارش، پرداخت، دسترسی",
-    summary: "این سه کلمه در ژرفا یکی نیستند و صفحه نباید آن‌ها را یکی نشان بدهد.",
+    summary: "این سه کلمه در DXCode یکی نیستند و صفحه نباید آن‌ها را یکی نشان بدهد.",
     coverAsset: "/artwork/journal/three-words-for-access.svg",
     sortOrder: 6,
     readingMinutes: 4,

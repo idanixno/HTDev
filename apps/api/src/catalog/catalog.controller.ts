@@ -93,6 +93,11 @@ export class CatalogController {
     return this.catalog.getPathsPageCms();
   }
 
+  @Get("meta/home-announcement")
+  homeAnnouncement() {
+    return this.catalog.getHomeAnnouncement();
+  }
+
   @Get("faq")
   faq() {
     return this.catalog.listPublishedFaq();

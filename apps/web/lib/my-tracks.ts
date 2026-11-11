@@ -45,7 +45,7 @@ export async function fetchMyRelevantTracks(
       return {
         ...path,
         steps,
-        credentialLabel: `تخصص ژرفا · ${path.title}`,
+        credentialLabel: `تخصص DXCode · ${path.title}`,
         currentCourseSlug,
         currentStepIndex,
       } satisfies PublicCourseTrack;

@@ -623,7 +623,7 @@ async function main() {
     username: "admin",
     email: "admin@zharfa.local",
     phone: "09120000000",
-    displayName: "مدیر ژرفا",
+    displayName: "مدیر DXCode",
     role: UserRole.OWNER,
     password: adminPassword,
     emailVerified: true,
@@ -905,24 +905,91 @@ async function seedCms(admin: { id: string }) {
     where: { id: "home" },
     create: {
       id: "home",
-      heroEyebrow: "اطلس یادگیری عمیق",
-      heroTitle: "ژرفا",
+      heroEyebrow: "LEARN · BUILD · GROW",
+      heroTitle: "از یادگیری کد تا درک مهندسی",
       heroSubtitle:
-        "از اولین مسئله تا تصمیم‌های معماری — مسیرت را با پیش‌نیاز روشن بساز.",
-      primaryCtaLabel: "مشاهده دوره‌ها",
+        "دانش فناوری را عمیق یاد بگیر، واقعی بساز و حرفه‌ای رشد کن.",
+      primaryCtaLabel: "شروع یادگیری",
       primaryCtaHref: "/courses",
-      secondaryCtaLabel: "مسیرهای یادگیری",
+      secondaryCtaLabel: "نقشه راه",
       secondaryCtaHref: "/paths",
     },
     update: {
-      heroEyebrow: "اطلس یادگیری عمیق",
-      heroTitle: "ژرفا",
+      heroEyebrow: "LEARN · BUILD · GROW",
+      heroTitle: "از یادگیری کد تا درک مهندسی",
       heroSubtitle:
-        "از اولین مسئله تا تصمیم‌های معماری — مسیرت را با پیش‌نیاز روشن بساز.",
-      primaryCtaLabel: "مشاهده دوره‌ها",
+        "دانش فناوری را عمیق یاد بگیر، واقعی بساز و حرفه‌ای رشد کن.",
+      primaryCtaLabel: "شروع یادگیری",
       primaryCtaHref: "/courses",
-      secondaryCtaLabel: "مسیرهای یادگیری",
+      secondaryCtaLabel: "نقشه راه",
       secondaryCtaHref: "/paths",
+    },
+  });
+
+  await prisma.cmsFooterContent.upsert({
+    where: { id: "footer" },
+    create: {
+      id: "footer",
+      brandName: "DXCode",
+      brandTagline: "LEARN · BUILD · GROW",
+      brandKicker: "استودیو",
+      footerBlurb:
+        "DXCode جایی است برای یادگیری عمیق فناوری؛ از اولین مسئله تا تصمیم‌های مهندسی. دوره، مسیر روشن و تمرین واقعی — تا مهارت قابل‌اتکا بسازی، نه فقط تئوری حفظ‌کردنی.",
+      headerLinks: [
+        { href: "/courses", label: "دوره‌ها", match: "/courses" },
+        { href: "/paths", label: "مسیرها", match: "/paths" },
+        { href: "/journal", label: "مقالات", match: "/journal" },
+      ],
+      footerGroups: [
+        {
+          label: "یادگیری",
+          links: [
+            { href: "/courses", label: "دوره‌ها" },
+            { href: "/paths", label: "مسیرهای یادگیری" },
+            { href: "/journal", label: "مقالات" },
+          ],
+        },
+        {
+          label: "درباره",
+          links: [
+            { href: "/faq", label: "پرسش‌های رایج" },
+            { href: "/terms", label: "شرایط استفاده" },
+          ],
+        },
+      ],
+      mobileGroups: [
+        {
+          label: "یادگیری",
+          links: [
+            { href: "/courses", label: "دوره‌ها" },
+            { href: "/paths", label: "مسیرهای یادگیری" },
+            { href: "/journal", label: "مقالات" },
+          ],
+        },
+        {
+          label: "درباره",
+          links: [
+            { href: "/faq", label: "پرسش‌ها" },
+            { href: "/terms", label: "شرایط استفاده" },
+          ],
+        },
+      ],
+      guestCtaLabel: "ورود",
+      guestCtaHref: "/login",
+      authedCtaLabel: "حساب من",
+      authedCtaHref: "/dashboard",
+      showCart: true,
+      showThemeToggle: true,
+      trustsLabel: "اعتماد و پرداخت",
+      mobileMenuTitle: "منو",
+      mobileMenuLine: "دوره‌ها، مسیرها و حساب — یک صفحه.",
+    },
+    update: {
+      brandName: "DXCode",
+      brandTagline: "LEARN · BUILD · GROW",
+      brandKicker: "استودیو",
+      footerBlurb:
+        "DXCode جایی است برای یادگیری عمیق فناوری؛ از اولین مسئله تا تصمیم‌های مهندسی. دوره، مسیر روشن و تمرین واقعی — تا مهارت قابل‌اتکا بسازی، نه فقط تئوری حفظ‌کردنی.",
     },
   });
 
@@ -1039,7 +1106,7 @@ async function seedJournal(admin: { id: string }) {
 
 ## چه چیزی را از صفحه انتظار نداشته باشیم
 
-ژرفا پلیر ویدیوی مستقل ندارد. ویدیوی محافظت‌شده بعد از ثبت دسترسی، در اسپات‌پلیر باز می‌شود. پیشرفت تماشا در این وب‌سایت نمایش داده نمی‌شود چون از ارائه‌دهنده خوانده نمی‌شود.
+DXCode پلیر ویدیوی مستقل ندارد. ویدیوی محافظت‌شده بعد از ثبت دسترسی، در اسپات‌پلیر باز می‌شود. پیشرفت تماشا در این وب‌سایت نمایش داده نمی‌شود چون از ارائه‌دهنده خوانده نمی‌شود.
 
 اگر سرفصل با هدف شما جور نیست، دوره را نخرید. مسیر یادگیری فقط ترتیب پیشنهادی است و اشتراک اجباری نمی‌سازد.`,
     },
@@ -1069,11 +1136,11 @@ async function seedJournal(admin: { id: string }) {
       slug: "one-instructor-catalog",
       title: "این کاتالوگ بازار مدرس‌ها نیست",
       summary:
-        "ژرفا آموزش یک مدرس است و موضوع دوره‌ها به یک زبان یا فریم‌ورک محدود نمی‌شود.",
+        "DXCode آموزش یک مدرس است و موضوع دوره‌ها به یک زبان یا فریم‌ورک محدود نمی‌شود.",
       coverAsset: "/artwork/journal/one-instructor.svg",
       sortOrder: 3,
       readingMinutes: 3,
-      body: `هر دوره در ژرفا متعلق به همین مجموعه است. دسته‌ها موضوع را جدا می‌کنند — معماری، سیستم، امنیت، یا هر قلمرو دیگری که بعداً منتشر شود — ولی فروشنده و پشتیبانی چندمدرسه نیست.
+      body: `هر دوره در DXCode متعلق به همین مجموعه است. دسته‌ها موضوع را جدا می‌کنند — معماری، سیستم، امنیت، یا هر قلمرو دیگری که بعداً منتشر شود — ولی فروشنده و پشتیبانی چندمدرسه نیست.
 
 ## مسیر را با دسته قاطی نکنید
 
@@ -1086,9 +1153,9 @@ async function seedJournal(admin: { id: string }) {
       slug: "note-format",
       title: "قالب مقاله: تصویر، فیلم و کد",
       summary: "یک مقاله می‌تواند تیتر، فهرست، تصویر، فیلم و قطعهٔ کد داشته باشد.",
-      seoTitle: "قالب مقاله ژرفا | تصویر، فیلم و کد",
+      seoTitle: "قالب مقاله DXCode | تصویر، فیلم و کد",
       seoDescription:
-        "در مقاله ژرفا می‌توان تیتر، تصویر، فیلم کوتاه و کد را کنار متن نوشت. عنوان صفحه همان h1 است.",
+        "در مقاله DXCode می‌توان تیتر، تصویر، فیلم کوتاه و کد را کنار متن نوشت. عنوان صفحه همان h1 است.",
       sortOrder: 20,
       readingMinutes: 3,
       body: `عنوان مقاله، h1 صفحه است. تیترهای داخل متن از سطح بخش شروع می‌شوند.
@@ -1532,20 +1599,11 @@ async function seedCommerce(
     });
     mappings += 1;
   }
+  // Free courses are watched on-site; do not enable SpotPlayer mapping for them.
   if (freeCourse) {
-    await prisma.spotPlayerCourseMapping.upsert({
+    await prisma.spotPlayerCourseMapping.deleteMany({
       where: { courseId: freeCourse.id },
-      create: {
-        courseId: freeCourse.id,
-        spotPlayerCourseId: "seed_spotplayer_free_course_placeholder",
-        enabled: true,
-      },
-      update: {
-        spotPlayerCourseId: "seed_spotplayer_free_course_placeholder",
-        enabled: true,
-      },
     });
-    mappings += 1;
   }
 
   return {

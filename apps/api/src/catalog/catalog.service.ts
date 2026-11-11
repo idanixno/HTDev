@@ -180,7 +180,7 @@ export class CatalogService {
       seoTitle: row?.seoTitle ?? "نقشهٔ راه",
       seoDescription:
         row?.seoDescription ??
-        "ترتیب پیشنهادی دوره‌های ژرفا — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
+        "ترتیب پیشنهادی دوره‌های DXCode — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
     };
   }
 
@@ -272,7 +272,7 @@ export class CatalogService {
       );
       return {
         ...detail,
-        credentialLabel: `تخصص ژرفا · ${path.title}`,
+        credentialLabel: `تخصص DXCode · ${path.title}`,
         currentCourseSlug: course.slug,
         currentStepIndex: currentIndex >= 0 ? currentIndex : null,
       };
@@ -357,6 +357,36 @@ export class CatalogService {
       where: { id: "footer" },
     });
     return mergeSiteChrome(row);
+  }
+
+  async getHomeAnnouncement() {
+    const row = await this.prisma.cmsHomeContent.findUnique({
+      where: { id: "home" },
+      select: {
+        announcementEnabled: true,
+        announcementText: true,
+        announcementHref: true,
+        announcementCtaLabel: true,
+      },
+    });
+    const text = row?.announcementText?.trim() ?? "";
+    if (!row?.announcementEnabled || !text) {
+      return { enabled: false as const };
+    }
+    const rawHref = row.announcementHref?.trim() ?? "";
+    const href =
+      rawHref.startsWith("/") ||
+      rawHref.startsWith("https://") ||
+      rawHref.startsWith("http://")
+        ? rawHref.slice(0, 300)
+        : null;
+    const ctaLabel = row.announcementCtaLabel?.trim().slice(0, 80) || null;
+    return {
+      enabled: true as const,
+      text: text.slice(0, 500),
+      href,
+      ctaLabel: href ? ctaLabel || "ادامه" : null,
+    };
   }
 
   /** Suggest journal notes that overlap the course topic, description, and syllabus. */

@@ -28,8 +28,8 @@ export default async function AdminCmsPage() {
             CMS پایه
           </h1>
           <p className="admin-page__subtitle">
-            صفحهٔ خانه، نقشهٔ راه، هدر و فوتر، نشان‌های اعتماد، نکات قبل از خرید،
-            و پرسش‌های متداول.
+            اطلاعیهٔ صفحهٔ اصلی، هیرو خانه، نقشهٔ راه، هدر و فوتر، نشان‌های
+            اعتماد، نکات قبل از خرید، و پرسش‌های متداول.
           </p>
         </div>
         <Button href="/admin/cms/faq/new">پرسش جدید</Button>
@@ -51,6 +51,10 @@ export default async function AdminCmsPage() {
               primaryCtaHref: home.primaryCtaHref ?? "",
               secondaryCtaLabel: home.secondaryCtaLabel ?? "",
               secondaryCtaHref: home.secondaryCtaHref ?? "",
+              announcementEnabled: home.announcementEnabled ?? false,
+              announcementText: home.announcementText ?? "",
+              announcementHref: home.announcementHref ?? "",
+              announcementCtaLabel: home.announcementCtaLabel ?? "",
             }}
           />
         </article>

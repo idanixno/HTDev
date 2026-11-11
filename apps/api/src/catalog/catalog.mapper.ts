@@ -7,6 +7,7 @@ import type {
   LearningPathStep,
   Lesson,
 } from "@zharfa/database";
+import { CourseOfferKind } from "@zharfa/database";
 import {
   defaultStatusLabel,
   toCardAvailability,
@@ -194,9 +195,11 @@ export function toPublicCourseDetail(
   },
   purchaseNotes: PublicCoursePurchaseNoteDto[] = [],
 ): PublicCourseDetailDto {
-  const spotPlayerProtected = Boolean(
-    course.spotPlayerMapping?.enabled,
-  );
+  // Free courses are watched/downloaded on-site after login — never hide
+  // their videos behind SpotPlayer chrome on the public course page.
+  const spotPlayerProtected =
+    course.offerKind !== CourseOfferKind.FREE &&
+    Boolean(course.spotPlayerMapping?.enabled);
   return {
     ...toPublicCourseCard(course),
     description: course.description,

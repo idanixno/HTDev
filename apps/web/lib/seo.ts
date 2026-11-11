@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { absoluteUrl, siteUrl } from "./site-url";
 
-const DEFAULT_TITLE = "ژرفا | اطلس یادگیری عمیق";
+const DEFAULT_TITLE = "از یادگیری کد تا درک مهندسی";
 const DEFAULT_DESCRIPTION =
-  "اطلس یادگیریِ آرمان راد؛ از اولین مسئله تا تصمیم‌های معماری. مسیرت را با پیش‌نیاز روشن و تمرین واقعی بساز.";
+  "دانش فناوری را عمیق یاد بگیر، واقعی بساز و حرفه‌ای رشد کن. دوره، مسیر و تمرین واقعی برای مهندسان و علاقه‌مندان.";
 
 export const siteMetadataBase = {
   title: DEFAULT_TITLE,
@@ -45,7 +45,7 @@ export function buildPageMetadata(input: {
       type: isArticle ? "article" : "website",
       locale: "fa_IR",
       url,
-      siteName: "ژرفا",
+      siteName: "DXCode",
       title: input.title,
       description,
       images: [{ url: image, alt: input.title }],
