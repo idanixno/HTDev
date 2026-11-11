@@ -221,63 +221,35 @@ pm2 startup
 
 ---
 
-## قدم ۸ — Nginx (پیشنهادی) و HTTPS
+## قدم ۸ — Nginx امن و HTTPS
 
 مرورگر نباید مستقیم به پورت‌های داخلی بزند. Nginx را جلوی وب/API بگذارید.
 
-### مثال ساده: یک دامنه برای سایت، API زیر همان دامنه با `/api-backend` یا ساب‌دامین
+کانفیگ سخت‌شده (TLS مدرن، HSTS، rate-limit، بلاک probe، فقط پروکسی به `127.0.0.1`):
 
-**حالت رایج‌تر: ساب‌دامین**
+- [`deploy/nginx/dxcode.conf`](../deploy/nginx/dxcode.conf)
+- راهنمای نصب: [`deploy/nginx/README.md`](../deploy/nginx/README.md)
 
-- `https://zharfa.example.com` → وب `:3000`
-- `https://api.zharfa.example.com` → API `:4000`
+**ساب‌دامین پیشنهادی**
 
-نمونهٔ اسکچ Nginx برای وب:
-
-```nginx
-server {
-  listen 80;
-  server_name zharfa.example.com;
-
-  location / {
-    proxy_pass http://127.0.0.1:3000;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
-}
-```
-
-و برای API:
-
-```nginx
-server {
-  listen 80;
-  server_name api.zharfa.example.com;
-
-  location / {
-    proxy_pass http://127.0.0.1:4000;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
-}
-```
-
-سپس با Certbot گواهی بگیرید:
+- `https://YOUR_DOMAIN` → وب `127.0.0.1:3000`
+- `https://YOUR_API_DOMAIN` → API `127.0.0.1:4000`
 
 ```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d zharfa.example.com -d api.zharfa.example.com
+sudo apt install -y nginx certbot python3-certbot-nginx
+sudo cp deploy/nginx/snippets/dxcode-proxy.conf /etc/nginx/snippets/
+# دامنه را در dxcode.conf عوض کنید، سپس:
+sudo cp deploy/nginx/dxcode.conf /etc/nginx/sites-available/dxcode
+sudo ln -sf /etc/nginx/sites-available/dxcode /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d YOUR_DOMAIN -d YOUR_API_DOMAIN
 ```
 
 بعد از HTTPS:
 
-1. در `.env` همهٔ URLهای عمومی را با `https://` بگذارید
+1. در `.env.production` همهٔ URLهای عمومی را با `https://` بگذارید
 2. `ENABLE_HSTS=true`
-3. سرویس‌ها را ری‌استارت کنید
+3. `pnpm prod:up` را دوباره بزنید
 
 ---
 
