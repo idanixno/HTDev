@@ -259,9 +259,32 @@ export async function fetchPathsPageCms(): Promise<PathsPageCms> {
         "مسیرهای پیشنهادی برای یادگیری عمیق. دوره‌ها را به ترتیب ببینید،",
       seoTitle: "نقشهٔ راه",
       seoDescription:
-        "ترتیب پیشنهادی دوره‌های ژرفا — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
+        "ترتیب پیشنهادی دوره‌های DXCode — هر مسیر را به ترتیب بخوانید؛ هر دوره جدا فروخته می‌شود.",
     }
   );
+}
+
+export type HomeAnnouncement =
+  | { enabled: false }
+  | {
+      enabled: true;
+      text: string;
+      href: string | null;
+      ctaLabel: string | null;
+    };
+
+export async function fetchHomeAnnouncement(): Promise<HomeAnnouncement> {
+  try {
+    const res = await fetch(
+      `${apiBaseUrl()}/catalog/meta/home-announcement`,
+      { next: { revalidate: 30 } },
+    );
+    if (!res.ok) return { enabled: false };
+    const data = (await res.json()) as HomeAnnouncement;
+    return data?.enabled ? data : { enabled: false };
+  } catch {
+    return { enabled: false };
+  }
 }
 
 export async function fetchPathStep(
@@ -310,24 +333,13 @@ export async function fetchFooterTrusts(): Promise<PublicFooterTrusts> {
   };
 }
 
+/**
+ * Site chrome is owned by CMS (`CmsFooterContent` via `/catalog/footer-trusts`).
+ * The API already merges DB row with DXCode defaults — no client remapping.
+ */
 export const fetchSiteChrome = cache(async (): Promise<SiteChrome> => {
-  const remote = await catalogFetch<Partial<SiteChrome>>("/catalog/footer-trusts");
-  if (!remote) return DEFAULT_SITE_CHROME;
-  return {
-    ...DEFAULT_SITE_CHROME,
-    ...remote,
-    headerLinks: remote.headerLinks?.length
-      ? remote.headerLinks
-      : DEFAULT_SITE_CHROME.headerLinks,
-    footerGroups: remote.footerGroups?.length
-      ? remote.footerGroups
-      : DEFAULT_SITE_CHROME.footerGroups,
-    mobileGroups: remote.mobileGroups?.length
-      ? remote.mobileGroups
-      : DEFAULT_SITE_CHROME.mobileGroups,
-    showCart: remote.showCart ?? true,
-    showThemeToggle: remote.showThemeToggle ?? true,
-  };
+  const remote = await catalogFetch<SiteChrome>("/catalog/footer-trusts");
+  return remote ?? DEFAULT_SITE_CHROME;
 });
 
 export async function fetchArticles(): Promise<PublicArticleCard[]> {
@@ -428,16 +440,31 @@ export type CartCourseItem = {
 
 export function formatTomanLabel(n: number): string {
   if (!Number.isFinite(n) || n <= 0) return "۰ هزارتومن";
-  const display = Math.round(n / 1000);
-  return `${display.toLocaleString("fa-IR")} هزارتومن`;
+  const asNumber = Math.round(n);
+  if (asNumber >= 1_000_000) {
+    const millions = Number((asNumber / 1_000_000).toFixed(3));
+    return `${millions.toLocaleString("fa-IR", {
+      maximumFractionDigits: 3,
+      minimumFractionDigits: 0,
+    })} میلیون تومن`;
+  }
+  return `${Math.round(asNumber / 1000).toLocaleString("fa-IR")} هزارتومن`;
 }
 
 export function parseTomanLabel(label: string | null | undefined): number {
   if (!label) return 0;
-  const normalized = label
+  const latin = label
     .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
     .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
-    .replace(/[^\d]/g, "");
+    .replace(/[٫,]/g, ".");
+  if (/میلیون/.test(label)) {
+    const match = latin.match(/(\d+(?:\.\d+)?)/);
+    if (!match) return 0;
+    const value = Number(match[1]);
+    if (!Number.isFinite(value)) return 0;
+    return Math.round(value * 1_000_000);
+  }
+  const normalized = latin.replace(/[^\d]/g, "");
   if (!normalized) return 0;
   const value = Number(normalized);
   if (!Number.isFinite(value)) return 0;

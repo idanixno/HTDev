@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Badge, Button, Notice } from "@zharfa/ui";
-import { fetchAdminCoupons } from "../../../lib/admin";
+import { fetchAdminCoupons, formatTomanFa } from "../../../lib/admin";
 
 export default async function AdminCouponsPage() {
   const data = await fetchAdminCoupons();
@@ -53,7 +53,7 @@ export default async function AdminCouponsPage() {
                   <td>
                     {c.discountType === "PERCENT"
                       ? `${(c.percentOff ?? 0).toLocaleString("fa-IR")}٪`
-                      : `${Math.round((c.amountOffToman ?? 0) / 1000).toLocaleString("fa-IR")} هزارتومن`}
+                      : formatTomanFa(c.amountOffToman ?? 0)}
                   </td>
                   <td>
                     {c.redemptionCount.toLocaleString("fa-IR")}

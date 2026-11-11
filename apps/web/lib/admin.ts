@@ -394,6 +394,10 @@ export async function fetchAdminHomeCms() {
     primaryCtaHref: string | null;
     secondaryCtaLabel: string | null;
     secondaryCtaHref: string | null;
+    announcementEnabled: boolean;
+    announcementText: string | null;
+    announcementHref: string | null;
+    announcementCtaLabel: string | null;
     updatedAt: string | null;
   }>("/admin/cms/home");
 }
@@ -473,7 +477,15 @@ export async function fetchAdminActivity(q?: string) {
 
 export function formatTomanFa(n: number): string {
   if (!n) return "۰ هزارتومن";
-  return `${Math.round(n / 1000).toLocaleString("fa-IR")} هزارتومن`;
+  const asNumber = Math.round(n);
+  if (asNumber >= 1_000_000) {
+    const millions = Number((asNumber / 1_000_000).toFixed(3));
+    return `${millions.toLocaleString("fa-IR", {
+      maximumFractionDigits: 3,
+      minimumFractionDigits: 0,
+    })} میلیون تومن`;
+  }
+  return `${Math.round(asNumber / 1000).toLocaleString("fa-IR")} هزارتومن`;
 }
 
 export function formatDateFa(iso: string): string {

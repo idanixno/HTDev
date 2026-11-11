@@ -8,13 +8,22 @@ import {
 } from "./pricing";
 
 describe("pricing helpers", () => {
-  it("formats whole toman as colloquial هزارتومن (÷1000)", () => {
-    expect(formatTomanLabel(2_400_000)).toBe("۲٬۴۰۰ هزارتومن");
+  it("formats under one million as هزارتومن (÷1000)", () => {
     expect(formatTomanLabel(300_000)).toBe("۳۰۰ هزارتومن");
+    expect(formatTomanLabel(395_000)).toBe("۳۹۵ هزارتومن");
+    expect(formatTomanLabel(3_000)).toBe("۳ هزارتومن");
     expect(formatTomanLabel(0)).toBe("۰ هزارتومن");
   });
 
-  it("rounds fractional Decimal prices before ÷1000 display", () => {
+  it("formats one million and above as میلیون تومن", () => {
+    expect(formatTomanLabel(1_000_000)).toBe("۱ میلیون تومن");
+    expect(formatTomanLabel(3_000_000)).toBe("۳ میلیون تومن");
+    expect(formatTomanLabel(3_500_000)).toBe("۳٫۵ میلیون تومن");
+    expect(formatTomanLabel(2_280_000)).toBe("۲٫۲۸ میلیون تومن");
+    expect(formatTomanLabel(2_400_000)).toBe("۲٫۴ میلیون تومن");
+  });
+
+  it("rounds fractional Decimal prices before display scaling", () => {
     const label = formatTomanLabel(new Prisma.Decimal("1999.5"));
     expect(label).toBe("۲ هزارتومن");
   });
@@ -37,7 +46,7 @@ describe("pricing helpers", () => {
         offerKind: CourseOfferKind.PAID,
         priceToman: 1_600_000,
       }),
-    ).toBe("۱٬۶۰۰ هزارتومن");
+    ).toBe("۱٫۶ میلیون تومن");
   });
 
   it("rounds Decimal list price to integer toman for orders", () => {
