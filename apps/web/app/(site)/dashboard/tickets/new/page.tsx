@@ -29,7 +29,6 @@ export default async function NewTicketPage() {
       >
         <header className="disinab-tickets__head">
           <div>
-            <p className="disinab__brand">پشتیبانی اختصاصی</p>
             <h1 id="new-ticket-heading">تیکت جدید</h1>
             <p className="disinab__line">
               موضوع، شرح، و در صورت نیاز یکی از دوره‌های خودتان را انتخاب کنید.

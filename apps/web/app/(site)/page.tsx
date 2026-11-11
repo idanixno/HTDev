@@ -3,9 +3,18 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CourseCardLink } from "../../components/course-card-link";
 import { DisinabPlate } from "../../components/disinab";
-import { fetchArticles, fetchCourses, fetchPaths } from "../../lib/catalog";
+import { DxCodeLogo } from "../../components/dxcode-logo";
+import { HomeAnnouncementBanner } from "../../components/home-announcement";
+import {
+  fetchArticles,
+  fetchCourses,
+  fetchHomeAnnouncement,
+  fetchPaths,
+} from "../../lib/catalog";
 import { relativePublished } from "../../lib/relative-time";
 import { buildPageMetadata, siteMetadataBase } from "../../lib/seo";
+import { ownedCourseSlugs } from "../../lib/enrollment";
+import { fetchCurrentUser } from "../../lib/session";
 import {
   organizationJsonLd,
   websiteJsonLd,
@@ -17,12 +26,19 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/",
 });
 
+/** Always render from live catalog — avoid baking empty home when API was down. */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function HomePage() {
-  const [newest, paths, articles] = await Promise.all([
+  const [newest, paths, articles, announcement, user] = await Promise.all([
     fetchCourses({ sort: "newest", pageSize: 6 }),
     fetchPaths(),
     fetchArticles(),
+    fetchHomeAnnouncement(),
+    fetchCurrentUser(),
   ]);
+  const owned = user ? await ownedCourseSlugs() : new Set<string>();
   const notes = articles.slice(0, 4);
 
   return (
@@ -39,28 +55,67 @@ export default async function HomePage() {
           __html: JSON.stringify(websiteJsonLd()),
         }}
       />
-      <section className="hero hero--search" aria-labelledby="hero-heading">
-        <div className="hero__copy">
-          <p className="hero__eyebrow">اطلس یادگیری عمیق</p>
-          <h1 id="hero-heading" className="hero__title">
-            ژرفا، مسیر عمیقِ یک مدرس
-          </h1>
-          <form className="hero-search" action="/courses" method="get">
-            <label className="visually-hidden" htmlFor="home-search">
-              جستجوی دوره
-            </label>
-            <input
-              id="home-search"
-              name="q"
-              type="search"
-              placeholder="چه چیزی را می‌خواهی عمیق یاد بگیری؟"
-              autoComplete="off"
-              maxLength={100}
-              required
-            />
-            <button type="submit">جستجو</button>
-          </form>
+      <HomeAnnouncementBanner announcement={announcement} />
+      <section className="dx-hero" aria-labelledby="hero-heading">
+        <div className="dx-hero__aura" aria-hidden="true" />
+        <div className="dx-hero__grid">
+          <div className="dx-hero__copy">
+            <p className="dx-hero__kicker">LEARN · BUILD · GROW</p>
+            <h1 id="hero-heading" className="dx-hero__title">
+              از یادگیری کد تا{" "}
+              <span className="dx-hero__accent">درک مهندسی</span>
+            </h1>
+            <p className="dx-hero__lead">
+              دانش فناوری را عمیق یاد بگیر، واقعی بساز و حرفه‌ای رشد کن.
+            </p>
+            <div className="dx-hero__actions">
+              <Link className="dx-hero__cta" href="/courses">
+                شروع یادگیری
+              </Link>
+              <Link className="dx-hero__ghost" href="/paths">
+                نقشهٔ راه
+              </Link>
+            </div>
+            <form className="dx-hero__search" action="/courses" method="get">
+              <label className="visually-hidden" htmlFor="home-search">
+                جستجوی دوره
+              </label>
+              <input
+                id="home-search"
+                name="q"
+                type="search"
+                placeholder="چه چیزی را می‌خواهی عمیق یاد بگیری؟"
+                autoComplete="off"
+                maxLength={100}
+                required
+              />
+              <button type="submit">جستجو</button>
+            </form>
+          </div>
+          <div className="dx-hero__visual" aria-hidden="true">
+            <div className="dx-interlock">
+              <span className="dx-interlock__ribbon dx-interlock__ribbon--a" />
+              <span className="dx-interlock__ribbon dx-interlock__ribbon--b" />
+              <span className="dx-interlock__core">
+                <DxCodeLogo className="dx-interlock__mark" decorative bare />
+              </span>
+            </div>
+          </div>
         </div>
+        <ul className="dx-hero__facts">
+          <li>
+            <strong>دورهٔ تخصصی</strong>
+            <span>محتوای عمیق و پروژه‌محور</span>
+          </li>
+          <li>
+            <strong>مسیر روشن</strong>
+            <span>ترتیب پیشنهادی بدون اجبار</span>
+          </li>
+          <li>
+            <strong>مهارت واقعی</strong>
+            <span>از مسئله تا تصمیم مهندسی</span>
+          </li>
+        </ul>
       </section>
 
       <section
@@ -95,7 +150,10 @@ export default async function HomePage() {
                   key={course.id}
                   style={{ "--home-i": index } as CSSProperties}
                 >
-                  <CourseCardLink course={course} />
+                  <CourseCardLink
+                    course={course}
+                    enrolled={owned.has(course.slug)}
+                  />
                 </li>
               ))}
             </ul>
@@ -103,34 +161,49 @@ export default async function HomePage() {
         </DisinabPlate>
       </section>
 
-      <section className="home-section home-section--quiet" aria-labelledby="paths-heading">
-        <div className="home-paths">
-          <header className="home-section__head">
-            <p className="home-section__eyebrow">مسیرها</p>
-            <div className="home-section__top">
-              <h2 id="paths-heading">نقشهٔ راه</h2>
-              <Link className="home-section__more" href="/paths">
-                همه مسیرها
-              </Link>
+      <section
+        className="home-section disinab-home-paths"
+        aria-labelledby="paths-heading"
+      >
+        <DisinabPlate className="disinab-home-paths__plate">
+          <header className="home-section__head disinab-home-paths__head">
+            <div className="home-section__top disinab-home-paths__top">
+              <div>
+                <h2 id="paths-heading">نقشهٔ راه</h2>
+                <p className="disinab__line">
+                  ترتیب پیشنهادی است، نه اشتراک و نه خرید اجباری بقیهٔ مسیر.
+                </p>
+              </div>
+              <div className="disinab-home-paths__actions">
+                <Link
+                  className="home-section__more disinab-home-paths__more"
+                  href="/paths"
+                >
+                  همه مسیرها
+                </Link>
+              </div>
             </div>
-            <p className="home-section__lede">
-              ترتیب پیشنهادی است، نه اشتراک و نه خرید اجباری بقیهٔ مسیر.
-            </p>
           </header>
           {paths.length === 0 ? (
             <p className="empty-note">مسیر منتشرشده‌ای در دسترس نیست.</p>
           ) : (
-            <ul className="home-path-rail">
+            <ul className="home-path-rail disinab-home-paths__rail">
               {paths.slice(0, 3).map((path, index) => (
                 <li
                   key={path.id}
                   style={{ "--home-i": index } as CSSProperties}
                 >
-                  <Link className="home-path-rail__card" href={path.href}>
-                    <span className="home-path-rail__index" aria-hidden="true">
-                      {(index + 1).toLocaleString("fa-IR", {
-                        minimumIntegerDigits: 2,
-                      })}
+                  <Link
+                    className="home-path-rail__card disinab-home-paths__card"
+                    href={path.href}
+                  >
+                    <span className="home-path-rail__top">
+                      <span className="home-path-rail__index" aria-hidden="true">
+                        {(index + 1).toLocaleString("fa-IR", {
+                          minimumIntegerDigits: 2,
+                        })}
+                      </span>
+                      <span className="home-path-rail__chip">مسیر</span>
                     </span>
                     <span className="home-path-rail__body">
                       <strong>{path.title}</strong>
@@ -162,7 +235,7 @@ export default async function HomePage() {
               ))}
             </ul>
           )}
-        </div>
+        </DisinabPlate>
       </section>
 
       <section
@@ -205,7 +278,7 @@ export default async function HomePage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={article.coverAsset} alt="" />
                         ) : (
-                          <span>ژرفا</span>
+                          <span className="note-card__placeholder">DX</span>
                         )}
                       </Link>
                       <div className="note-card__body">
@@ -227,6 +300,7 @@ export default async function HomePage() {
                           href={article.href}
                         >
                           خواندن مقاله
+                          <span aria-hidden="true">←</span>
                         </Link>
                       </div>
                     </article>

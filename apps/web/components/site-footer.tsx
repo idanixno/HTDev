@@ -1,12 +1,20 @@
 import Link from "next/link";
 import { fetchSiteChrome } from "../lib/catalog";
-import { ZharfaLogo } from "./zharfa-logo";
+import { BrandText } from "./brand-text";
+import { DxCodeLogo } from "./dxcode-logo";
+import { DxCodeWordmark } from "./dxcode-wordmark";
+
+const FOOTER_COPYRIGHT_NOTICE =
+  "تمامی ویدیوها و محتوای آموزشی DXCode مشمول حقوق مالکیت فکری است. هرگونه نشر، کپی یا استفادهٔ غیرمجاز بدون رضایت ما، نقض صریح حقوق و مصداق بارز سرقت است و پیگرد قانونی دارد.";
 
 export async function SiteFooter() {
   const chrome = await fetchSiteChrome();
   const hasEnamad = Boolean(chrome.enamadHtml?.trim());
   const hasGateway = Boolean(chrome.paymentGatewayHtml?.trim());
   const showTrusts = hasEnamad || hasGateway;
+  const year = new Intl.DateTimeFormat("fa-IR", { year: "numeric" }).format(
+    new Date(),
+  );
 
   return (
     <footer className="site-footer disinab-footer">
@@ -19,13 +27,14 @@ export async function SiteFooter() {
         <div className="site-footer__brand disinab-footer__brand">
           <div className="disinab-footer__brand-row">
             <span className="disinab-footer__mark" aria-hidden="true">
-              <ZharfaLogo className="disinab-footer__logo" decorative />
+              <DxCodeLogo className="disinab-footer__logo" decorative />
             </span>
             <div className="disinab-footer__brand-copy">
-              {chrome.brandKicker ? (
-                <p className="disinab__brand">{chrome.brandKicker}</p>
-              ) : null}
-              <p className="site-footer__name">{chrome.brandName}</p>
+              {chrome.brandName === "DXCode" ? (
+                <DxCodeWordmark as="p" className="site-footer__name" />
+              ) : (
+                <p className="site-footer__name">{chrome.brandName}</p>
+              )}
             </div>
           </div>
           {chrome.footerBlurb ? (
@@ -41,7 +50,6 @@ export async function SiteFooter() {
               aria-label={group.label}
               className="disinab-footer__group"
             >
-              <p className="disinab__brand site-footer__label">{group.label}</p>
               <ul>
                 {group.links.map((link) => (
                   <li key={`${group.label}-${link.href}-${link.label}`}>
@@ -75,6 +83,20 @@ export async function SiteFooter() {
             </div>
           </div>
         ) : null}
+      </div>
+      <div className="disinab-footer__legal">
+        <p className="disinab-footer__copy">
+          © {year}{" "}
+          {chrome.brandName === "DXCode" ? (
+            <DxCodeWordmark className="dx-wordmark--inline" />
+          ) : (
+            chrome.brandName
+          )}{" "}
+          — همهٔ حقوق محفوظ است.
+        </p>
+        <p className="disinab-footer__rights">
+          <BrandText>{FOOTER_COPYRIGHT_NOTICE}</BrandText>
+        </p>
       </div>
     </footer>
   );

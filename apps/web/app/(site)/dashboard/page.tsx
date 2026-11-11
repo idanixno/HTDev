@@ -66,7 +66,6 @@ export default async function DashboardPage() {
         >
           <header className="disinab-folio__head disinab-folio__head--split">
             <div>
-              <p className="disinab__brand">مسیر تخصص</p>
               <h2 id="folio-tracks">تخصص‌های من</h2>
               <p className="disinab__line">
                 فقط بر اساس دوره‌هایی که واقعاً در حسابتان فعال است.
@@ -91,7 +90,6 @@ export default async function DashboardPage() {
           aria-labelledby="folio-courses"
         >
           <header className="disinab-folio__head">
-            <p className="disinab__brand">دسترسی</p>
             <h2 id="folio-courses">دوره‌ها</h2>
             <p className="disinab__line">
               لایسنس‌ها و وضعیت دسترسی دوره‌های شما در یک صفحه.
@@ -162,7 +160,6 @@ export default async function DashboardPage() {
           aria-labelledby="folio-player"
         >
           <header className="disinab-folio__head">
-            <p className="disinab__brand">پخش</p>
             <h2 id="folio-player">دانلود اسپات‌پلیر</h2>
             <p className="disinab__line">
               برای مشاهدهٔ ویدیوهای دارای لایسنس، اسپات‌پلیر را نصب کنید.
@@ -188,10 +185,11 @@ export default async function DashboardPage() {
         >
           <header className="disinab-folio__head disinab-folio__head--split">
             <div>
-              <p className="disinab__brand">ارتباط</p>
               <h2 id="folio-support">پشتیبانی</h2>
               <p className="disinab__line">
-                سیستم تیکت اختصاصی ژرفا برای پیگیری گفتگو با تیم.
+                سیستم تیکت اختصاصی{" "}
+                <span className="dx-wordmark dx-wordmark--inline">DXCode</span>{" "}
+                برای پیگیری گفتگو با تیم.
               </p>
             </div>
             <div className="disinab-folio__support-actions">

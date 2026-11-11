@@ -25,7 +25,6 @@ export function PaymentLicense({
   return (
     <aside className="disinab-payment__license" aria-labelledby="payment-license-title">
       <div className="disinab-payment__license-head">
-        <p className="disinab__brand">اسپات‌پلیر</p>
         <span
           className="disinab-payment__status"
           data-tone={licenseKey ? "success" : "pending"}

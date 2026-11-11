@@ -29,13 +29,15 @@
 }
 
 .z-btn--primary {
-  background: var(--zharfa-action-primary);
+  background: var(--dx-gradient-brand, var(--zharfa-action-primary));
   color: var(--zharfa-text-on-primary);
+  box-shadow: 0 10px 28px -16px color-mix(in srgb, var(--dx-blue, #276bff) 55%, transparent);
 }
 
 .z-btn--primary:hover:not(:disabled) {
   background: var(--zharfa-action-hover);
   text-decoration: none;
+  filter: brightness(1.04);
 }
 
 .z-btn--primary:active:not(:disabled) {
@@ -387,21 +389,49 @@ textarea.z-field__control {
 }
 
 .z-course-card {
+  --z-course-card-radius: 22px;
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   width: 100%;
   min-height: 0;
-  border: 1px solid var(--zharfa-border-default);
-  border-radius: 16px;
-  background: var(--zharfa-surface-card);
   overflow: hidden;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-border-default));
+  border-radius: var(--z-course-card-radius);
+  background:
+    radial-gradient(
+      120% 80% at 100% 0%,
+      color-mix(in srgb, var(--zharfa-action-primary) 14%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 88%, transparent),
+      color-mix(in srgb, var(--zharfa-surface-card) 96%, var(--zharfa-bg-canvas))
+    );
   text-align: right;
-  box-shadow: var(--zharfa-shadow-soft);
-  transition: border-color var(--zharfa-motion-fast);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 22px 48px -34px rgb(0 0 0 / 0.55);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .z-course-card:hover {
-  border-color: color-mix(in srgb, var(--zharfa-action-primary) 45%, var(--zharfa-border-default));
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 46%,
+    var(--zharfa-border-default)
+  );
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 12%, transparent),
+    0 28px 56px -32px
+      color-mix(in srgb, var(--zharfa-action-primary) 34%, transparent);
 }
 
 .z-course-card__media {
@@ -410,7 +440,7 @@ textarea.z-field__control {
   flex: none;
   width: 100%;
   max-width: none;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   margin: 0;
   overflow: hidden;
   isolation: isolate;
@@ -418,10 +448,51 @@ textarea.z-field__control {
   border: 0;
   border-bottom: 1px solid
     color-mix(in srgb, var(--zharfa-action-primary) 14%, var(--zharfa-border-default));
-  background: #0d1219;
+  background:
+    radial-gradient(
+      80% 90% at 50% 20%,
+      color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent),
+      transparent 62%
+    ),
+    #0b1018;
   color: inherit;
   text-decoration: none;
-  transition: none;
+}
+
+.z-course-card__media-frame {
+  position: absolute;
+  inset: 12px;
+  z-index: 1;
+  border-radius: 14px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 28%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+  pointer-events: none;
+}
+
+.z-course-card__media-frame::before,
+.z-course-card__media-frame::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.z-course-card__media-frame::before {
+  top: -1px;
+  inset-inline-end: -1px;
+  border-block-start: 2px solid color-mix(in srgb, var(--dx-cyan, #29d8ff) 70%, transparent);
+  border-inline-end: 2px solid color-mix(in srgb, var(--dx-cyan, #29d8ff) 70%, transparent);
+  border-start-end-radius: 12px;
+}
+
+.z-course-card__media-frame::after {
+  bottom: -1px;
+  inset-inline-start: -1px;
+  border-block-end: 2px solid color-mix(in srgb, var(--dx-violet, #7657f6) 70%, transparent);
+  border-inline-start: 2px solid color-mix(in srgb, var(--dx-violet, #7657f6) 70%, transparent);
+  border-end-start-radius: 12px;
 }
 
 .z-course-card__media:hover,
@@ -429,7 +500,6 @@ textarea.z-field__control {
   color: inherit;
   text-decoration: none;
   outline: none;
-  background: #0d1219;
 }
 
 .z-course-card__media img {
@@ -439,19 +509,18 @@ textarea.z-field__control {
   width: 100%;
   height: 100%;
   max-width: none;
+  padding: 18px;
   object-fit: contain;
   object-position: center;
-  transform: none;
+  transform: scale(1);
   filter: none;
   opacity: 1;
-  transition: none;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .z-course-card:hover .z-course-card__media img,
 .z-course-card__media:hover img {
-  transform: none;
-  filter: none;
-  opacity: 1;
+  transform: scale(1.03);
 }
 
 .z-course-card__placeholder {
@@ -461,7 +530,21 @@ textarea.z-field__control {
   height: 100%;
   min-height: 0;
   color: var(--zharfa-text-secondary);
-  font-size: 0.7rem;
+  font-family: var(--zharfa-font-latin);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  background:
+    radial-gradient(
+      55% 60% at 62% 38%,
+      color-mix(in srgb, var(--dx-violet, #7657f6) 22%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 55% at 38% 58%,
+      color-mix(in srgb, var(--dx-cyan, #29d8ff) 18%, transparent),
+      transparent 68%
+    );
 }
 
 /* Status psychology: complete=trust green, free=teal, preorder=gold, soon=violet */
@@ -488,31 +571,48 @@ textarea.z-field__control {
 
 .z-course-card__discount {
   position: absolute;
-  top: 6px;
-  inset-inline-start: 6px;
-  z-index: 2;
-  padding: 3px 8px;
+  top: 14px;
+  inset-inline-start: 14px;
+  z-index: 3;
+  padding: 5px 10px;
   border-radius: 999px;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 800;
-  line-height: 1.3;
-  background: color-mix(
-    in srgb,
-    var(--zharfa-tone-discount) 18%,
-    var(--zharfa-surface-card)
-  );
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--zharfa-tone-discount) 28%, transparent),
+      color-mix(in srgb, var(--zharfa-surface-card) 72%, transparent)
+    );
   color: var(--zharfa-tone-discount);
   border: 1px solid
-    color-mix(in srgb, var(--zharfa-tone-discount) 48%, transparent);
+    color-mix(in srgb, var(--zharfa-tone-discount) 42%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 12%, transparent),
+    0 10px 22px -16px rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(8px);
 }
 
 .z-course-card__body {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 14px 13px;
+  gap: 12px;
+  padding: 16px 16px 15px;
   min-height: 0;
+}
+
+.z-course-card__kicker {
+  margin: 0;
+  color: var(--zharfa-tone-sale);
+  font-family: var(--dx-font-tech, var(--zharfa-font-code)),
+    var(--zharfa-font-persian);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
 }
 
 .z-course-card__title {
@@ -522,10 +622,11 @@ textarea.z-field__control {
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  font-size: 1.18rem;
+  font-size: 1.22rem;
   font-weight: 800;
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--zharfa-text-primary);
+  text-wrap: pretty;
 }
 
 .z-course-card__title a {
@@ -544,8 +645,7 @@ textarea.z-field__control {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px 10px;
+  gap: 6px;
   margin-top: auto;
 }
 
@@ -553,25 +653,38 @@ textarea.z-field__control {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--zharfa-tone) 34%, transparent);
+  background: color-mix(in srgb, var(--zharfa-tone) 12%, transparent);
   color: var(--zharfa-tone);
-  font-size: 0.92rem;
+  font-size: 0.78rem;
   font-weight: 700;
   line-height: 1.3;
 }
 
 .z-course-card__check {
   flex: none;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   color: var(--zharfa-tone);
 }
 
 .z-course-card__byline {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-border-default) 88%, transparent);
+  background: color-mix(in srgb, var(--zharfa-bg-canvas) 35%, transparent);
   color: var(--zharfa-text-secondary);
-  font-size: 0.92rem;
+  font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.3;
-  text-align: start;
 }
 
 .z-course-card__foot {
@@ -579,19 +692,23 @@ textarea.z-field__control {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 4px 10px;
+  gap: 8px 12px;
   margin-top: 0;
-  padding-top: 8px;
+  padding-top: 12px;
   border-top: 1px solid
-    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+    color-mix(in srgb, var(--zharfa-action-primary) 12%, var(--zharfa-border-default));
 }
 
 .z-course-card__duration {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--zharfa-action-primary) 8%, transparent);
   color: var(--zharfa-text-primary);
-  font-size: 0.92rem;
+  font-size: 0.82rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 1.3;
@@ -599,6 +716,8 @@ textarea.z-field__control {
 
 .z-course-card__duration--empty {
   min-height: 1em;
+  padding: 0;
+  background: transparent;
 }
 
 .z-course-card__clock {
@@ -613,25 +732,26 @@ textarea.z-field__control {
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: flex-end;
-  gap: 5px;
+  gap: 6px;
   margin: 0;
 }
 
 .z-course-card__price {
-  font-size: 1.12rem;
+  font-size: 1.08rem;
   font-weight: 800;
   color: var(--zharfa-text-primary);
   font-variant-numeric: tabular-nums;
   line-height: 1.25;
 }
 
-.z-course-card--publishedFree .z-course-card__price {
+.z-course-card--publishedFree .z-course-card__price,
+.z-course-card--freePrice .z-course-card__price {
   color: var(--zharfa-tone-free);
 }
 
 .z-course-card__compare {
   color: var(--zharfa-text-secondary);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 500;
   line-height: 1.3;
   text-decoration: line-through;
@@ -639,13 +759,17 @@ textarea.z-field__control {
 }
 
 .z-course-card__action {
-  padding-top: 0;
+  padding-top: 2px;
 }
 
 .z-course-card__action .z-btn {
   width: 100%;
-  min-height: 40px;
-  border-radius: 11px;
-  font-size: 0.95rem;
+  min-height: 42px;
+  border-radius: 12px;
+  font-size: 0.92rem;
   font-weight: 700;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 14%, transparent),
+    0 12px 24px -18px
+      color-mix(in srgb, var(--zharfa-action-primary) 55%, transparent);
 }

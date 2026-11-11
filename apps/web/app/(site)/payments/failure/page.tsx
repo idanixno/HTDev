@@ -56,7 +56,6 @@ export default async function PaymentFailurePage({
         aria-labelledby="failure-heading"
       >
         <div className="disinab-payment__head">
-          <p className="disinab__brand">ژرفا · پرداخت</p>
           <DisinabBadge tone="muted">ناموفق</DisinabBadge>
         </div>
         <h1 id="failure-heading">پرداخت ناموفق یا لغو شد</h1>

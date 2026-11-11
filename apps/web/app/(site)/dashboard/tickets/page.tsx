@@ -23,10 +23,11 @@ export default async function TicketsPage() {
       >
         <header className="disinab-tickets__head">
           <div>
-            <p className="disinab__brand">پشتیبانی اختصاصی</p>
             <h1 id="tickets-heading">تیکت‌های من</h1>
             <p className="disinab__line">
-              گفتگو با تیم ژرفا؛ هر تیکت یک رشتهٔ پیگیری جدا است.
+              گفتگو با تیم{" "}
+              <span className="dx-wordmark dx-wordmark--inline">DXCode</span>؛ هر
+              تیکت یک رشتهٔ پیگیری جدا است.
             </p>
           </div>
           <div className="disinab-tickets__actions">

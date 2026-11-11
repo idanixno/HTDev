@@ -108,7 +108,6 @@ export function CheckoutForm({ options, courseSlug }: Props) {
       ) : null}
 
       <div className="checkout-invoice">
-        <p className="checkout-invoice__eyebrow">فاکتور</p>
         <h2 className="checkout-invoice__title">خلاصه سفارش</h2>
 
         <ul className="checkout-invoice__rows">

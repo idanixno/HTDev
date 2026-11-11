@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import type { PublicCourseModule } from "../lib/catalog";
 import { DisinabPlate } from "./disinab";
@@ -10,12 +11,15 @@ export function CourseSyllabus({
   isFree,
   spotPlayerProtected,
   authed = false,
+  loginHref,
 }: {
   modules: PublicCourseModule[];
   isFree: boolean;
   spotPlayerProtected: boolean;
   /** Watch button only for signed-in visitors. */
   authed?: boolean;
+  /** Login URL for free-course “ورود برای مشاهده”. */
+  loginHref?: string;
 }) {
   const [openIds, setOpenIds] = useState<Set<string>>(
     () => new Set(modules[0] ? [modules[0].id] : []),
@@ -30,9 +34,13 @@ export function CourseSyllabus({
     });
   }
 
-  const blurb = spotPlayerProtected
-    ? "سرفصل دوره اینجاست. ویدیوهای اصلی بعد از خرید در اسپات‌پلیر پخش می‌شوند؛ اگر جلسه‌ای پیش‌نمایش داشته باشد، همان را همین‌جا می‌بینید."
-    : "هر جلسه ویدیو دارد. با مشاهده همین‌جا پخش می‌شود.";
+  const blurb = isFree
+    ? authed
+      ? "هر جلسه ویدیو دارد. با مشاهده همین‌جا پخش می‌شود؛ دانلود یکجا هم از کادر قیمت در دسترس است."
+      : "سرفصل اینجاست. برای مشاهدهٔ ویدیوها وارد حساب شوید."
+    : spotPlayerProtected
+      ? "سرفصل دوره اینجاست. ویدیوهای اصلی بعد از خرید در اسپات‌پلیر پخش می‌شوند؛ اگر جلسه‌ای پیش‌نمایش داشته باشد، همان را همین‌جا می‌بینید."
+      : "هر جلسه ویدیو دارد. با مشاهده همین‌جا پخش می‌شود.";
 
   return (
     <DisinabPlate
@@ -40,7 +48,6 @@ export function CourseSyllabus({
       aria-labelledby="curriculum"
     >
       <header className="syllabus__head">
-        <p className="disinab__brand">برنامه</p>
         <h2 id="curriculum">سرفصل</h2>
         <p className="disinab__line">{blurb}</p>
       </header>
@@ -112,6 +119,13 @@ export function CourseSyllabus({
                                 src={lesson.videoAsset}
                                 title={lesson.title}
                               />
+                            ) : isFree && !authed && loginHref ? (
+                              <Link
+                                className="syllabus__login"
+                                href={loginHref}
+                              >
+                                ورود برای مشاهده
+                              </Link>
                             ) : spotPlayerProtected && !lesson.isPreview ? (
                               <span className="syllabus__spot">اسپات‌پلیر</span>
                             ) : null}

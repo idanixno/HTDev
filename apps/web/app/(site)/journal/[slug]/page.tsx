@@ -119,7 +119,6 @@ export default async function ArticlePage({ params }: { params: Params }) {
           </ol>
         </nav>
 
-        <p className="reading__kicker">مقاله</p>
         <h1 itemProp="headline">{article.title}</h1>
         {article.summary ? (
           <p className="reading__lead" itemProp="description">
@@ -224,8 +223,11 @@ export default async function ArticlePage({ params }: { params: Params }) {
                         decoding="async"
                       />
                     ) : (
-                      <span className="reading__thumb" aria-hidden="true">
-                        ژرفا
+                      <span
+                        className="reading__thumb dx-wordmark dx-wordmark--inline"
+                        aria-hidden="true"
+                      >
+                        DXCode
                       </span>
                     )}
                     <span className="reading__next-copy">

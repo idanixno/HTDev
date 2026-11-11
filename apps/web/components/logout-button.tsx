@@ -41,7 +41,11 @@ function LogoutConfirmDialog({
       open={open}
       className="disinab-dialog"
       title="خروج از حساب؟"
-      indexLabel={<span className="disinab-dialog__badge">ژرفا</span>}
+      indexLabel={
+        <span className="disinab-dialog__badge">
+          <span className="dx-wordmark dx-wordmark--inline">DXCode</span>
+        </span>
+      }
       cancelLabel="ماندن"
       confirmLabel={loading ? "در حال خروج…" : "خروج"}
       confirmDanger

@@ -102,7 +102,6 @@ export default async function PaymentSuccessPage({
         aria-labelledby="success-heading"
       >
         <div className="disinab-payment__head">
-          <p className="disinab__brand">ژرفا · پرداخت</p>
           <DisinabBadge tone={reallyPaid ? "live" : "muted"}>
             {reallyPaid ? "تأیید شد" : "در انتظار تأیید"}
           </DisinabBadge>

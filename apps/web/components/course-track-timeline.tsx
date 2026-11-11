@@ -95,7 +95,7 @@ function JourneyRail({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={cover} alt="" />
                 ) : (
-                  <span className="disinab-track__media-fallback">ژرفا</span>
+                  <span className="disinab-track__media-fallback">DX</span>
                 )}
               </Link>
               <div className="disinab-track__body">
@@ -222,7 +222,6 @@ function CourseTrackBlock({
       >
         <header className="disinab-track__head">
           <div className="disinab-track__intro">
-            <p className="disinab__brand">مسیر تخصص</p>
             <h2 id={`track-${track.slug}`}>{title}</h2>
             <p className="disinab__line">
               این دوره یک ایستگاه از مسیر منسجم «{title}» است — نه یک قطعهٔ
@@ -256,7 +255,6 @@ function CourseTrackBlock({
     >
       <header className="disinab-track__head">
         <div className="disinab-track__intro">
-          <p className="disinab__brand">مسیر تخصص</p>
           <h2 id={`track-dash-${track.slug}`}>{title}</h2>
           {track.summary ? (
             <p className="disinab__line">{track.summary}</p>

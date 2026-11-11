@@ -6,7 +6,8 @@ import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { ThemeToggle } from "../theme-toggle";
 import { LogoutButton } from "../logout-button";
 import { useMenuDrawer } from "../use-menu-drawer";
-import { ZharfaLogo } from "../zharfa-logo";
+import { DxCodeLogo } from "../dxcode-logo";
+import { DxCodeWordmark } from "../dxcode-wordmark";
 import { AdminLiveBadge } from "./live-badge";
 import { ADMIN_MENU, isAdminNavCurrent } from "./admin-nav";
 import { AdminNavIcon } from "./admin-nav-icons";
@@ -72,10 +73,10 @@ export function AdminShell({
             <div className="admin-shell__brand-top">
               <Link href="/admin" className="admin-shell__brand-link">
                 <span className="admin-shell__brand-mark" aria-hidden="true">
-                  <ZharfaLogo decorative className="admin-shell__logo" />
+                  <DxCodeLogo decorative className="admin-shell__logo" />
                 </span>
                 <span className="admin-shell__brand-copy">
-                  <span className="admin-shell__brand-kicker">ژرفا</span>
+                  <DxCodeWordmark className="admin-shell__brand-kicker" />
                   <span className="admin-shell__brand-name">پنل مدیریت</span>
                   <span className="admin-shell__brand-tag">مرکز فرمان مالک</span>
                 </span>
@@ -142,15 +143,17 @@ export function AdminShell({
           <div className="admin-shell__aside-foot">
             <div className="admin-shell__who">
               <span className="admin-shell__mark" aria-hidden="true">
-                <ZharfaLogo
+                <DxCodeLogo
                   decorative
                   className="admin-shell__admin-logo"
-                  title="لوگوی ادمین ژرفا"
+                  title="لوگوی ادمین DXCode"
                 />
               </span>
               <div>
                 <p className="admin-shell__user">{displayName}</p>
-                <p className="admin-shell__role">مالک ژرفا</p>
+                <p className="admin-shell__role">
+                  مالک <DxCodeWordmark className="dx-wordmark--inline" />
+                </p>
               </div>
             </div>
             <Link href="/dashboard" className="admin-shell__muted-link">
@@ -176,8 +179,10 @@ export function AdminShell({
               منو
             </button>
             <div className="admin-shell__top-copy">
-              <p className="admin-shell__top-kicker">ژرفا</p>
-              <p className="admin-shell__top-heading">مدیریت ژرفا</p>
+              <DxCodeWordmark as="p" className="admin-shell__top-kicker" />
+              <p className="admin-shell__top-heading">
+                مدیریت <DxCodeWordmark className="dx-wordmark--inline" />
+              </p>
             </div>
           </div>
           <div className="admin-shell__top-actions">

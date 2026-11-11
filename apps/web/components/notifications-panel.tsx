@@ -88,7 +88,6 @@ export function NotificationsPanel({
           <div className="disinab-notes__plate">
             <header className="folio-notes__bar disinab-notes__bar">
               <div className="disinab-notes__heading">
-                <p className="disinab__brand">ژرفا · اعلان</p>
                 <p className="disinab-notes__status">
                   {unreadCount > 0
                     ? `${unreadCount.toLocaleString("fa-IR")} خوانده‌نشده`

@@ -47,7 +47,7 @@ export async function generateMetadata({
   if (!course) {
     return buildPageMetadata({
       title: "دوره یافت نشد",
-      description: "این دوره در کاتالوگ ژرفا موجود نیست.",
+      description: "این دوره در کاتالوگ DXCode موجود نیست.",
       path: `/courses/${slug}`,
       noIndex: true,
     });
@@ -142,7 +142,7 @@ export default async function CourseDetailPage({
             : `/login?next=/courses/${encodeURIComponent(slug)}`,
           label: user
             ? "دانلود تمام ویدیوها"
-            : "ورود برای دانلود",
+            : "ورود برای مشاهده",
           priceLabel: "رایگان",
         }
       : isPaidOffer
@@ -209,18 +209,18 @@ export default async function CourseDetailPage({
       {enrolled ? (
         <div className="course-enrolled">
           <div className="disinab-course-buy__head">
-            <p className="disinab__brand">دسترسی شما</p>
             <DisinabBadge tone="live">فعال</DisinabBadge>
           </div>
           <p className="course-enrolled__title">شما دانشجوی این دوره هستید.</p>
           <p className="disinab__line">
-            کلید لایسنس در حساب شماست و خرید دوباره لازم نیست.
+            {isFree
+              ? "ویدیوها را همین‌جا مشاهده کنید یا یکجا دانلود بگیرید."
+              : "کلید لایسنس در حساب شماست و خرید دوباره لازم نیست."}
           </p>
         </div>
       ) : (
         <>
           <div className="disinab-course-buy__head">
-            <p className="disinab__brand">قیمت این دوره</p>
             <DisinabBadge tone="accent">{course.statusLabel}</DisinabBadge>
           </div>
           <p className="course-detail__price">
@@ -243,9 +243,7 @@ export default async function CourseDetailPage({
         </div>
       ) : (
         <div className="course-detail__actions disinab-course-buy__actions">
-          {isFree ? (
-            <p className="course-access-note">دسترسی کامل</p>
-          ) : canAddCourseToCart(course) ? (
+          {isFree ? null : canAddCourseToCart(course) ? (
             <AddToCartButton item={toCartItem(course)} />
           ) : null}
           {isFree ? (
@@ -257,7 +255,7 @@ export default async function CourseDetailPage({
               }
               {...(user ? { download: true } : {})}
             >
-              دانلود تمام ویدیوهای دوره (نیاز به ورود)
+              {user ? "شروع دوره رایگان" : "ورود برای مشاهده"}
             </Button>
           ) : isPaidOffer ? (
             purchaseEnabled ? (
@@ -351,7 +349,6 @@ export default async function CourseDetailPage({
                   className="course-about disinab-course-about"
                   aria-labelledby="course-about"
                 >
-                  <p className="disinab__brand">معرفی</p>
                   <h2 id="course-about">دربارهٔ این دوره</h2>
                   <p className="disinab__line">{course.description}</p>
                 </DisinabPlate>
@@ -362,6 +359,7 @@ export default async function CourseDetailPage({
                 isFree={isFree}
                 spotPlayerProtected={Boolean(course.spotPlayerProtected)}
                 authed={Boolean(user)}
+                loginHref={`/login?next=/courses/${encodeURIComponent(slug)}`}
               />
             </div>
           </div>
@@ -373,7 +371,6 @@ export default async function CourseDetailPage({
           className="course-notes disinab-course-notes"
           aria-labelledby="before-buy"
         >
-          <p className="disinab__brand">نکته</p>
           <h2 id="before-buy">قبل از خرید</h2>
           <ul>
             {course.purchaseNotes!.map((note) => (
@@ -414,6 +411,7 @@ export default async function CourseDetailPage({
           <DisinabCourseCarousel
             courses={related}
             ariaLabel="دوره‌های پیشنهادی هم‌موضوع"
+            ownedSlugs={[...owned]}
           />
         </DisinabPlate>
       ) : null}
@@ -425,7 +423,6 @@ export default async function CourseDetailPage({
         >
           <header className="disinab-related__head disinab-course-articles__head">
             <div>
-              <p className="disinab__brand">مقاله</p>
               <h2 id="related-articles">مرتبط با این موضوع</h2>
               <p className="disinab__line">
                 یادداشت‌های کوتاه هم‌موضوع برای ادامهٔ مسیر.
@@ -445,7 +442,9 @@ export default async function CourseDetailPage({
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={article.coverAsset} alt="" />
                         ) : (
-                          <span>ژرفا</span>
+                          <span className="dx-wordmark dx-wordmark--inline">
+                            DXCode
+                          </span>
                         )}
                       </Link>
                       <div className="note-card__body">

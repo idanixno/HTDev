@@ -13,6 +13,10 @@ export type HomeCmsInitial = {
   primaryCtaHref: string;
   secondaryCtaLabel: string;
   secondaryCtaHref: string;
+  announcementEnabled: boolean;
+  announcementText: string;
+  announcementHref: string;
+  announcementCtaLabel: string;
 };
 
 export function HomeCmsEditorForm({ initial }: { initial: HomeCmsInitial }) {
@@ -43,6 +47,10 @@ export function HomeCmsEditorForm({ initial }: { initial: HomeCmsInitial }) {
           primaryCtaHref: values.primaryCtaHref.trim() || null,
           secondaryCtaLabel: values.secondaryCtaLabel.trim() || null,
           secondaryCtaHref: values.secondaryCtaHref.trim() || null,
+          announcementEnabled: values.announcementEnabled,
+          announcementText: values.announcementText.trim() || null,
+          announcementHref: values.announcementHref.trim() || null,
+          announcementCtaLabel: values.announcementCtaLabel.trim() || null,
         }),
       });
       setSaved(true);
@@ -66,6 +74,55 @@ export function HomeCmsEditorForm({ initial }: { initial: HomeCmsInitial }) {
           محتوای صفحهٔ خانه به‌روز شد.
         </Notice>
       ) : null}
+
+      <h3 className="admin-panel__subheading">اطلاعیهٔ بالای صفحهٔ اصلی</h3>
+      <p className="admin-table__muted" style={{ marginTop: 0 }}>
+        اگر فعال باشد و متن داشته باشد، نوار اطلاعیه بالای هیرو صفحهٔ اصلی
+        نمایش داده می‌شود. برای مخفی کردن، تیک را بردارید یا متن را خالی کنید.
+      </p>
+      <div className="editor-form__grid">
+        <label className="z-field editor-form__wide">
+          <span className="z-field__label">
+            <input
+              type="checkbox"
+              checked={values.announcementEnabled}
+              onChange={(e) =>
+                patch({ announcementEnabled: e.target.checked })
+              }
+            />{" "}
+            نمایش اطلاعیه روی صفحهٔ اصلی
+          </span>
+        </label>
+        <label className="z-field editor-form__wide">
+          <span className="z-field__label">متن اطلاعیه</span>
+          <textarea
+            className="z-field__control"
+            rows={3}
+            maxLength={500}
+            value={values.announcementText}
+            onChange={(e) => patch({ announcementText: e.target.value })}
+            placeholder="مثلاً: ثبت‌نام دورهٔ جدید پایتون از هفتهٔ آینده آغاز می‌شود."
+          />
+        </label>
+        <Field
+          id="home-announcement-cta"
+          label="برچسب لینک (اختیاری)"
+          value={values.announcementCtaLabel}
+          onChange={(e) => patch({ announcementCtaLabel: e.target.value })}
+          placeholder="ادامه"
+        />
+        <Field
+          id="home-announcement-href"
+          label="لینک اطلاعیه (اختیاری)"
+          mono
+          dir="ltr"
+          value={values.announcementHref}
+          onChange={(e) => patch({ announcementHref: e.target.value })}
+          placeholder="/courses یا https://…"
+        />
+      </div>
+
+      <h3 className="admin-panel__subheading">هیرو</h3>
       <div className="editor-form__grid">
         <Field
           id="home-eyebrow"

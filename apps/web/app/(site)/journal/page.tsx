@@ -7,7 +7,7 @@ import { buildPageMetadata } from "../../../lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "مقالات",
-  description: "مقالات آموزشی ژرفا درباره انتخاب دوره، خرید و دسترسی.",
+  description: "مقالات آموزشی DXCode درباره انتخاب دوره، خرید و دسترسی.",
   path: "/journal",
 });
 
@@ -44,7 +44,9 @@ export default async function JournalPage({
         <div className="disinab-journal__intro">
           <div className="disinab-journal__intro-copy">
             <div className="disinab-journal__title-row">
-              <h1 id="journal-title">مقالات ژرفا</h1>
+              <h1 id="journal-title">
+                مقالات <span className="dx-wordmark dx-wordmark--inline">DXCode</span>
+              </h1>
               <form
                 className="catalog-search disinab-journal__search"
                 action="/journal"
@@ -101,7 +103,9 @@ export default async function JournalPage({
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={article.coverAsset} alt="" />
                     ) : (
-                      <span>ژرفا</span>
+                      <span className="dx-wordmark dx-wordmark--inline">
+                        DXCode
+                      </span>
                     )}
                   </Link>
                   <div className="note-card__body">

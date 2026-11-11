@@ -1,4 +1,5 @@
 import { Button } from "@zharfa/ui";
+import { BrandText } from "../components/brand-text";
 import { DisinabBadge, DisinabPlate } from "../components/disinab";
 
 export default function NotFound() {
@@ -9,7 +10,9 @@ export default function NotFound() {
         aria-labelledby="not-found-title"
       >
         <DisinabBadge tone="muted">۴۰۴</DisinabBadge>
-        <h1 id="not-found-title">این صفحه در ژرفا نیست</h1>
+        <h1 id="not-found-title">
+          <BrandText>این صفحه در DXCode نیست</BrandText>
+        </h1>
         <p className="disinab__line">
           نشانی اشتباه است یا محتوا منتشر نشده. از کاتالوگ یا صفحه اصلی ادامه
           دهید.

@@ -5,11 +5,13 @@ import { CourseCardLink } from "../../../components/course-card-link";
 import { DisinabBadge, DisinabPlate } from "../../../components/disinab";
 import { fetchCategories, fetchCourses } from "../../../lib/catalog";
 import { buildPageMetadata } from "../../../lib/seo";
+import { ownedCourseSlugs } from "../../../lib/enrollment";
+import { fetchCurrentUser } from "../../../lib/session";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "دوره‌های ژرفا",
+  title: "دوره‌ها",
   description:
-    "کاتالوگ دوره‌های ژرفا — فیلتر بر اساس قلمرو، وضعیت انتشار، و جستجو در عنوان و خلاصه.",
+    "کاتالوگ دوره‌های DXCode — فیلتر بر اساس قلمرو، وضعیت انتشار، و جستجو در عنوان و خلاصه.",
   path: "/courses",
 });
 
@@ -39,10 +41,12 @@ export default async function CoursesPage({
   const offer = sp.offer?.trim() || undefined;
   const page = Math.max(1, Number(sp.page ?? "1") || 1);
 
-  const [categories, result] = await Promise.all([
+  const [categories, result, user] = await Promise.all([
     fetchCategories(),
     fetchCourses({ q, category, offer, page, pageSize: 12 }),
+    fetchCurrentUser(),
   ]);
+  const owned = user ? await ownedCourseSlugs() : new Set<string>();
 
   const buildHref = (overrides: Record<string, string | undefined>) => {
     const next = new URLSearchParams();
@@ -261,7 +265,10 @@ export default async function CoursesPage({
           <ul className="catalog__grid disinab-catalog__grid">
             {result.items.map((course) => (
               <li key={course.id}>
-                <CourseCardLink course={course} />
+                <CourseCardLink
+                  course={course}
+                  enrolled={owned.has(course.slug)}
+                />
               </li>
             ))}
           </ul>

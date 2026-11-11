@@ -20,7 +20,6 @@ export default async function PaymentPendingPage({
 
   return (
     <section className="payment-result" aria-labelledby="pending-heading">
-      <p className="payment-result__eyebrow">پرداخت</p>
       <h1 id="pending-heading" className="payment-result__title">
         در انتظار پرداخت
       </h1>

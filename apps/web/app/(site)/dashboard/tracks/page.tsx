@@ -28,7 +28,6 @@ export default async function DashboardTracksPage() {
         className="disinab-tracks-page__hero"
         aria-labelledby="tracks-heading"
       >
-        <p className="disinab__brand">مسیر تخصص</p>
         <h1 id="tracks-heading">تخصص‌های من</h1>
         <p className="disinab__line">
           فقط تخصص‌هایی که با دوره‌های خریداری‌شده یا رایگان فعال‌تان هم‌پوشانی

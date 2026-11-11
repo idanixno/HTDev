@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { DisinabPlate } from "./disinab";
-import { ZharfaLogo } from "./zharfa-logo";
+import { DxCodeLogo } from "./dxcode-logo";
+import { DxCodeWordmark } from "./dxcode-wordmark";
 
 export function AuthShell({
   title,
@@ -21,11 +22,11 @@ export function AuthShell({
         aria-labelledby="auth-heading"
       >
         <div className="disinab-auth__brand-row">
-          <Link href="/" className="disinab-auth__mark" aria-label="ژرفا، صفحه اصلی">
-            <ZharfaLogo className="disinab-auth__logo" decorative />
+          <Link href="/" className="disinab-auth__mark" aria-label="DXCode، صفحه اصلی">
+            <DxCodeLogo className="disinab-auth__logo" decorative />
             <span>
-              <strong>ژرفا</strong>
-              <em>اطلس یادگیری عمیق</em>
+              <DxCodeWordmark as="strong" />
+              <em>LEARN · BUILD · GROW</em>
             </span>
           </Link>
         </div>

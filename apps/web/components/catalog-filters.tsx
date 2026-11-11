@@ -100,7 +100,6 @@ export function CatalogFilters({
         <div className="disinab-filter-drawer__inner">
           <div className="catalog-filters__bar disinab-filter-drawer__bar">
             <div className="catalog-filters__heading">
-              <p className="disinab__brand">ژرفا · کاتالوگ</p>
               <div className="disinab-filter-drawer__title-row">
                 <p className="catalog-filters__title">{openMenu.label}</p>
                 {openMenu.active ? (

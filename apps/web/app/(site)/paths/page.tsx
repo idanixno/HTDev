@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       page.seoDescription?.trim() ||
       page.lead?.trim() ||
-      "ترتیب پیشنهادی دوره‌های ژرفا.",
+      "ترتیب پیشنهادی دوره‌های DXCode.",
     path: "/paths",
   });
 }

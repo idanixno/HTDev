@@ -19,6 +19,8 @@ import {
   parseArticleMarkdown,
 } from "../../../../../lib/article-markdown";
 import { buildPageMetadata } from "../../../../../lib/seo";
+import { ownedCourseSlugs } from "../../../../../lib/enrollment";
+import { fetchCurrentUser } from "../../../../../lib/session";
 import { absoluteUrl } from "../../../../../lib/site-url";
 
 type Params = Promise<{ slug: string; step: string }>;
@@ -53,7 +55,11 @@ export default async function PathStepPage({ params }: { params: Params }) {
   const page = await fetchPathStep(slug, stepSlug);
   if (!page) notFound();
 
-  const pathIndex = await fetchPath(slug);
+  const [pathIndex, user] = await Promise.all([
+    fetchPath(slug),
+    fetchCurrentUser(),
+  ]);
+  const owned = user ? await ownedCourseSlugs() : new Set<string>();
   const pathSteps = pathIndex?.steps ?? [];
 
   const blocks = parseArticleMarkdown(page.step.body);
@@ -64,7 +70,14 @@ export default async function PathStepPage({ params }: { params: Params }) {
   await Promise.all(
     [...embedded].map(async (courseSlug) => {
       const course = await fetchCourse(courseSlug);
-      if (course) courses[courseSlug] = <CourseCardLink course={course} />;
+      if (course) {
+        courses[courseSlug] = (
+          <CourseCardLink
+            course={course}
+            enrolled={owned.has(course.slug)}
+          />
+        );
+      }
     }),
   );
   const lead = page.step.course;
@@ -161,9 +174,6 @@ export default async function PathStepPage({ params }: { params: Params }) {
         </nav>
         <div className="disinab-reading__intro">
           <div>
-            <p className="disinab__brand">
-              گام {page.step.sortOrder.toLocaleString("fa-IR")}
-            </p>
             <h1 id="path-step-title">{page.step.title}</h1>
             {page.step.summary ? (
               <p className="disinab__line">{page.step.summary}</p>
@@ -193,7 +203,6 @@ export default async function PathStepPage({ params }: { params: Params }) {
       <div className="disinab-reading__layout">
         <aside className="disinab-reading__toc" aria-label="فهرست گام‌ها">
           <DisinabPlate className="disinab-reading__panel" aura={false}>
-            <p className="disinab__brand">گام‌های مسیر</p>
             <p className="disinab-reading__panel-title">
               <Link href={page.path.href}>{page.path.title}</Link>
             </p>
@@ -257,16 +266,17 @@ export default async function PathStepPage({ params }: { params: Params }) {
         <aside className="disinab-reading__rail" aria-label="دوره و ادامه">
           {showLead && lead ? (
             <DisinabPlate className="disinab-reading__panel" aura={false}>
-              <p className="disinab__brand">دورهٔ این گام</p>
               <div className="disinab-reading__course">
-                <CourseCardLink course={lead as PublicCourseCard} />
+                <CourseCardLink
+                  course={lead as PublicCourseCard}
+                  enrolled={owned.has(lead.slug)}
+                />
               </div>
             </DisinabPlate>
           ) : null}
 
           {page.next ? (
             <DisinabPlate className="disinab-reading__panel" aura={false}>
-              <p className="disinab__brand">گام بعد</p>
               <Link className="disinab-reading__next" href={page.next.href}>
                 <strong>{page.next.title}</strong>
                 <span>ادامه مسیر</span>
@@ -274,7 +284,6 @@ export default async function PathStepPage({ params }: { params: Params }) {
             </DisinabPlate>
           ) : (
             <DisinabPlate className="disinab-reading__panel" aura={false}>
-              <p className="disinab__brand">پایان مسیر</p>
               <p className="disinab__line">
                 این آخرین گام است. به{" "}
                 <Link href={page.path.href}>صفحهٔ مسیر</Link> برگردید.

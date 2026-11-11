@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PathRoadmapTable } from "../../../../components/path-roadmap";
-import { DisinabPlate } from "../../../../components/disinab";
+import { DisinabFacts, DisinabPlate } from "../../../../components/disinab";
 import { fetchPath } from "../../../../lib/catalog";
 import { buildPageMetadata } from "../../../../lib/seo";
 
@@ -18,7 +18,7 @@ export async function generateMetadata({
   if (!path) {
     return buildPageMetadata({
       title: "مسیر یافت نشد",
-      description: "این مسیر یادگیری در ژرفا موجود نیست.",
+      description: "این مسیر یادگیری در DXCode موجود نیست.",
       path: `/paths/${slug}`,
       noIndex: true,
     });
@@ -41,6 +41,7 @@ export default async function PathDetailPage({
   if (!path) notFound();
   const steps = path.steps ?? [];
   const lead = path.description ?? path.summary;
+  const stepCount = path.stepCount || steps.length;
 
   return (
     <article className="path-detail path-detail--live disinab-path-detail disinab-roadmap">
@@ -57,7 +58,6 @@ export default async function PathDetailPage({
         </nav>
 
         <header className="disinab-roadmap__head">
-          <p className="disinab__brand">مسیر یادگیری</p>
           <h1 id="path-detail-title">{path.title}</h1>
           {lead ? <p className="disinab-roadmap__lead">{lead}</p> : null}
           {path.summary &&
@@ -67,6 +67,18 @@ export default async function PathDetailPage({
               {path.summary}
             </p>
           ) : null}
+          <DisinabFacts
+            items={[
+              {
+                label: "گام‌ها",
+                value: stepCount.toLocaleString("fa-IR"),
+              },
+              {
+                label: "ترتیب",
+                value: "پیشنهادی",
+              },
+            ]}
+          />
         </header>
 
         {path.coverAsset ? (
@@ -80,13 +92,15 @@ export default async function PathDetailPage({
           className="disinab-roadmap__section"
           aria-labelledby="path-courses-heading"
         >
-          <h2 id="path-courses-heading" className="disinab-roadmap__section-title">
-            ترتیب دوره‌ها
-          </h2>
-          <p className="disinab-roadmap__prose">
-            دوره‌های زیر را به ترتیب ببینید. در یادگیری عجله نکنید و هر مرحله را
-            قبل از رفتن به گام بعد درک کنید.
-          </p>
+          <div className="disinab-roadmap__section-head">
+            <h2 id="path-courses-heading" className="disinab-roadmap__section-title">
+              ترتیب دوره‌ها
+            </h2>
+            <p className="disinab-roadmap__prose">
+              دوره‌های زیر را به ترتیب ببینید. در یادگیری عجله نکنید و هر مرحله را
+              قبل از رفتن به گام بعد درک کنید.
+            </p>
+          </div>
           <PathRoadmapTable steps={steps} />
         </section>
       </DisinabPlate>

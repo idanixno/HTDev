@@ -5,7 +5,8 @@ import { HeaderAccount } from "./header-account";
 import { MobileNav } from "./mobile-nav";
 import { SiteHeaderNav } from "./site-header-nav";
 import { ThemeToggle } from "./theme-toggle";
-import { ZharfaLogo } from "./zharfa-logo";
+import { DxCodeLogo } from "./dxcode-logo";
+import { DxCodeWordmark } from "./dxcode-wordmark";
 
 export async function SiteHeader() {
   const chrome = await fetchSiteChrome();
@@ -13,12 +14,23 @@ export async function SiteHeader() {
   return (
     <header className="site-header disinab-header">
       <div className="site-header__inner disinab-header__bar">
+        <HeaderAccount
+          guestHref={chrome.guestCtaHref}
+          guestLabel={chrome.guestCtaLabel}
+          authedHref={chrome.authedCtaHref}
+          authedLabel={chrome.authedCtaLabel}
+        />
+
         <Link href="/" className="site-brand disinab-header__brand">
           <span className="disinab-header__mark" aria-hidden="true">
-            <ZharfaLogo className="disinab-header__logo" decorative />
+            <DxCodeLogo className="disinab-header__logo" decorative />
           </span>
           <span className="disinab-header__copy">
-            <span className="site-brand__name">{chrome.brandName}</span>
+            {chrome.brandName === "DXCode" ? (
+              <DxCodeWordmark className="site-brand__name" />
+            ) : (
+              <span className="site-brand__name">{chrome.brandName}</span>
+            )}
             {chrome.brandTagline ? (
               <span className="site-brand__tag">{chrome.brandTagline}</span>
             ) : null}
@@ -40,12 +52,6 @@ export async function SiteHeader() {
             authedCtaLabel={chrome.authedCtaLabel}
             authedCtaHref={chrome.authedCtaHref}
             showThemeToggle={chrome.showThemeToggle}
-          />
-          <HeaderAccount
-            guestHref={chrome.guestCtaHref}
-            guestLabel={chrome.guestCtaLabel}
-            authedHref={chrome.authedCtaHref}
-            authedLabel={chrome.authedCtaLabel}
           />
         </div>
       </div>

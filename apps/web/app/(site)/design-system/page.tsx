@@ -10,6 +10,8 @@ import {
   Notice,
 } from "@zharfa/ui";
 import { AddToCartButton } from "../../../components/add-to-cart-button";
+import { DxCodeLogo } from "../../../components/dxcode-logo";
+import { DxCodeWordmark } from "../../../components/dxcode-wordmark";
 
 export default function DesignSystemPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -18,12 +20,85 @@ export default function DesignSystemPage() {
   return (
     <div className="ds-page">
       <header className="ds-page__intro">
-        <p className="featured__eyebrow">ژرفا / کتابخانه اجزای بومی</p>
-        <h1 className="featured__title">Design system</h1>
+        <p className="featured__eyebrow dx-kicker">VISUAL IDENTITY // TYPE</p>
+        <h1 className="featured__title">
+          <DxCodeWordmark /> Design System
+        </h1>
         <p className="featured__lead">
-          اجزای Native assets از Figma — قابل دسترس و RTL.
+          دانش‌پورتال DXCode — تایپوگرافی برند، نشان درگاه، و اجزای Native RTL.
         </p>
       </header>
+
+      <section className="ds-section" aria-labelledby="ds-type">
+        <h2 id="ds-type">Typography</h2>
+        <div className="ds-type-grid">
+          <article className="ds-type-card">
+            <p className="dx-kicker">01 // Brand</p>
+            <DxCodeWordmark className="ds-type-card__specimen" />
+            <p className="ds-type-card__meta">
+              Orbitron · wordmark Latin · `--dx-font-brand`
+            </p>
+          </article>
+          <article className="ds-type-card">
+            <p className="dx-kicker">02 // Tech kicker</p>
+            <p className="ds-type-card__specimen ds-type-card__specimen--tech">
+              GATEWAY TO DEEP TECHNICAL CAPABILITY
+            </p>
+            <p className="ds-type-card__meta">
+              JetBrains Mono · tracked caps · `--dx-font-tech`
+            </p>
+          </article>
+          <article className="ds-type-card">
+            <p className="dx-kicker">03 // Persian UI</p>
+            <p className="ds-type-card__specimen ds-type-card__specimen--fa">
+              از یادگیری کد تا درک مهندسی
+            </p>
+            <p className="ds-type-card__meta">
+              IRANSans · primary UI · `--zharfa-font-persian`
+            </p>
+          </article>
+          <article className="ds-type-card">
+            <p className="dx-kicker">04 // Latin UI</p>
+            <p className="ds-type-card__specimen ds-type-card__specimen--latin">
+              Plus Jakarta Sans for mixed English UI
+            </p>
+            <p className="ds-type-card__meta">
+              Plus Jakarta Sans · `--zharfa-font-latin`
+            </p>
+          </article>
+        </div>
+        <div className="ds-type-ethos" aria-label="Portal ethos">
+          <p className="dx-kicker">CORE ARCHITECTURE // THE PORTAL ETHOS</p>
+          <ul>
+            <li>
+              <span>01</span> UNDERSTANDING <em>&gt;</em> MEMORIZING
+            </li>
+            <li>
+              <span>02</span> BUILDING <em>&gt;</em> CONSUMING
+            </li>
+            <li>
+              <span>03</span> EXPLORATION <em>&gt;</em> BLIND INSTRUCTION
+            </li>
+            <li>
+              <span>04</span> ENGINEERING <em>&gt;</em> SUPERFICIAL CODING
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="ds-section" aria-labelledby="ds-mark">
+        <h2 id="ds-mark">Portal mark</h2>
+        <div className="ds-row ds-row--marks">
+          <DxCodeLogo className="ds-mark-lg" title="DXCode portal" />
+          <div>
+            <DxCodeWordmark className="ds-type-card__specimen" />
+            <p className="featured__lead" style={{ marginTop: 8 }}>
+              Hexagonal Knowledge Portal + cyan chevron. Favicon mirrors the same
+              geometry.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section className="ds-section" aria-labelledby="ds-buttons">
         <h2 id="ds-buttons">Button</h2>
@@ -64,7 +139,7 @@ export default function DesignSystemPage() {
           <Field
             id="order-disabled"
             label="شناسه سفارش — غیرفعال"
-            defaultValue="JF-1042"
+            defaultValue="DX-1042"
             mono
             disabled
           />
@@ -103,9 +178,9 @@ export default function DesignSystemPage() {
             coverSrc="/artwork/courses/clean-architecture.svg"
             coverAlt="معماری تمیز در عمل"
             statusLabel="تکمیل ضبط"
-            byline="ژرفا"
+            byline="DXCode"
             durationLabel="۰۴:۰۰:۰۰"
-            priceLabel="۲٬۴۰۰ هزارتومن"
+            priceLabel="۲٫۴ میلیون تومن"
             action={
               <AddToCartButton
                 item={{
@@ -116,7 +191,7 @@ export default function DesignSystemPage() {
                   coverAsset: "/artwork/courses/clean-architecture.svg",
                   priceToman: 2_400_000,
                   compareAtToman: null,
-                  priceLabel: "۲٬۴۰۰ هزارتومن",
+                  priceLabel: "۲٫۴ میلیون تومن",
                   compareAtLabel: null,
                   discountLabel: null,
                 }}
@@ -132,8 +207,8 @@ export default function DesignSystemPage() {
             statusLabel="پیش‌فروش"
             byline="امنیت"
             durationLabel="۰۶:۲۰:۰۰"
-            priceLabel="۱٬۹۰۰ هزارتومن"
-            compareAtLabel="۲٬۲۰۰ هزارتومن"
+            priceLabel="۱٫۹ میلیون تومن"
+            compareAtLabel="۲٫۲ میلیون تومن"
             discountLabel="۱۴٪ تخفیف"
             action={
               <AddToCartButton
@@ -145,8 +220,8 @@ export default function DesignSystemPage() {
                   coverAsset: "/artwork/courses/api-security.svg",
                   priceToman: 1_900_000,
                   compareAtToman: 2_200_000,
-                  priceLabel: "۱٬۹۰۰ هزارتومن",
-                  compareAtLabel: "۲٬۲۰۰ هزارتومن",
+                  priceLabel: "۱٫۹ میلیون تومن",
+                  compareAtLabel: "۲٫۲ میلیون تومن",
                   discountLabel: "۱۴٪ تخفیف",
                 }}
               />

@@ -105,6 +105,7 @@ export function CourseCard({
 
   const media = (
     <>
+      <span className="z-course-card__media-frame" aria-hidden="true" />
       {coverSrc ? (
         <img src={coverSrc} alt={coverAlt} />
       ) : (
@@ -139,9 +140,7 @@ export function CourseCard({
                 {showCheck ? <StatusCheck /> : null}
                 {statusLabel}
               </span>
-            ) : (
-              <span />
-            )}
+            ) : null}
             {byline ? (
               <span className="z-course-card__byline">{byline}</span>
             ) : null}

@@ -179,7 +179,8 @@ export function FooterCmsEditorForm({
           <span className="z-field__label">متن معرفی فوتر</span>
           <textarea
             className="z-field__control"
-            rows={3}
+            rows={7}
+            maxLength={900}
             value={values.footerBlurb}
             onChange={(e) => patch({ footerBlurb: e.target.value })}
           />

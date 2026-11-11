@@ -29,7 +29,6 @@ export function CartView() {
       <DisinabPlate className="disinab-cart__mast" aria-labelledby="cart-heading">
         <header className="disinab-cart__head">
           <div>
-            <p className="disinab__brand">فاکتور</p>
             <h1 id="cart-heading">سبد خرید</h1>
             <p className="disinab__line">
               هر دوره جدا پرداخت می‌شود؛ مبلغ نهایی هنگام تسویه روی سرور حساب
@@ -60,7 +59,6 @@ export function CartView() {
             aria-labelledby="cart-items-heading"
           >
             <header className="disinab-cart__section-head">
-              <p className="disinab__brand">اقلام</p>
               <h2 id="cart-items-heading">دوره‌های سبد</h2>
             </header>
             <ul className="cart-lines disinab-cart__lines">
@@ -78,7 +76,7 @@ export function CartView() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.coverAsset} alt="" />
                     ) : (
-                      <span>ژرفا</span>
+                      <span className="dx-wordmark dx-wordmark--inline">DXCode</span>
                     )}
                   </Link>
                   <div className="cart-line__body">
@@ -114,7 +112,6 @@ export function CartView() {
             aria-labelledby="cart-invoice-heading"
           >
             <header className="disinab-cart__section-head">
-              <p className="disinab__brand">خلاصه</p>
               <h2 id="cart-invoice-heading">فاکتور سبد</h2>
             </header>
 

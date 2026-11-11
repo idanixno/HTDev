@@ -26,7 +26,6 @@ export default async function PurchasePage({ params }: { params: Params }) {
       aria-labelledby="purchase-heading"
     >
       <header className="purchase-mast">
-        <p className="purchase-mast__eyebrow">تسویه‌حساب</p>
         <div className="purchase-mast__head">
           <h1 id="purchase-heading" className="purchase-mast__title">
             خرید آموزش «{options.course.title}»

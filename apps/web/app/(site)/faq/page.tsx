@@ -8,7 +8,7 @@ import { buildPageMetadata } from "../../../lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "پرسش‌های رایج",
-  description: "پاسخ پرسش‌های منتشرشده درباره خرید، دسترسی و پشتیبانی ژرفا.",
+  description: "پاسخ پرسش‌های منتشرشده درباره خرید، دسترسی و پشتیبانی DXCode.",
   path: "/faq",
 });
 
@@ -28,7 +28,6 @@ export default async function FaqPage() {
         </nav>
         <div className="disinab-faq__intro">
           <div>
-            <p className="disinab__brand">ژرفا · پشتیبانی</p>
             <h1 id="faq-title">پرسش‌های رایج</h1>
             <p className="disinab__line">
               این فهرست از محتوای منتشرشده مدیریت خوانده می‌شود. اگر پاسخ این‌جا

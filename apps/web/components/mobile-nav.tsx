@@ -6,6 +6,7 @@ import { useEffect, useRef, type MouseEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { ChromeGroup } from "../lib/site-chrome";
 import { DisinabStatus } from "./disinab";
+import { DxCodeWordmark } from "./dxcode-wordmark";
 import { useSessionAuthed } from "./header-account";
 import { ThemeToggle } from "./theme-toggle";
 import { useMenuDrawer } from "./use-menu-drawer";
@@ -127,7 +128,11 @@ export function MobileNav({
                 <div className="disinab-nav-drawer__inner">
                   <header className="disinab-nav-drawer__head">
                     <div className="disinab-nav-drawer__title">
-                      <p className="disinab__brand">{brandName}</p>
+                      {brandName === "DXCode" ? (
+                        <DxCodeWordmark as="p" className="disinab__brand" />
+                      ) : (
+                        <p className="disinab__brand">{brandName}</p>
+                      )}
                       <h2>{menuTitle}</h2>
                       <p className="disinab__line">{menuLine}</p>
                     </div>

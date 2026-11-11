@@ -9,9 +9,11 @@ const INTERVAL_MS = 4200;
 export function DisinabCourseCarousel({
   courses,
   ariaLabel = "دوره‌های پیشنهادی",
+  ownedSlugs = [],
 }: {
   courses: PublicCourseCard[];
   ariaLabel?: string;
+  ownedSlugs?: string[];
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const indexRef = useRef(0);
@@ -106,7 +108,10 @@ export function DisinabCourseCarousel({
               data-carousel-item=""
               aria-label={`${(i + 1).toLocaleString("fa-IR")} از ${count.toLocaleString("fa-IR")}`}
             >
-              <CourseCardLink course={course} />
+              <CourseCardLink
+                course={course}
+                enrolled={ownedSlugs.includes(course.slug)}
+              />
             </li>
           ))}
         </ul>

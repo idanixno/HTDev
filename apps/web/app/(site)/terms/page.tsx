@@ -2,19 +2,20 @@ import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@zharfa/ui";
+import { BrandText } from "../../../components/brand-text";
 import { DisinabBadge, DisinabPlate } from "../../../components/disinab";
 import { buildPageMetadata } from "../../../lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "شرایط استفاده",
-  description: "شرایط استفاده از وب‌سایت و خرید دوره‌های ژرفا.",
+  description: "شرایط استفاده از وب‌سایت و خرید دوره‌های DXCode.",
   path: "/terms",
 });
 
 const SECTIONS = [
   {
     title: "حساب",
-    body: "هر شخص مسئول حفظ رمز حساب خود است. نام کاربری، ایمیل و شماره موبایل باید متعلق به خود کاربر باشد. ژرفا می‌تواند نشست را پس از تغییر رمز باطل کند.",
+    body: "هر شخص مسئول حفظ رمز حساب خود است. نام کاربری، ایمیل و شماره موبایل باید متعلق به خود کاربر باشد. DXCode می‌تواند نشست را پس از تغییر رمز باطل کند.",
   },
   {
     title: "دوره‌ها",
@@ -22,11 +23,11 @@ const SECTIONS = [
   },
   {
     title: "ویدیو",
-    body: "پخش ویدیوی محافظت‌شده با اسپات‌پلیر انجام می‌شود. ژرفا میزبان مستقل ویدیو نیست. دسترسی وقتی معتبر است که لایسنس از ارائه‌دهنده صادر شده باشد.",
+    body: "پخش ویدیوی محافظت‌شده با اسپات‌پلیر انجام می‌شود. DXCode میزبان مستقل ویدیو نیست. دسترسی وقتی معتبر است که لایسنس از ارائه‌دهنده صادر شده باشد.",
   },
   {
     title: "محتوای سایت",
-    body: "متن دوره‌ها، مقالات و طرح درس متعلق به ژرفا است. کپی دوره‌ها برای بازنشر مجاز نیست.",
+    body: "متن دوره‌ها، مقالات و طرح درس متعلق به DXCode است. کپی دوره‌ها برای بازنشر مجاز نیست.",
   },
 ] as const;
 
@@ -44,10 +45,10 @@ export default function TermsPage() {
         </nav>
         <div className="disinab-terms__intro">
           <div>
-            <p className="disinab__brand">ژرفا · قواعد</p>
             <h1 id="terms-title">شرایط استفاده</h1>
             <p className="disinab__line">
-              با ساخت حساب یا خرید دوره، این شرایط را برای استفاده از ژرفا
+              با ساخت حساب یا خرید دوره، این شرایط را برای استفاده از{" "}
+              <span className="dx-wordmark dx-wordmark--inline">DXCode</span>{" "}
               می‌پذیرید. این متن راهنمای محصول است و جایگزین مشاوره حقوقی مستقل
               نیست.
             </p>
@@ -82,7 +83,9 @@ export default function TermsPage() {
                 </p>
                 <div className="disinab-terms__copy">
                   <h2>{section.title}</h2>
-                  <p>{section.body}</p>
+                  <p>
+                    <BrandText>{section.body}</BrandText>
+                  </p>
                 </div>
               </article>
             </li>

@@ -170,7 +170,7 @@ export function ArticleEditorForm({
           rows={16}
           value={values.body}
           onChange={(body) => patch({ body })}
-          hint="از نوار ابزار برای بولد، لینک، عکس، ویدیو، جدول و پرسش‌وپاسخ استفاده کنید. خروجی مارک‌داون ژرفا است."
+          hint="از نوار ابزار برای بولد، لینک، عکس، ویدیو، جدول و پرسش‌وپاسخ استفاده کنید. خروجی مارک‌داون DXCode است."
         />
         <div className="editor-form__wide editor-seo-row">
           <fieldset className="editor-seo">

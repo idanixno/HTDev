@@ -6,6 +6,7 @@ import type { PublicNotification } from "../lib/notification-shared";
 import type { PublicUser } from "../lib/session";
 import { LogoutButton } from "./logout-button";
 import { NotificationsPanel } from "./notifications-panel";
+import { DxCodeWordmark } from "./dxcode-wordmark";
 import { ZharfaStudentMark } from "./zharfa-student-mark";
 
 function PencilIcon() {
@@ -223,7 +224,7 @@ export function IdCard({
             <ZharfaStudentMark />
           </div>
           <div className="presence__intro">
-            <p className="presence__brand">ژرفا</p>
+            <DxCodeWordmark as="p" className="presence__brand" />
             <div className="presence__title">
               <p className="presence__rank">مهندس</p>
               <h1>{user.displayName}</h1>
