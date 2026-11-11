@@ -1,10 +1,13 @@
 import { Queue, Worker, type ConnectionOptions } from "bullmq";
+import { assertProductionEnv } from "@zharfa/config/assert-production-env";
 import { PrismaClient } from "@zharfa/database";
 import { createServer } from "node:http";
 import {
   processAccessProvisioning,
   type AccessProvisioningJobData,
 } from "./access-provisioning.js";
+
+assertProductionEnv("worker");
 
 const redisUrl = process.env.REDIS_URL ?? "redis://127.0.0.1:6379";
 const healthPort = Number(process.env.WORKER_HEALTH_PORT ?? 4001);

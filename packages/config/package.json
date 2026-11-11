@@ -2,8 +2,23 @@
   "name": "@zharfa/config",
   "version": "0.0.0",
   "private": true,
-  "files": ["tsconfig*.json"],
+  "type": "module",
+  "files": [
+    "tsconfig*.json",
+    "assert-production-env.js",
+    "assert-production-env.cjs",
+    "assert-production-env.d.ts"
+  ],
+  "exports": {
+    "./assert-production-env": {
+      "types": "./assert-production-env.d.ts",
+      "import": "./assert-production-env.js",
+      "require": "./assert-production-env.cjs",
+      "default": "./assert-production-env.cjs"
+    }
+  },
   "scripts": {
-    "typecheck": "echo \"@zharfa/config: config-only package\""
+    "typecheck": "echo \"@zharfa/config: config-only package\"",
+    "build": "echo \"@zharfa/config: no build\""
   }
 }

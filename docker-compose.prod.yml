@@ -1,0 +1,182 @@
+# Production stack: web + api + worker + postgres + redis
+# Usage:
+#   cp .env.production.example .env.production   # fill secrets
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+#   docker compose -f docker-compose.prod.yml --env-file .env.production run --rm api \
+#     sh -c "cd /app && pnpm --filter @zharfa/database exec prisma migrate deploy"
+#
+# Put TLS reverse proxy (Caddy/Nginx) on the host in front of 127.0.0.1:3000 and :4000.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zharfa-prod-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zharfa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-zharfa}
+    volumes:
+      - zharfa_prod_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zharfa} -d ${POSTGRES_DB:-zharfa}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - zharfa_prod
+
+  redis:
+    image: redis:7-alpine
+    container_name: zharfa-prod-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - zharfa_prod_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - zharfa_prod
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: zharfa-prod-api
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      API_PORT: "4000"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-zharfa}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-zharfa}?schema=public
+      REDIS_URL: redis://redis:6379
+      API_INTERNAL_URL: http://api:4000
+      TICKET_ATTACHMENT_ROOT: /data/ticket-attachments
+    volumes:
+      - zharfa_prod_attachments:/data/ticket-attachments
+    ports:
+      - "127.0.0.1:4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks:
+      - zharfa_prod
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: zharfa-prod-worker
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      WORKER_HEALTH_PORT: "4001"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-zharfa}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-zharfa}?schema=public
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "127.0.0.1:4001:4001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks:
+      - zharfa_prod
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    container_name: zharfa-prod-web
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_URL: http://api:4000
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks:
+      - zharfa_prod
+
+  migrate:
+    profiles: ["tools"]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: builder
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-zharfa}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-zharfa}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /app/packages/database
+    command: ["pnpm", "exec", "prisma", "migrate", "deploy"]
+    networks:
+      - zharfa_prod
+
+volumes:
+  zharfa_prod_pg:
+  zharfa_prod_redis:
+  zharfa_prod_attachments:
+
+networks:
+  zharfa_prod:
+    driver: bridge

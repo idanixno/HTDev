@@ -1,8 +1,8 @@
-# ژرفا / Zharfa (HTDev)
+# DXCode (HTDev)
 
-Personal education platform (one instructor). Persian RTL primary. Monorepo: Next.js web, NestJS API, BullMQ worker, Prisma + PostgreSQL, Redis, MinIO.
+Persian-first technology education platform. Product brand: **DXCode**. Monorepo: Next.js web, NestJS API, BullMQ worker, Prisma + PostgreSQL, Redis, MinIO.
 
-Figma: [EDU / Zharfa](https://www.figma.com/design/ecYEt09V8ZOGzG2sRd4cC1)
+Brand system details: [`docs/BRANDING.md`](docs/BRANDING.md). Internal npm scopes remain `@zharfa/*` (package identifiers, not the public brand).
 
 ## Stack
 
@@ -12,7 +12,7 @@ Figma: [EDU / Zharfa](https://www.figma.com/design/ecYEt09V8ZOGzG2sRd4cC1)
 | `apps/api` | NestJS HTTP API (Identity, Catalog, Commerce, SpotPlayer, Tickets, Notifications, Admin) |
 | `apps/worker` | BullMQ jobs (`access-provisioning`) |
 | `packages/database` | Prisma schema + client + seed |
-| `packages/ui` | Zharfa design system (`@zharfa/ui`) |
+| `packages/ui` | Design system tokens/components (`@zharfa/ui`) — CSS vars still prefixed `--zharfa-*` |
 | `packages/config` | Shared TS configs |
 
 ## Prerequisites
@@ -117,7 +117,7 @@ Do **not** claim `VERIFIED_REAL_INTEGRATION` without live merchant/SpotPlayer/SM
 | Courses / paths / journal | `/courses`, `/courses/[slug]`, `/paths`, `/journal` |
 | FAQ and terms | `/faq`, `/terms` |
 | Purchase + payment pages | `/courses/[slug]/purchase`, `/payments/{pending,success,failure}` |
-| Student orders / access / tickets / notifications / security | `/dashboard/orders`, `/dashboard/access`, `/dashboard/tickets`, `/dashboard/notifications`, `/dashboard/account` |
+| Student account | `/dashboard` (نمای کلی) · `/dashboard/tracks` (تخصص‌ها) · `/dashboard/tickets` (پشتیبانی) |
 | API identity | `POST /identity/register\|login\|logout`, `GET /identity/me`, recover routes |
 | API catalog | `GET /catalog/*` |
 | API commerce | checkout, coupons, orders, gateway callbacks |
@@ -133,11 +133,26 @@ Web sets an **HttpOnly** `zharfa_session` cookie via Next.js BFF routes under `/
 - Not a multi-instructor marketplace; no custom video hosting
 - SMS/email: interface + **console/dev provider** until real credentials exist
 
+## Production (VPS + Docker)
+
+Recommended path for a single VPS:
+
+```bash
+cp .env.production.example .env.production
+# Fill HTTPS origins + strong SESSION_SECRET / OTP_PEPPER / INTERNAL_SECURITY_TOKEN / POSTGRES_PASSWORD
+pnpm prod:up
+pnpm prod:migrate
+# Point DNS + TLS reverse proxy (Caddy/Nginx) at 127.0.0.1:3000 (web) and :4000 (api)
+```
+
+Boot refuses production start if mock payment/SpotPlayer hooks are on or secrets are weak/default.
+Full Persian walkthrough: [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
+
 ## Docs
 
 - [`docs/IMPLEMENTATION_STATUS.md`](./docs/IMPLEMENTATION_STATUS.md) — living feature ledger (VERIFIED / BLOCKED)
 - [`docs/TESTING.md`](./docs/TESTING.md) — how to run checks; what this environment verified
-- [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) — local-first notes (no production deploy required now)
+- [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) — local + production (Docker Compose) deploy guide
 - [`CHANGELOG.md`](./CHANGELOG.md) — phase summary
 - [`SECURITY.md`](./SECURITY.md) — security posture
 - [`docs/security/`](./docs/security/) · [`docs/performance/`](./docs/performance/)
@@ -152,8 +167,10 @@ Web sets an **HttpOnly** `zharfa_session` cookie via Next.js BFF routes under `/
 | `pnpm typecheck` | Typecheck all packages |
 | `pnpm lint` | Lint (web: ESLint via next lint; api/worker: stub pending full ESLint) |
 | `pnpm test` | Build `@zharfa/database` then API + worker Vitest |
-| `pnpm docker:up` / `docker:down` / `docker:ps` | Compose infra |
+| `pnpm docker:up` / `docker:down` / `docker:ps` | Local Compose infra (Postgres/Redis/MinIO) |
+| `pnpm prod:up` / `prod:down` / `prod:ps` / `prod:migrate` | Production Compose stack |
 | `pnpm db:generate` | Prisma generate (root `.env`) |
 | `pnpm db:migrate` | Prisma migrate dev |
+| `pnpm db:migrate:deploy` | Prisma migrate deploy (production) |
 | `pnpm db:seed` | Seed admin + students + catalog + fixtures |
 | `pnpm db:studio` | Prisma Studio |

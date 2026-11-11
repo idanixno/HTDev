@@ -7,6 +7,9 @@ coverage
 .env
 .env.local
 .env.*.local
+.env.production
+!.env.example
+!.env.production.example
 *.log
 .DS_Store
 apps/api/dist
@@ -14,6 +17,8 @@ apps/worker/dist
 packages/database/generated
 *.tsbuildinfo
 .data
+.local-backups
+.pnpm-store
 apps/api/.data
 apps/web/public/media/lessons/*
 !apps/web/public/media/lessons/.gitkeep

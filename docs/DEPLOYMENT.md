@@ -1,6 +1,39 @@
-# راه‌اندازی ژرفا روی سرور (صفر تا صد)
+# راه‌اندازی DXCode روی سرور (صفر تا صد)
 
-این راهنما برای کسی نوشته شده که می‌خواهد ژرفا را روی یک سرور لینوکس (مثلاً Ubuntu) بالا بیاورد. زبان ساده است؛ اگر جایی گیر کردید، همان قدم را دوباره بخوانید.
+این راهنما برای کسی نوشته شده که می‌خواهد **DXCode** را روی یک سرور لینوکس (مثلاً Ubuntu) بالا بیاورد. زبان ساده است؛ اگر جایی گیر کردید، همان قدم را دوباره بخوانید.
+
+> شناسه‌های داخلی زیرساخت/پکیج (`@zharfa/*`، دیتابیس `zharfa`، کوکی `zharfa_session`) عمداً عوض نشده‌اند — برند عمومی محصول DXCode است. جزئیات: [`BRANDING.md`](./BRANDING.md).
+
+---
+
+## مسیر پیشنهادی پروداکشن: Docker Compose کامل
+
+روی یک VPS با Docker:
+
+```bash
+cp .env.production.example .env.production
+nano .env.production   # دامنه HTTPS + رمزهای قوی + POSTGRES_PASSWORD
+
+pnpm prod:up           # web + api + worker + postgres + redis
+pnpm prod:migrate      # prisma migrate deploy
+
+# TLS را با Caddy/Nginx روی هاست به 127.0.0.1:3000 (وب) و 127.0.0.1:4000 (API) وصل کنید
+curl -s http://127.0.0.1:4000/health
+curl -s http://127.0.0.1:4001/health
+curl -s http://127.0.0.1:3000/api/health
+```
+
+نکات حیاتی:
+
+- `PAYMENT_MOCK_HOOKS` و `SPOTPLAYER_MOCK_*` باید `false` باشند؛ در غیر این صورت API/worker/web **استارت نمی‌شوند**
+- `SESSION_SECRET`، `OTP_PEPPER`، `INTERNAL_SECURITY_TOKEN` ≥۲۴ کاراکتر و متفاوت از هم
+- `WEB_ORIGIN` / `NEXT_PUBLIC_SITE_URL` / `API_PUBLIC_URL` باید `https://...` باشند
+- seed در پروداکشن اجباری نیست؛ در صورت نیاز یک‌بار با پسورد قوی بزنید
+- `/design-system` در پروداکشن مخفی است (۴۰۴)
+
+جزئیات env: [`.env.production.example`](../.env.production.example)
+
+اگر ترجیح می‌دهید بدون Docker ایمیج اپ‌ها، از قدم‌های زیر (نصب Node روی هاست + Compose فقط برای Postgres/Redis) استفاده کنید.
 
 ---
 

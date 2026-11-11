@@ -26,8 +26,8 @@ Nest catalog handlers are plain DB reads with no HTTP cache headers yet. ISR on 
 
 ## Images & fonts
 
-- Persian primary font (Vazirmatn) uses `next/font` with `display: "swap"` and `preload: true`.
-- Secondary Inter / JetBrains Mono: `display: "swap"`, `preload: false` to keep LCP focused on Persian text.
+- Primary UI font (IRANSans) uses `next/font/local` with `display: "swap"` and `preload: true`.
+- JetBrains Mono (code only): `display: "swap"`, `preload: false` to keep LCP focused on UI text.
 - Course/path cover SVGs under `/public/artwork` load via native `<img>` (`decoding="async"`; course detail uses `fetchPriority="high"` for LCP).
 
 ## Admin analytics

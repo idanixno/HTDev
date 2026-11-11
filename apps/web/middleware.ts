@@ -87,6 +87,16 @@ export async function middleware(request: NextRequest) {
   const hiddenAdmin = isHiddenAdmin(pathname);
   reportSuspiciousProbe(request, pathname);
 
+  // Design-system is a local playground — hide in production.
+  if (
+    !isDev &&
+    (pathname === "/design-system" || pathname.startsWith("/design-system/"))
+  ) {
+    const rewrite = NextResponse.rewrite(new URL("/internal-missing", request.url));
+    applySecurityHeaders(rewrite.headers, { pathname, isDev, enableHsts });
+    return rewrite;
+  }
+
   let owner = false;
   let mintOwnerMarker: string | null = null;
   if (hiddenAdmin && token) {

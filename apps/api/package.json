@@ -16,6 +16,7 @@
     "@nestjs/common": "^11.1.3",
     "@nestjs/core": "^11.1.3",
     "@nestjs/platform-express": "^11.1.3",
+    "@zharfa/config": "workspace:*",
     "@zharfa/database": "workspace:*",
     "argon2": "^0.43.0",
     "bullmq": "^5.53.0",

@@ -136,7 +136,7 @@ export function SpotPlayerAdminForm({
         <h2>افزودن نگاشت دوره</h2>
         <Field
           id="sp-course-id"
-          label="شناسه دوره ژرفا (courseId)"
+          label="شناسه دوره DXCode (courseId)"
           name="courseId"
           value={courseId}
           onChange={(e) => setCourseId(e.target.value)}

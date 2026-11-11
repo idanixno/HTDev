@@ -9,12 +9,17 @@
     "typecheck": "turbo run typecheck",
     "db:generate": "pnpm --filter @zharfa/database generate",
     "db:migrate": "pnpm --filter @zharfa/database migrate:dev",
+    "db:migrate:deploy": "pnpm --filter @zharfa/database migrate:deploy",
     "db:seed": "pnpm --filter @zharfa/database seed",
     "db:studio": "pnpm --filter @zharfa/database studio",
     "test": "pnpm --filter @zharfa/database build && pnpm --filter @zharfa/api test && pnpm --filter @zharfa/worker test",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "docker:ps": "docker compose ps"
+    "docker:ps": "docker compose ps",
+    "prod:up": "docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build",
+    "prod:down": "docker compose -f docker-compose.prod.yml --env-file .env.production down",
+    "prod:ps": "docker compose -f docker-compose.prod.yml --env-file .env.production ps",
+    "prod:migrate": "docker compose -f docker-compose.prod.yml --env-file .env.production --profile tools run --rm migrate"
   },
   "devDependencies": {
     "turbo": "^2.5.4",
