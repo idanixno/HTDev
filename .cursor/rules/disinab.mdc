@@ -5,13 +5,13 @@ alwaysApply: true
 
 # دیسیناب (Disinab)
 
-When the user writes **دیسیناب** or **Disinab**, design that section with this system. Source of truth: dashboard `presence__plate`, `/dashboard` (`.disinab-folio`), `/paths`, home (`.disinab-home-catalog`, `.disinab-home-notes`), courses catalog (`.disinab-catalog`), journal (`.disinab-journal`), FAQ (`.disinab-faq`), terms (`.disinab-terms`), course related carousel (`.disinab-related` / `DisinabCourseCarousel`), tickets (`.disinab-tickets`), cart (`.disinab-cart`), logout confirm (`.disinab-dialog`), 404 (`.disinab-not-found`), site header (`.disinab-header`), site footer (`.disinab-footer`), mobile menu (`.disinab-nav-drawer`), admin shell (`.disinab-admin` / `.admin-shell`), and primitives in `apps/web/components/disinab.tsx` + `.disinab*` CSS.
+When the user writes **دیسیناب** or **Disinab**, design that section with this system. Source of truth: dashboard `presence__plate`, `/dashboard` (`.disinab-folio`), `/paths`, home (`.disinab-home-catalog`, `.disinab-home-paths`, `.disinab-home-notes`), courses catalog (`.disinab-catalog`), journal (`.disinab-journal`), FAQ (`.disinab-faq`), terms (`.disinab-terms`), course related carousel (`.disinab-related` / `DisinabCourseCarousel`), tickets (`.disinab-tickets`), cart (`.disinab-cart`), logout confirm (`.disinab-dialog`), 404 (`.disinab-not-found`), site header (`.disinab-header`), site footer (`.disinab-footer`), mobile menu (`.disinab-nav-drawer`), admin shell (`.disinab-admin` / `.admin-shell`), and primitives in `apps/web/components/disinab.tsx` + `.disinab*` CSS.
 
 ## Visual language
 - Dark navy/slate plate; soft primary radial glow; hairline border mixed with `--zharfa-action-primary`
 - Radius ~22–24px plate, ~12px controls, pill tabs `999px`
 - Inset highlight + deep soft drop shadow (no neon, no multi-layer chrome)
-- RTL Persian; Vazirmatn via `--zharfa-font-persian`
+- RTL Persian; IRANSans via `--zharfa-font-persian`
 - Hierarchy: brand kicker → rank → bold H1 → muted line → actions
 - Segmented pill tabs; fact grid with hairline column rules
 - Docs/API surfaces: capsule badges, method chip, endpoint card, green live status dot

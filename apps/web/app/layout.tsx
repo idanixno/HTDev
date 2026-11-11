@@ -1,16 +1,76 @@
 import type { Metadata } from "next";
-import { Vazirmatn, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
+import { JetBrains_Mono, Orbitron, Plus_Jakarta_Sans } from "next/font/google";
 import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
 import "./globals.css";
 
-const vazirmatn = Vazirmatn({
-  subsets: ["arabic", "latin"],
-  variable: "--font-vazirmatn",
+const iranSans = localFont({
+  src: [
+    {
+      path: "./fonts/IRANSansWeb_UltraLight.woff2",
+      weight: "200",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IRANSansWeb_Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IRANSansWeb.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IRANSansWeb_Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IRANSansWeb_Medium.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IRANSansWeb_Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IRANSansWeb_Bold.woff2",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IRANSansWeb_Black.woff2",
+      weight: "900",
+      style: "normal",
+    },
+  ],
+  variable: "--font-iransans",
   display: "swap",
   preload: true,
+  fallback: ["Tahoma", "Arial", "sans-serif"],
 });
 
-/** Code samples only — not preloaded so Persian LCP stays light. */
+/** Brand wordmark / Latin display — Knowledge Portal identity. */
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  variable: "--font-dx-brand",
+  display: "swap",
+  preload: false,
+  weight: ["500", "600", "700", "800"],
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta",
+  display: "swap",
+  preload: false,
+  weight: ["500", "600", "700", "800"],
+});
+
+/** Code + tech kickers / overlines. */
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
@@ -27,9 +87,18 @@ export const metadata: Metadata = {
   }),
   title: {
     default: siteMetadataBase.title,
-    template: "%s | ژرفا",
+    template: "%s | DXCode",
   },
 };
+
+const persianStack =
+  "var(--font-iransans), IRANSans, IRANSansWeb, Tahoma, sans-serif";
+const brandStack =
+  "var(--font-dx-brand), Orbitron, var(--font-plus-jakarta), sans-serif";
+const latinStack =
+  "var(--font-plus-jakarta), Plus Jakarta Sans, var(--font-iransans), Tahoma, sans-serif";
+const techStack =
+  "var(--font-jetbrains), JetBrains Mono, ui-monospace, monospace";
 
 export default function RootLayout({
   children,
@@ -41,17 +110,16 @@ export default function RootLayout({
       lang="fa"
       dir="rtl"
       data-theme="dark"
-      className={`${vazirmatn.variable} ${jetbrainsMono.variable}`}
+      className={`${iranSans.variable} ${iranSans.className} ${orbitron.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
     >
       <body
         style={
           {
-            "--zharfa-font-persian":
-              "var(--font-vazirmatn), Vazirmatn, Tahoma, sans-serif",
-            "--zharfa-font-latin":
-              "var(--font-vazirmatn), Vazirmatn, Tahoma, sans-serif",
-            "--zharfa-font-code":
-              "var(--font-jetbrains), ui-monospace, monospace",
+            "--zharfa-font-persian": persianStack,
+            "--zharfa-font-latin": latinStack,
+            "--zharfa-font-code": techStack,
+            "--dx-font-brand": brandStack,
+            "--dx-font-tech": techStack,
           } as React.CSSProperties
         }
       >

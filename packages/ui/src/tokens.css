@@ -1,54 +1,61 @@
 /**
- * Zharfa design tokens — from Figma ecYEt09V8ZOGzG2sRd4cC1
- * (01 · Native assets). Dark + light are independent collections.
- * Persian: Vazirmatn · Latin UI: Inter · Technical: JetBrains Mono.
+ * DXCode design tokens — Interlocking Knowledge
+ * Dark is primary. Light is intentionally designed (not inverted).
+ * UI Persian: IRANSans · Latin display: Plus Jakarta Sans · Code: JetBrains Mono
+ * Legacy --zharfa-* names kept so existing CSS continues to resolve.
  */
 
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --zharfa-bg-canvas: #090d14;
-  --zharfa-surface-base: #101722;
-  --zharfa-surface-card: #151e2c;
-  --zharfa-surface-raised: #1c2738;
+  /* Surfaces — deep navy foundation */
+  --zharfa-bg-canvas: #070b16;
+  --zharfa-surface-base: #0b1222;
+  --zharfa-surface-card: #101a2e;
+  --zharfa-surface-raised: #14213a;
   --zharfa-bg-elevated: var(--zharfa-surface-raised);
 
-  --zharfa-text-primary: #f4f6fa;
-  --zharfa-text-secondary: #9aa6b8;
-  --zharfa-text-link: #c5d4f2;
-  --zharfa-text-on-action: #f4f6fa;
-  --zharfa-text-on-primary: #f7f8fb;
+  /* Text */
+  --zharfa-text-primary: #f7f9fc;
+  --zharfa-text-secondary: #a5b2c8;
+  --zharfa-text-muted: #71819d;
+  --zharfa-text-link: #29d8ff;
+  --zharfa-text-on-action: #f7f9fc;
+  --zharfa-text-on-primary: #f7f9fc;
 
-  --zharfa-border-default: #2a3648;
+  /* Borders */
+  --zharfa-border-default: #1d2b45;
 
-  --zharfa-action-primary: #2f62d6;
-  --zharfa-action-hover: #3b70e4;
-  --zharfa-action-active: #2454bc;
+  /* Brand accents */
+  --dx-blue: #276bff;
+  --dx-cyan: #29d8ff;
+  --dx-violet: #7657f6;
 
-  --zharfa-accent-concept: #8b78e6;
+  --zharfa-action-primary: #276bff;
+  --zharfa-action-hover: #3d7cff;
+  --zharfa-action-active: #1f56d6;
+
+  --zharfa-accent-concept: #7657f6;
   --zharfa-accent-preorder: #f2c780;
 
-  --zharfa-status-success: #71d5ac;
+  --zharfa-status-success: #4adeb5;
   --zharfa-status-error: #f0a0a8;
 
-  /* One palette for commerce states. Dark values stay light enough to read on navy. */
-  --zharfa-tone-sale: #9bb6f2;
-  --zharfa-tone-free: #7dcec8;
+  --zharfa-tone-sale: #29d8ff;
+  --zharfa-tone-free: #4adeb5;
   --zharfa-tone-presale: var(--zharfa-accent-preorder);
-  --zharfa-tone-soon: #c3b6f5;
+  --zharfa-tone-soon: #a78bfa;
   --zharfa-tone-pending: #e6c15a;
   --zharfa-tone-warning: #e39a62;
   --zharfa-tone-success: var(--zharfa-status-success);
   --zharfa-tone-danger: var(--zharfa-status-error);
-  /* Urgency / savings — coral, readable on navy plates */
   --zharfa-tone-discount: #ff9b8a;
 
-  /* Chart series — derived from role colors (admin analytics). */
-  --zharfa-chart-1: var(--zharfa-action-primary);
-  --zharfa-chart-2: var(--zharfa-accent-concept);
+  --zharfa-chart-1: var(--dx-blue);
+  --zharfa-chart-2: var(--dx-violet);
   --zharfa-chart-3: var(--zharfa-status-success);
-  --zharfa-chart-4: var(--zharfa-accent-preorder);
+  --zharfa-chart-4: var(--dx-cyan);
   --zharfa-chart-5: var(--zharfa-status-error);
   --zharfa-chart-grid: color-mix(in srgb, var(--zharfa-border-default) 70%, transparent);
 
@@ -72,16 +79,20 @@
   --zharfa-radius-12: 12px;
   --zharfa-radius-16: 16px;
 
-  --zharfa-shadow-raised: 0 18px 40px color-mix(in srgb, #000 32%, transparent);
+  --zharfa-shadow-raised: 0 22px 48px color-mix(in srgb, #000 48%, transparent);
   --zharfa-shadow-soft: 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+  --zharfa-shadow-glow: 0 0 40px color-mix(in srgb, var(--dx-blue) 22%, transparent);
   --zharfa-z-header: 20;
   --zharfa-z-overlay: 40;
   --zharfa-container: 1120px;
   --zharfa-container-wide: 1440px;
 
-  --zharfa-font-persian: "Vazirmatn", "Tahoma", sans-serif;
-  --zharfa-font-latin: "Inter", "Vazirmatn", sans-serif;
+  /* Typography — Persian UI · Brand Latin · Tech mono */
+  --zharfa-font-persian: "IRANSans", "IRANSansWeb", "Tahoma", sans-serif;
+  --zharfa-font-latin: "Plus Jakarta Sans", "IRANSans", "Tahoma", sans-serif;
   --zharfa-font-code: "JetBrains Mono", ui-monospace, monospace;
+  --dx-font-brand: "Orbitron", "Plus Jakarta Sans", sans-serif;
+  --dx-font-tech: "JetBrains Mono", ui-monospace, monospace;
 
   --zharfa-text-12: 0.75rem;
   --zharfa-text-sm: 0.8125rem;
@@ -100,43 +111,57 @@
   --zharfa-leading-tight: 1.35;
   --zharfa-leading-body: 1.7;
 
-  --zharfa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--zharfa-text-link) 55%, transparent);
+  --zharfa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--dx-cyan) 40%, transparent);
   --zharfa-motion-fast: 160ms ease;
   --zharfa-motion-medium: 280ms ease;
+
+  /* Brand gradient for primary CTAs — restrained */
+  --dx-gradient-brand: linear-gradient(
+    135deg,
+    var(--dx-blue) 0%,
+    color-mix(in srgb, var(--dx-blue) 55%, var(--dx-violet)) 55%,
+    var(--dx-violet) 100%
+  );
 }
 
 [data-theme="light"] {
   color-scheme: light;
 
-  --zharfa-bg-canvas: #f4f6f8;
+  --zharfa-bg-canvas: #f3f6fb;
   --zharfa-surface-base: #ffffff;
   --zharfa-surface-card: #ffffff;
-  --zharfa-surface-raised: #eef2f6;
+  --zharfa-surface-raised: #eef3fb;
   --zharfa-bg-elevated: #ffffff;
 
-  --zharfa-text-primary: #121826;
-  --zharfa-text-secondary: #5c6778;
+  --zharfa-text-primary: #0b1222;
+  --zharfa-text-secondary: #4b5a73;
+  --zharfa-text-muted: #71819d;
   --zharfa-text-link: #1d4ed8;
   --zharfa-text-on-action: #ffffff;
   --zharfa-text-on-primary: #ffffff;
 
-  --zharfa-border-default: #e3e8ef;
+  --zharfa-border-default: #d8e0ee;
 
-  --zharfa-action-primary: #1d4ed8;
-  --zharfa-action-hover: #1e40af;
-  --zharfa-action-active: #1e3a8a;
+  --dx-blue: #276bff;
+  --dx-cyan: #0891b2;
+  --dx-violet: #5b45c9;
 
-  --zharfa-shadow-raised: 0 16px 40px color-mix(in srgb, #121826 10%, transparent);
-  --zharfa-shadow-soft: 0 1px 2px color-mix(in srgb, #121826 6%, transparent),
-    0 10px 28px color-mix(in srgb, #121826 5%, transparent);
+  --zharfa-action-primary: #276bff;
+  --zharfa-action-hover: #1d56e0;
+  --zharfa-action-active: #1847c2;
 
-  --zharfa-accent-concept: #6854b2;
+  --zharfa-shadow-raised: 0 16px 40px color-mix(in srgb, #0b1222 10%, transparent);
+  --zharfa-shadow-soft: 0 1px 2px color-mix(in srgb, #0b1222 6%, transparent),
+    0 10px 28px color-mix(in srgb, #0b1222 5%, transparent);
+  --zharfa-shadow-glow: 0 0 32px color-mix(in srgb, var(--dx-blue) 14%, transparent);
+
+  --zharfa-accent-concept: #5b45c9;
   --zharfa-accent-preorder: #9a6b1f;
 
-  --zharfa-status-success: #18714c;
+  --zharfa-status-success: #0f766e;
   --zharfa-status-error: #b42338;
 
-  --zharfa-tone-sale: #1d4ed8;
+  --zharfa-tone-sale: #276bff;
   --zharfa-tone-free: #0f766e;
   --zharfa-tone-presale: var(--zharfa-accent-preorder);
   --zharfa-tone-soon: var(--zharfa-accent-concept);
@@ -144,18 +169,22 @@
   --zharfa-tone-warning: #b45309;
   --zharfa-tone-success: var(--zharfa-status-success);
   --zharfa-tone-danger: var(--zharfa-status-error);
-  /* Urgency / savings — warm red on light surfaces */
   --zharfa-tone-discount: #c2410c;
 
   --zharfa-chart-1: var(--zharfa-action-primary);
   --zharfa-chart-2: var(--zharfa-accent-concept);
   --zharfa-chart-3: var(--zharfa-status-success);
-  --zharfa-chart-4: var(--zharfa-accent-preorder);
+  --zharfa-chart-4: var(--dx-cyan);
   --zharfa-chart-5: var(--zharfa-status-error);
   --zharfa-chart-grid: color-mix(in srgb, var(--zharfa-border-default) 70%, transparent);
+
+  --dx-gradient-brand: linear-gradient(
+    135deg,
+    #276bff 0%,
+    #5b45c9 100%
+  );
 }
 
-/* Mobile type scale — keep hierarchy, avoid oversized rem steps. */
 @media (max-width: 720px) {
   :root,
   [data-theme="dark"],
