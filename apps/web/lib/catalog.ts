@@ -339,7 +339,9 @@ export async function fetchFooterTrusts(): Promise<PublicFooterTrusts> {
  */
 export const fetchSiteChrome = cache(async (): Promise<SiteChrome> => {
   const remote = await catalogFetch<SiteChrome>("/catalog/footer-trusts");
-  return remote ?? DEFAULT_SITE_CHROME;
+  const chrome = remote ?? DEFAULT_SITE_CHROME;
+  // Cart removed — purchase uses the per-course invoice preview only.
+  return { ...chrome, showCart: false };
 });
 
 export async function fetchArticles(): Promise<PublicArticleCard[]> {

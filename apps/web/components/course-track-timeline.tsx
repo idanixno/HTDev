@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DisinabPlate } from "./disinab";
 import type { PublicCourseTrack } from "../lib/catalog";
+import { SHOW_TRACK_STACK } from "../lib/track-display";
 import {
   buildTrackProgress,
   trackDisplayTitle,
@@ -322,6 +323,7 @@ export function CourseTrackTimeline({
   ownedSlugs?: Set<string>;
   context?: "course" | "dashboard";
 }) {
+  if (!SHOW_TRACK_STACK) return null;
   if (tracks.length === 0) return null;
   const owned = ownedSlugs ?? new Set<string>();
 
@@ -366,6 +368,7 @@ export function TrackOverviewCards({
   tracks: PublicCourseTrack[];
   ownedSlugs: Set<string>;
 }) {
+  if (!SHOW_TRACK_STACK) return null;
   if (tracks.length === 0) return null;
 
   return (

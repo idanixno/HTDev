@@ -1,6 +1,6 @@
-import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArticleCard } from "../../../components/article-card";
 import { DisinabBadge, DisinabPlate } from "../../../components/disinab";
 import { fetchArticles } from "../../../lib/catalog";
 import { buildPageMetadata } from "../../../lib/seo";
@@ -45,36 +45,37 @@ export default async function JournalPage({
           <div className="disinab-journal__intro-copy">
             <div className="disinab-journal__title-row">
               <h1 id="journal-title">
-                مقالات <span className="dx-wordmark dx-wordmark--inline">DXCode</span>
+                مقالات{" "}
+                <span className="dx-wordmark dx-wordmark--inline">DXCode</span>
               </h1>
-              <form
-                className="catalog-search disinab-journal__search"
-                action="/journal"
-                method="get"
-                role="search"
-              >
-                <label className="visually-hidden" htmlFor="journal-search">
-                  جستجوی مقاله
-                </label>
-                <input
-                  id="journal-search"
-                  name="q"
-                  type="search"
-                  defaultValue={query}
-                  placeholder="جستجو در عنوان مقاله"
-                  autoComplete="off"
-                  maxLength={100}
-                />
-                <button type="submit">جستجو</button>
-              </form>
+              <DisinabBadge tone="accent">
+                {visible.length.toLocaleString("fa-IR")} مقاله
+              </DisinabBadge>
             </div>
             <p className="disinab__line">
               نوشته‌های کوتاه، قبل از باز کردن دوره.
             </p>
+            <form
+              className="catalog-search disinab-journal__search"
+              action="/journal"
+              method="get"
+              role="search"
+            >
+              <label className="visually-hidden" htmlFor="journal-search">
+                جستجوی مقاله
+              </label>
+              <input
+                id="journal-search"
+                name="q"
+                type="search"
+                defaultValue={query}
+                placeholder="جستجو در عنوان مقاله"
+                autoComplete="off"
+                maxLength={100}
+              />
+              <button type="submit">جستجو</button>
+            </form>
           </div>
-          <DisinabBadge tone="accent">
-            {visible.length.toLocaleString("fa-IR")} مقاله
-          </DisinabBadge>
         </div>
       </DisinabPlate>
 
@@ -93,42 +94,8 @@ export default async function JournalPage({
         ) : (
           <ul className="note-grid disinab-journal__grid">
             {visible.map((article, index) => (
-              <li
-                key={article.id}
-                style={{ "--note-i": index } as CSSProperties}
-              >
-                <article className="note-card disinab-journal__card">
-                  <Link href={article.href} className="note-card__media">
-                    {article.coverAsset ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={article.coverAsset} alt="" />
-                    ) : (
-                      <span className="dx-wordmark dx-wordmark--inline">
-                        DXCode
-                      </span>
-                    )}
-                  </Link>
-                  <div className="note-card__body">
-                    <p className="note-card__meta">
-                      <span>
-                        {article.readingMinutes.toLocaleString("fa-IR")} دقیقه
-                        مطالعه
-                      </span>
-                    </p>
-                    <h2>
-                      <Link href={article.href}>{article.title}</Link>
-                    </h2>
-                    {article.summary ? (
-                      <p className="note-card__summary">{article.summary}</p>
-                    ) : null}
-                    <Link
-                      className="note-card__read disinab-journal__read"
-                      href={article.href}
-                    >
-                      خواندن مقاله
-                    </Link>
-                  </div>
-                </article>
+              <li key={article.id}>
+                <ArticleCard article={article} headingLevel={2} index={index} />
               </li>
             ))}
           </ul>

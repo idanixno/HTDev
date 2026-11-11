@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { ArticleCard } from "../../components/article-card";
 import { CourseCardLink } from "../../components/course-card-link";
 import { DisinabPlate } from "../../components/disinab";
 import { DxCodeLogo } from "../../components/dxcode-logo";
@@ -11,7 +12,6 @@ import {
   fetchHomeAnnouncement,
   fetchPaths,
 } from "../../lib/catalog";
-import { relativePublished } from "../../lib/relative-time";
 import { buildPageMetadata, siteMetadataBase } from "../../lib/seo";
 import { ownedCourseSlugs } from "../../lib/enrollment";
 import { fetchCurrentUser } from "../../lib/session";
@@ -265,48 +265,11 @@ export default async function HomePage() {
             <p className="empty-note">مقاله منتشرشده‌ای در دسترس نیست.</p>
           ) : (
             <ul className="note-grid disinab-home-notes__grid">
-              {notes.map((article, index) => {
-                const when = relativePublished(article.publishedAt);
-                return (
-                  <li
-                    key={article.id}
-                    style={{ "--home-i": index } as CSSProperties}
-                  >
-                    <article className="note-card disinab-home-notes__card">
-                      <Link href={article.href} className="note-card__media">
-                        {article.coverAsset ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={article.coverAsset} alt="" />
-                        ) : (
-                          <span className="note-card__placeholder">DX</span>
-                        )}
-                      </Link>
-                      <div className="note-card__body">
-                        <p className="note-card__meta">
-                          {when ? <span>{when}</span> : null}
-                          <span>
-                            {article.readingMinutes.toLocaleString("fa-IR")}{" "}
-                            دقیقه مطالعه
-                          </span>
-                        </p>
-                        <h3>
-                          <Link href={article.href}>{article.title}</Link>
-                        </h3>
-                        {article.summary ? (
-                          <p className="note-card__summary">{article.summary}</p>
-                        ) : null}
-                        <Link
-                          className="note-card__read disinab-home-notes__read"
-                          href={article.href}
-                        >
-                          خواندن مقاله
-                          <span aria-hidden="true">←</span>
-                        </Link>
-                      </div>
-                    </article>
-                  </li>
-                );
-              })}
+              {notes.map((article, index) => (
+                <li key={article.id}>
+                  <ArticleCard article={article} index={index} />
+                </li>
+              ))}
             </ul>
           )}
         </DisinabPlate>

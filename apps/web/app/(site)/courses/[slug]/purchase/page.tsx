@@ -42,8 +42,6 @@ export default async function PurchasePage({ params }: { params: Params }) {
 
       <p className="purchase__back">
         <Link href={`/courses/${slug}`}>بازگشت به صفحه دوره</Link>
-        <span aria-hidden="true">·</span>
-        <Link href="/cart">مشاهده سبد خرید</Link>
       </p>
     </section>
   );

@@ -23,6 +23,40 @@
     transform var(--zharfa-motion-fast);
 }
 
+@media (max-width: 720px) {
+  .z-btn {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 0.8125rem;
+  }
+
+  .z-course-card__body {
+    gap: 8px;
+    padding: 12px 12px 11px;
+  }
+
+  .z-course-card__title {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .z-course-card__media img {
+    padding: 12px;
+  }
+
+  .z-course-card__discount {
+    top: 10px;
+    inset-inline-start: 10px;
+    padding: 4px 8px;
+    font-size: 0.68rem;
+  }
+
+  .z-course-card__action .z-btn {
+    min-height: 36px;
+    font-size: 0.8125rem;
+  }
+}
+
 .z-btn:focus-visible {
   outline: none;
   box-shadow: var(--zharfa-shadow-focus);
@@ -593,6 +627,21 @@ textarea.z-field__control {
     inset 0 1px 0 color-mix(in srgb, white 12%, transparent),
     0 10px 22px -16px rgb(0 0 0 / 0.55);
   backdrop-filter: blur(8px);
+}
+
+/* Light theme: dark chip on cover — white-mixed red wash washed out badly */
+[data-theme="light"] .z-course-card__discount {
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, #141c2a 88%, #ff9b8a),
+      color-mix(in srgb, #0b1220 92%, #ff9b8a)
+    );
+  color: #ffd2c8;
+  border-color: color-mix(in srgb, #ff9b8a 38%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 14%, transparent),
+    0 12px 24px -16px rgb(15 23 42 / 0.45);
 }
 
 .z-course-card__body {

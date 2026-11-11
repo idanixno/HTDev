@@ -18,6 +18,10 @@ import {
   extractFaqItems,
   parseArticleMarkdown,
 } from "../../../../../lib/article-markdown";
+import {
+  INSTRUCTOR_NAME,
+  SHOW_INSTRUCTOR_NAME,
+} from "../../../../../lib/instructor-display";
 import { buildPageMetadata } from "../../../../../lib/seo";
 import { ownedCourseSlugs } from "../../../../../lib/enrollment";
 import { fetchCurrentUser } from "../../../../../lib/session";
@@ -129,7 +133,9 @@ export default async function PathStepPage({ params }: { params: Params }) {
             ? share
             : absoluteUrl(share)
           : undefined,
-        author: { "@type": "Person", name: "آرمان راد" },
+        ...(SHOW_INSTRUCTOR_NAME
+          ? { author: { "@type": "Person", name: INSTRUCTOR_NAME } }
+          : {}),
         isPartOf: {
           "@type": "CreativeWork",
           name: page.path.title,

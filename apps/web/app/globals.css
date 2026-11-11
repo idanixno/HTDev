@@ -1252,10 +1252,23 @@ code {
   font-weight: 700;
 }
 
+.course-detail__price--fact {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  justify-content: flex-end;
+  text-align: end;
+}
+
 .course-detail__price s {
   color: var(--zharfa-text-secondary);
   font-size: var(--zharfa-text-16);
   font-weight: 500;
+}
+
+.course-detail__price--fact s {
+  font-size: 0.85em;
 }
 
 .course-detail__price em {
@@ -1267,6 +1280,11 @@ code {
   font-size: var(--zharfa-text-12);
   font-style: normal;
   font-weight: 800;
+}
+
+.course-detail__price--fact em {
+  font-size: 0.72em;
+  padding: 1px 6px;
 }
 
 .course-detail__actions {
@@ -5834,6 +5852,7 @@ html.is-theme-switching .course-articles {
 }
 
 .note-card__media {
+  position: relative;
   display: grid;
   place-items: center;
   aspect-ratio: 16 / 9;
@@ -5844,9 +5863,12 @@ html.is-theme-switching .course-articles {
 }
 
 .note-card__media img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
 .note-card__body {
@@ -5957,14 +5979,6 @@ html.is-theme-switching .course-articles {
   flex-direction: column;
   gap: var(--zharfa-space-24);
   min-width: 0;
-}
-
-.reading__cover img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 21 / 8;
-  object-fit: cover;
-  border-radius: var(--zharfa-radius-16);
 }
 
 .reading__body {
@@ -6085,15 +6099,21 @@ html.is-theme-switching .course-articles {
 }
 
 .reading__cover {
+  position: relative;
   margin: 0 0 36px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--zharfa-radius-16);
 }
 
 .reading__cover img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   object-fit: cover;
-  border-radius: var(--zharfa-radius-16);
+  object-position: center;
 }
 
 .reading .article-body {
@@ -6160,6 +6180,11 @@ html.is-theme-switching .course-articles {
   margin: 0;
   font-size: 1.15rem;
   line-height: 1.6;
+}
+
+.reading__more-grid.note-grid {
+  margin-top: 16px;
+  gap: 16px;
 }
 
 .reading__next {
@@ -7795,7 +7820,7 @@ html.is-theme-switching .course-articles {
   padding: 22px;
 }
 
-.course-page .course-detail__price {
+.course-page .course-detail__price:not(.course-detail__price--fact) {
   margin: 0;
   font-size: 1.7rem;
 }
@@ -10227,19 +10252,30 @@ html.is-theme-switching .course-articles {
   display: grid;
   place-items: center;
   flex: none;
-  width: 52px;
-  height: 52px;
+  width: 58px;
+  height: 58px;
+  padding: 4px;
   line-height: 0;
-  filter: drop-shadow(
-    0 12px 20px color-mix(in srgb, var(--zharfa-action-primary) 30%, transparent)
-  );
+  border-radius: 16px;
+  border: 1px solid
+    color-mix(in srgb, var(--dx-cyan, #29d8ff) 36%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-surface-raised) 88%, var(--dx-blue, #276bff)),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 92%, #020617)
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 12px 20px color-mix(in srgb, var(--zharfa-action-primary) 28%, transparent);
+  overflow: hidden;
 }
 
 .disinab-footer__logo.dxcode-logo,
 .disinab-footer__logo.zharfa-logo {
   display: block;
-  width: 52px;
-  height: 52px;
+  width: 100%;
+  height: 100%;
 }
 
 .disinab-footer__brand-copy {
@@ -10380,11 +10416,9 @@ html.is-theme-switching .course-articles {
     border-radius: 20px;
   }
 
-  .disinab-footer__mark,
-  .disinab-footer__logo.dxcode-logo,
-  .disinab-footer__logo.zharfa-logo {
-    width: 48px;
-    height: 48px;
+  .disinab-footer__mark {
+    width: 54px;
+    height: 54px;
   }
 
   .disinab-footer .site-footer__name {
@@ -10457,28 +10491,29 @@ html.is-theme-switching .course-articles {
   display: grid;
   place-items: center;
   flex: none;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
+  padding: 2px;
   line-height: 0;
-  /* Tint logo plate from canvas — never pure white surface-card */
-  --zharfa-surface-raised: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 28%,
-    var(--zharfa-bg-canvas)
-  );
-  --zharfa-surface-card: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 18%,
-    var(--zharfa-bg-canvas)
-  );
+  border-radius: 12px;
+  border: 1px solid
+    color-mix(in srgb, var(--dx-cyan, #29d8ff) 40%, var(--zharfa-border-default));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 22%, var(--zharfa-bg-canvas)),
+      color-mix(in srgb, var(--zharfa-bg-canvas) 88%, #0b1220)
+    );
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 10%, transparent);
+  overflow: hidden;
   filter: none;
 }
 
 .disinab-header__logo.dxcode-logo,
 .disinab-header__logo.zharfa-logo {
   display: block;
-  width: 36px;
-  height: 36px;
+  width: 100%;
+  height: 100%;
 }
 
 .disinab-header__copy {
@@ -10644,11 +10679,9 @@ html.is-theme-switching .course-articles {
     padding: 10px 28px;
   }
 
-  .disinab-header__mark,
-  .disinab-header__logo.dxcode-logo,
-  .disinab-header__logo.zharfa-logo {
-    width: 38px;
-    height: 38px;
+  .disinab-header__mark {
+    width: 44px;
+    height: 44px;
   }
 
   .disinab-header .site-brand__name {
@@ -10754,11 +10787,9 @@ html.is-theme-switching .course-articles {
     font-size: 1.05rem;
   }
 
-  .disinab-header__mark,
-  .disinab-header__logo.dxcode-logo,
-  .disinab-header__logo.zharfa-logo {
-    width: 38px;
-    height: 38px;
+  .disinab-header__mark {
+    width: 40px;
+    height: 40px;
   }
 }
 
@@ -11402,17 +11433,13 @@ html.is-theme-switching .course-articles {
 }
 
 .disinab-journal__intro {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 14px 20px;
+  display: block;
+  min-width: 0;
 }
 
 .disinab-journal__intro-copy {
   display: grid;
-  gap: 8px;
-  flex: 1 1 18rem;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -11425,14 +11452,15 @@ html.is-theme-switching .course-articles {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px 16px;
+  gap: 10px 14px;
   min-width: 0;
   width: 100%;
 }
 
 .disinab-journal__intro h1 {
   margin: 0;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: clamp(1.85rem, 3.4vw, 2.5rem);
   font-weight: 800;
   line-height: 1.25;
@@ -11445,12 +11473,13 @@ html.is-theme-switching .course-articles {
 }
 
 .disinab-journal__search.catalog-search {
-  flex: 0 1 28rem;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
   width: min(100%, 28rem);
   max-width: 28rem;
-  min-width: min(100%, 14rem);
+  min-width: 0;
   margin: 0;
-  margin-inline-start: auto;
   border-color: color-mix(
     in srgb,
     var(--zharfa-action-primary) 22%,
@@ -11458,6 +11487,17 @@ html.is-theme-switching .course-articles {
   );
   background: color-mix(in srgb, var(--zharfa-bg-canvas) 50%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 6%, transparent);
+}
+
+.disinab-journal__search.catalog-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.disinab-journal__search.catalog-search button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
 }
 
 .disinab-journal__search.catalog-search:focus-within {
@@ -11485,111 +11525,6 @@ html.is-theme-switching .course-articles {
   gap: 16px;
 }
 
-.disinab-journal__grid > li {
-  animation: admin-kpi-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(40ms + var(--note-i, 0) * 45ms);
-}
-
-.disinab-journal__card.note-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  border-radius: 18px;
-  border-color: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 16%,
-    var(--zharfa-border-default)
-  );
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
-      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
-    ),
-    var(--zharfa-surface-card);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
-    0 20px 42px -34px rgb(0 0 0 / 0.55);
-  transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.disinab-journal__card.note-card:hover {
-  border-color: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 38%,
-    var(--zharfa-border-default)
-  );
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
-    0 26px 48px -30px
-      color-mix(in srgb, var(--zharfa-action-primary) 28%, transparent);
-}
-
-.disinab-journal__card .note-card__media {
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
-}
-
-.disinab-journal__card .note-card__body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 10px;
-  padding: 14px 16px 16px;
-}
-
-.disinab-journal__card .note-card__body h2 {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
-  line-height: 1.45;
-}
-
-.disinab-journal__card .note-card__body h2 a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.disinab-journal__card .note-card__body h2 a:hover {
-  color: var(--zharfa-text-link);
-}
-
-.disinab-journal__card .note-card__summary {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.disinab-journal__read.note-card__read {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  min-height: 36px;
-  margin-top: auto;
-  margin-inline-start: auto;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid
-    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
-  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
-  color: var(--zharfa-text-primary);
-  font-weight: 700;
-  text-align: center;
-  text-decoration: none;
-}
-
-.disinab-journal__read.note-card__read:hover {
-  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
-  color: var(--zharfa-text-primary);
-  text-decoration: none;
-}
-
 @media (max-width: 720px) {
   .journal.disinab-journal {
     gap: 14px;
@@ -11607,13 +11542,21 @@ html.is-theme-switching .course-articles {
   }
 
   .disinab-journal__title-row {
-    flex-direction: column;
-    align-items: stretch;
+    align-items: center;
+    gap: 10px;
   }
 
   .disinab-journal__search.catalog-search {
-    max-width: none;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
     width: 100%;
+    max-width: none;
+  }
+
+  .disinab-journal__search.catalog-search button {
+    padding-inline: 14px;
+    min-width: 4.75rem;
   }
 
   .disinab-journal__grid.note-grid {
@@ -11622,15 +11565,9 @@ html.is-theme-switching .course-articles {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .journal.disinab-journal,
-  .disinab-journal__grid > li,
-  .disinab-journal__card.note-card {
+  .journal.disinab-journal {
     animation: none;
     transition: none;
-  }
-
-  .disinab-journal__card.note-card:hover {
-    transform: none;
   }
 }
 
@@ -15201,19 +15138,20 @@ a.presence__net:hover {
 @media (max-width: 720px) {
   .disinab__plate,
   .presence__plate {
-    padding: 20px 16px 18px;
+    padding: 14px 12px 12px;
+    border-radius: 16px;
   }
 
   .disinab__mark,
   .presence__mark {
-    width: 68px;
-    height: 68px;
-    border-radius: 18px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
   }
 
   .disinab__mark span,
   .presence__mark span {
-    font-size: 1.25rem;
+    font-size: 1.05rem;
   }
 
   .disinab__form-grid,
@@ -15996,7 +15934,7 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
 .dx-hero__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   margin-top: 4px;
 }
 
@@ -16005,10 +15943,12 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
-  padding: 0 20px;
+  min-height: 38px;
+  padding: 0 16px;
   border-radius: 999px;
+  font-size: 0.9rem;
   font-weight: 700;
+  line-height: 1.2;
   text-decoration: none;
   transition:
     transform 0.16s ease,
@@ -16242,18 +16182,26 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
 }
 
 @media (max-width: 900px) {
+  .dx-hero {
+    padding: 28px 14px 24px;
+  }
+
   .dx-hero__grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 14px;
+  }
+
+  .dx-hero__copy {
+    gap: 10px;
   }
 
   .dx-hero__visual {
     order: -1;
-    min-height: 200px;
+    min-height: 160px;
   }
 
   .dx-interlock {
-    width: min(100%, 220px);
+    width: min(100%, 168px);
   }
 
   .dx-hero__facts {
@@ -16262,6 +16210,39 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
 
   .dx-hero__title {
     max-width: none;
+    font-size: clamp(1.35rem, 6.2vw, 1.7rem);
+    line-height: 1.3;
+  }
+
+  .dx-hero__lead {
+    font-size: 0.875rem;
+    line-height: 1.65;
+  }
+
+  .dx-hero__cta,
+  .dx-hero__ghost {
+    min-height: 34px;
+    padding: 0 14px;
+    font-size: 0.8125rem;
+  }
+
+  .dx-hero__search {
+    width: 100%;
+    border-radius: 12px;
+  }
+
+  .dx-hero__search input,
+  .dx-hero__search button {
+    min-height: 40px;
+    font-size: 0.875rem;
+  }
+
+  .dx-hero__search input {
+    padding: 0 12px;
+  }
+
+  .dx-hero__search button {
+    padding: 0 12px;
   }
 }
 
@@ -16877,7 +16858,8 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   gap: 16px;
 }
 
-.disinab-home-notes__card.note-card {
+/* —— واحد مقاله (ArticleCard) —— */
+.disinab-article-card.note-card {
   --z-note-card-radius: 22px;
   position: relative;
   isolation: isolate;
@@ -16903,75 +16885,40 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
     inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
     0 22px 48px -34px rgb(0 0 0 / 0.55);
   animation: admin-kpi-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--home-i, 0) * 45ms);
-  transition:
-    border-color 0.2s ease,
-    transform 0.22s ease,
-    box-shadow 0.22s ease;
+  animation-delay: calc(var(--article-i, 0) * 45ms);
 }
 
-.disinab-home-notes__card.note-card:hover {
-  border-color: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 46%,
-    var(--zharfa-border-default)
-  );
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 12%, transparent),
-    0 28px 56px -32px
-      color-mix(in srgb, var(--zharfa-action-primary) 34%, transparent);
-}
-
-.disinab-home-notes__card .note-card__media {
+.disinab-article-card .note-card__media {
   position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 10;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   isolation: isolate;
   border: 0;
-  background:
-    radial-gradient(
-      80% 90% at 50% 20%,
-      color-mix(in srgb, var(--zharfa-action-primary) 18%, transparent),
-      transparent 62%
-    ),
-    #0b1018;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  background: #0b1018;
   color: inherit;
   text-decoration: none;
 }
 
-.disinab-home-notes__card .note-card__media::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 1;
-  height: 42%;
-  pointer-events: none;
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--zharfa-surface-card) 72%, transparent),
-    transparent
-  );
-}
-
-.disinab-home-notes__card .note-card__media img {
+.disinab-article-card .note-card__media img {
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
   object-fit: cover;
   object-position: center;
-  transform: scale(1);
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.disinab-home-notes__card.note-card:hover .note-card__media img {
-  transform: scale(1.035);
-}
-
-.disinab-home-notes__card .note-card__placeholder {
+.disinab-article-card .note-card__placeholder {
   position: relative;
   z-index: 1;
   color: color-mix(in srgb, var(--zharfa-text-secondary) 80%, white);
@@ -16981,7 +16928,7 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   letter-spacing: 0.08em;
 }
 
-.disinab-home-notes__card .note-card__body {
+.disinab-article-card .note-card__body {
   position: relative;
   z-index: 1;
   display: flex;
@@ -16991,7 +16938,7 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   padding: 14px 18px 16px;
 }
 
-.disinab-home-notes__card .note-card__meta {
+.disinab-article-card .note-card__meta {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
@@ -17004,13 +16951,14 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   letter-spacing: 0.01em;
 }
 
-.disinab-home-notes__card .note-card__meta span + span::before {
+.disinab-article-card .note-card__meta span + span::before {
   content: "·";
   margin-inline: 7px;
   opacity: 0.7;
 }
 
-.disinab-home-notes__card .note-card__body h3 {
+.disinab-article-card .note-card__body h2,
+.disinab-article-card .note-card__body h3 {
   margin: 0;
   font-family: var(--zharfa-font-persian);
   font-size: 1.05rem;
@@ -17020,18 +16968,21 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   text-wrap: pretty;
 }
 
-.disinab-home-notes__card .note-card__body h3 a {
+.disinab-article-card .note-card__body h2 a,
+.disinab-article-card .note-card__body h3 a {
   color: inherit;
   text-decoration: none;
 }
 
-.disinab-home-notes__card .note-card__body h3 a:hover,
-.disinab-home-notes__card .note-card__body h3 a:focus-visible {
+.disinab-article-card .note-card__body h2 a:hover,
+.disinab-article-card .note-card__body h2 a:focus-visible,
+.disinab-article-card .note-card__body h3 a:hover,
+.disinab-article-card .note-card__body h3 a:focus-visible {
   color: var(--zharfa-text-link);
   outline: none;
 }
 
-.disinab-home-notes__card .note-card__summary {
+.disinab-article-card .note-card__summary {
   display: -webkit-box;
   margin: 0;
   overflow: hidden;
@@ -17044,7 +16995,7 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   text-wrap: pretty;
 }
 
-.disinab-home-notes__read.note-card__read {
+.disinab-article-card__read.note-card__read {
   display: inline-flex;
   align-items: center;
   align-self: flex-end;
@@ -17065,20 +17016,20 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   box-shadow: none;
 }
 
-.disinab-home-notes__read.note-card__read:hover,
-.disinab-home-notes__read.note-card__read:focus-visible {
+.disinab-article-card__read.note-card__read:hover,
+.disinab-article-card__read.note-card__read:focus-visible {
   background: transparent;
   color: var(--zharfa-text-link);
   text-decoration: none;
   outline: none;
 }
 
-.disinab-home-notes__read.note-card__read span {
+.disinab-article-card__read.note-card__read span {
   transition: transform 0.16s ease;
 }
 
-.disinab-home-notes__read.note-card__read:hover span,
-.disinab-home-notes__read.note-card__read:focus-visible span {
+.disinab-article-card__read.note-card__read:hover span,
+.disinab-article-card__read.note-card__read:focus-visible span {
   transform: translateX(-3px);
 }
 
@@ -17093,7 +17044,7 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   }
 }
 
-[data-theme="light"] .disinab-home-notes__card.note-card {
+[data-theme="light"] .disinab-article-card.note-card {
   background:
     radial-gradient(
       120% 80% at 100% 0%,
@@ -17110,25 +17061,8 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
     0 18px 40px -28px rgb(15 23 42 / 0.18);
 }
 
-[data-theme="light"] .disinab-home-notes__card.note-card:hover {
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 80%, transparent),
-    0 24px 48px -28px
-      color-mix(in srgb, var(--zharfa-action-primary) 26%, transparent);
-}
-
-[data-theme="light"] .disinab-home-notes__card .note-card__media {
-  background:
-    radial-gradient(
-      80% 90% at 50% 20%,
-      color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent),
-      transparent 62%
-    ),
-    #101722;
-}
-
-[data-theme="light"] .disinab-home-notes__card .note-card__media::after {
-  background: linear-gradient(to top, rgb(255 255 255 / 0.92), transparent);
+[data-theme="light"] .disinab-article-card .note-card__media {
+  background: #101722;
 }
 
 .note-card__meta {
@@ -17148,19 +17082,11 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .disinab-home-notes__card.note-card,
-  .disinab-home-notes__card .note-card__media img,
-  .disinab-home-notes__read.note-card__read span {
+  .disinab-article-card.note-card,
+  .disinab-article-card .note-card__media img,
+  .disinab-article-card__read.note-card__read span {
     animation: none;
     transition: none;
-  }
-
-  .disinab-home-notes__card.note-card:hover {
-    transform: none;
-  }
-
-  .disinab-home-notes__card.note-card:hover .note-card__media img {
-    transform: none;
   }
 }
 
@@ -17253,6 +17179,12 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   justify-content: space-between;
 }
 
+.disinab-course-buy__head {
+  /* Physical left for all offer states (published / soon / …) */
+  justify-content: flex-end;
+  min-height: 0;
+}
+
 .disinab-course-intro__head .disinab__badge {
   margin-inline-start: auto;
   border-color: color-mix(in srgb, var(--zharfa-tone) 42%, var(--zharfa-border-default));
@@ -17265,15 +17197,22 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--zharfa-tone) 22%, transparent);
 }
 
-.disinab-course-buy__head .disinab__badge:not([data-tone="live"]) {
+.disinab-course-buy__head .disinab__badge {
+  min-height: 1.35rem;
+  padding: 0 7px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0;
   border-color: color-mix(in srgb, var(--zharfa-tone) 42%, var(--zharfa-border-default));
   background: color-mix(in srgb, var(--zharfa-tone) 14%, transparent);
   color: var(--zharfa-tone);
 }
 
-.disinab-course-buy__head .disinab__badge:not([data-tone="live"])::before {
+.disinab-course-buy__head .disinab__badge::before {
+  width: 5px;
+  height: 5px;
   background: var(--zharfa-tone);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--zharfa-tone) 22%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--zharfa-tone) 22%, transparent);
 }
 
 .disinab-course-intro .disinab__brand,
@@ -17284,12 +17223,37 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   margin: 0;
 }
 
-.disinab-course-intro h1 {
+.disinab-course-intro h1,
+.disinab-course-buy__title {
   margin: 0;
-  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  font-size: clamp(1.2rem, 2.6vw, 1.55rem);
   font-weight: 800;
-  line-height: 1.3;
+  line-height: 1.35;
   letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.disinab-course-buy__lead {
+  margin: 0;
+  max-width: none;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.disinab-course-intro__desc {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
+}
+
+.disinab-course-intro__desc h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .disinab-course-intro .disinab__line,
@@ -17316,6 +17280,13 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   font-size: 1.35rem;
   font-weight: 800;
   line-height: 1.3;
+}
+
+.course-page .disinab-course-buy .course-detail__price--fact,
+.disinab-course-buy .course-detail__price--fact {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
 .disinab-course-buy .disinab__facts {
@@ -17610,7 +17581,7 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   letter-spacing: 0.04em;
 }
 
-.course-page .course-detail__price {
+.course-page .course-detail__price:not(.course-detail__price--fact) {
   font-size: 1.35rem;
   line-height: 1.35;
 }
@@ -17904,115 +17875,6 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   max-width: min(17.5rem, 78cqi);
   scroll-snap-align: start;
   scroll-snap-stop: always;
-}
-
-.disinab-course-articles__card.note-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid
-    color-mix(in srgb, var(--zharfa-action-primary) 16%, var(--zharfa-border-default));
-  border-radius: 18px;
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--zharfa-action-primary) 10%, transparent),
-      color-mix(in srgb, var(--zharfa-bg-canvas) 40%, transparent) 55%
-    ),
-    var(--zharfa-surface-card);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
-    0 20px 42px -34px rgb(0 0 0 / 0.55);
-  transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.disinab-course-articles__card.note-card:hover {
-  border-color: color-mix(
-    in srgb,
-    var(--zharfa-action-primary) 38%,
-    var(--zharfa-border-default)
-  );
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
-    0 26px 48px -30px
-      color-mix(in srgb, var(--zharfa-action-primary) 28%, transparent);
-}
-
-.disinab-course-articles__card .note-card__media {
-  aspect-ratio: 16 / 9;
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--zharfa-text-primary) 8%, var(--zharfa-border-default));
-}
-
-.disinab-course-articles__card .note-card__body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 10px;
-  padding: 14px 16px 16px;
-}
-
-.disinab-course-articles__card .note-card__meta {
-  margin: 0;
-}
-
-.disinab-course-articles__card .note-card__body h3 {
-  margin: 0;
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  font-size: 1.05rem;
-  font-weight: 800;
-  line-height: 1.45;
-}
-
-.disinab-course-articles__card .note-card__body h3 a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.disinab-course-articles__card .note-card__body h3 a:hover {
-  color: var(--zharfa-text-link);
-}
-
-.disinab-course-articles__card .note-card__summary {
-  display: -webkit-box;
-  margin: 0;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  color: var(--zharfa-text-secondary);
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
-.disinab-course-articles__read.note-card__read {
-  align-self: flex-end;
-  width: fit-content;
-  min-height: 36px;
-  margin-top: auto;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid
-    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
-  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
-  color: var(--zharfa-text-primary);
-  font-size: 0.875rem;
-  font-weight: 700;
-  line-height: 36px;
-  text-decoration: none;
-}
-
-.disinab-course-articles__read.note-card__read:hover {
-  background: color-mix(in srgb, var(--zharfa-action-primary) 22%, transparent);
-  color: var(--zharfa-text-primary);
-  text-decoration: none;
 }
 
 @media (min-width: 960px) {
@@ -18345,19 +18207,23 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   }
 }
 
-/* Responsive type — standard mobile sizes across public pages. */
+/* Responsive density — compact mobile type + boxes across public pages. */
 @media (max-width: 720px) {
   html {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   body {
-    font-size: 1rem;
-    line-height: 1.65;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .shell__main {
+    padding-inline: 0;
   }
 
   .editorial {
-    padding: 24px 16px 48px;
+    padding: 18px 14px 40px;
   }
 
   .editorial h1,
@@ -18376,13 +18242,17 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   .path-hero h1,
   .cart-mast h1,
   .purchase-mast__title,
-  .auth-page__title {
-    font-size: clamp(1.375rem, 5.5vw, 1.625rem);
+  .auth-page__title,
+  .disinab-journal__intro h1,
+  .disinab-catalog__intro h1,
+  .disinab-faq h1,
+  .disinab-terms h1 {
+    font-size: clamp(1.2rem, 5vw, 1.4rem);
     line-height: 1.35;
   }
 
   .hero__title {
-    font-size: clamp(1.625rem, 7vw, 2rem);
+    font-size: clamp(1.35rem, 6vw, 1.65rem);
     line-height: 1.3;
   }
 
@@ -18391,8 +18261,9 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   .catalog-mast__row p,
   .course-story__lead,
   .path-hero p,
-  .reading__lead {
-    font-size: 0.9375rem;
+  .reading__lead,
+  .disinab__line {
+    font-size: 0.8125rem;
     line-height: 1.65;
   }
 
@@ -18405,48 +18276,144 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   .course-notes h2,
   .home-section__head h2,
   .folio-block h2,
-  .folio-block__head h2 {
-    font-size: 1.0625rem;
+  .folio-block__head h2,
+  .disinab-home-catalog__top h2,
+  .disinab-home-paths__top h2,
+  .disinab-home-notes__top h2,
+  .disinab-related__head h2 {
+    font-size: 0.95rem;
+    line-height: 1.4;
   }
 
   .faq-list__item,
   .journal-list li {
-    padding: 14px 14px;
+    padding: 10px 12px;
   }
 
   .faq-list__item p,
   .journal-list p,
   .editorial p,
   .article-body p {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     line-height: 1.65;
   }
 
+  .disinab-header .site-brand__name,
+  .disinab-header .dx-wordmark,
   .site-brand__name {
-    font-size: 1.15rem;
+    font-size: 0.98rem;
   }
 
+  .disinab-header__bar.site-header__inner,
   .site-header__inner {
-    min-height: 64px;
-    padding-block: 10px;
+    min-height: 48px;
+    padding-block: 6px;
+    padding-inline: 10px;
+  }
+
+  .disinab-header__mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
   }
 
   .z-course-card__title,
   .home-grid .z-course-card h3 {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .presence__intro h1 {
-    font-size: 1.45rem;
+    font-size: 1.2rem;
   }
 
-  .course-page .course-detail__price,
+  .course-page .course-detail__price:not(.course-detail__price--fact),
   .course-sticky__price {
-    font-size: 1.05rem;
+    font-size: 0.84rem;
+    line-height: 1.35;
+  }
+
+  .course-sticky__title {
+    font-size: 0.75rem;
+  }
+
+  .course-sticky__buy {
+    min-height: 36px;
+    min-width: 6.5rem;
+    padding-inline: 10px;
+    font-size: 0.8125rem;
+  }
+
+  .course-enrolled__title,
+  .note-card__body h2,
+  .note-card__body h3,
+  .disinab-article-card .note-card__body h2,
+  .disinab-article-card .note-card__body h3 {
+    font-size: 0.95rem;
+  }
+
+  .disinab-article-card .note-card__summary,
+  .note-card__summary {
+    font-size: 0.78rem;
+  }
+
+  .disinab-article-card .note-card__body {
+    gap: 6px;
+    padding: 10px 12px 12px;
+  }
+
+  .disinab-article-card.note-card {
+    --z-note-card-radius: 16px;
+  }
+
+  .home-path-rail__card.disinab-home-paths__card,
+  .home-path-rail__card {
+    --z-path-card-radius: 16px;
+    min-height: 0;
+    gap: 10px;
+    padding: 12px 12px 11px;
+  }
+
+  .home-section.disinab-home-catalog,
+  .home-section.disinab-home-paths,
+  .home-section.disinab-home-notes {
+    padding-block: 18px;
+  }
+
+  .disinab-home-catalog__plate > .disinab__plate,
+  .disinab-home-paths__plate > .disinab__plate,
+  .disinab-home-notes__plate > .disinab__plate,
+  .disinab-journal__mast > .disinab__plate,
+  .disinab-journal__feed > .disinab__plate,
+  .disinab-catalog .disinab__plate,
+  .disinab-related > .disinab__plate,
+  .disinab-course-syllabus > .disinab__plate,
+  .disinab-course-buy > .disinab__plate {
+    padding: 12px 12px 10px;
+  }
+
+  .disinab__facts {
+    font-size: 0.78rem;
+  }
+
+  .disinab__badge {
+    font-size: 0.68rem;
+    min-height: 1.5rem;
+    padding: 0 8px;
+  }
+
+  .syllabus__heading {
+    font-size: 0.875rem;
+  }
+
+  .syllabus__watch .z-btn,
+  .course-detail__actions .z-btn,
+  .disinab-course-buy__actions .z-btn {
+    min-height: 36px;
+    font-size: 0.8125rem;
   }
 
   .admin-kpi__value {
-    font-size: clamp(1.15rem, 4vw, 1.35rem);
+    font-size: clamp(1.05rem, 3.6vw, 1.2rem);
   }
 }
 

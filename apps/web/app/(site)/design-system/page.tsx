@@ -9,7 +9,6 @@ import {
   Field,
   Notice,
 } from "@zharfa/ui";
-import { AddToCartButton } from "../../../components/add-to-cart-button";
 import { DxCodeLogo } from "../../../components/dxcode-logo";
 import { DxCodeWordmark } from "../../../components/dxcode-wordmark";
 
@@ -182,20 +181,9 @@ export default function DesignSystemPage() {
             durationLabel="۰۴:۰۰:۰۰"
             priceLabel="۲٫۴ میلیون تومن"
             action={
-              <AddToCartButton
-                item={{
-                  id: "ds-clean-architecture",
-                  slug: "clean-architecture",
-                  title: "معماری تمیز در عمل",
-                  href: "/courses/clean-architecture",
-                  coverAsset: "/artwork/courses/clean-architecture.svg",
-                  priceToman: 2_400_000,
-                  compareAtToman: null,
-                  priceLabel: "۲٫۴ میلیون تومن",
-                  compareAtLabel: null,
-                  discountLabel: null,
-                }}
-              />
+              <Button href="/courses/clean-architecture/purchase">
+                ثبت‌نام در دوره
+              </Button>
             }
           />
           <CourseCard
@@ -211,20 +199,9 @@ export default function DesignSystemPage() {
             compareAtLabel="۲٫۲ میلیون تومن"
             discountLabel="۱۴٪ تخفیف"
             action={
-              <AddToCartButton
-                item={{
-                  id: "ds-api-security",
-                  slug: "api-security",
-                  title: "امنیت API در عمل",
-                  href: "/courses/api-security",
-                  coverAsset: "/artwork/courses/api-security.svg",
-                  priceToman: 1_900_000,
-                  compareAtToman: 2_200_000,
-                  priceLabel: "۱٫۹ میلیون تومن",
-                  compareAtLabel: "۲٫۲ میلیون تومن",
-                  discountLabel: "۱۴٪ تخفیف",
-                }}
-              />
+              <Button href="/courses/api-security/purchase">
+                ثبت‌نام در دوره
+              </Button>
             }
           />
           <CourseCard

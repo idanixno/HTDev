@@ -169,7 +169,8 @@
   --zharfa-tone-warning: #b45309;
   --zharfa-tone-success: var(--zharfa-status-success);
   --zharfa-tone-danger: var(--zharfa-status-error);
-  --zharfa-tone-discount: #c2410c;
+  /* Soft rose — avoid harsh terracotta on light surfaces */
+  --zharfa-tone-discount: #b45c4e;
 
   --zharfa-chart-1: var(--zharfa-action-primary);
   --zharfa-chart-2: var(--zharfa-accent-concept);
@@ -189,15 +190,24 @@
   :root,
   [data-theme="dark"],
   [data-theme="light"] {
-    --zharfa-text-18: 1.0625rem;
-    --zharfa-text-20: 1.125rem;
-    --zharfa-text-22: 1.1875rem;
-    --zharfa-text-24: 1.25rem;
-    --zharfa-text-26: 1.3125rem;
-    --zharfa-text-28: 1.375rem;
-    --zharfa-text-34: 1.5rem;
-    --zharfa-text-48: 1.875rem;
-    --zharfa-text-64: 2.25rem;
-    --zharfa-leading-body: 1.65;
+    --zharfa-text-12: 0.6875rem;
+    --zharfa-text-sm: 0.75rem;
+    --zharfa-text-14: 0.8125rem;
+    --zharfa-text-16: 0.9375rem;
+    --zharfa-text-18: 1rem;
+    --zharfa-text-20: 1.0625rem;
+    --zharfa-text-22: 1.125rem;
+    --zharfa-text-24: 1.1875rem;
+    --zharfa-text-26: 1.25rem;
+    --zharfa-text-28: 1.3125rem;
+    --zharfa-text-34: 1.375rem;
+    --zharfa-text-48: 1.625rem;
+    --zharfa-text-64: 1.875rem;
+    --zharfa-leading-body: 1.6;
+    --zharfa-space-16: 12px;
+    --zharfa-space-20: 14px;
+    --zharfa-space-24: 16px;
+    --zharfa-space-32: 20px;
+    --zharfa-radius-16: 12px;
   }
 }

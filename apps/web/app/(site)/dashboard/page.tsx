@@ -13,6 +13,7 @@ import { ownedCourseSlugs } from "../../../lib/enrollment";
 import { fetchMyRelevantTracks } from "../../../lib/my-tracks";
 import { fetchNotifications } from "../../../lib/notifications";
 import { fetchCurrentUser } from "../../../lib/session";
+import { SHOW_TRACK_STACK } from "../../../lib/track-display";
 import {
   fetchMySpotAccess,
   licenseStatusLabel,
@@ -50,7 +51,9 @@ export default async function DashboardPage() {
     ownedCourseSlugs(),
   ]);
   const licenses = access?.items ?? [];
-  const tracks = await fetchMyRelevantTracks(owned);
+  const tracks = SHOW_TRACK_STACK
+    ? await fetchMyRelevantTracks(owned)
+    : [];
   const playerUrl = access?.instructions?.siteUrl ?? "https://spotplayer.ir/";
 
   return (
@@ -60,30 +63,32 @@ export default async function DashboardPage() {
       </div>
 
       <div className="disinab-folio__rail">
-        <DisinabPlate
-          className="disinab-folio__panel"
-          aria-labelledby="folio-tracks"
-        >
-          <header className="disinab-folio__head disinab-folio__head--split">
-            <div>
-              <h2 id="folio-tracks">تخصص‌های من</h2>
-              <p className="disinab__line">
-                فقط بر اساس دوره‌هایی که واقعاً در حسابتان فعال است.
-              </p>
-            </div>
-            <Link className="z-btn z-btn--secondary" href="/dashboard/tracks">
-              جزئیات تخصص‌ها
-            </Link>
-          </header>
-          {tracks.length === 0 ? (
-            <Notice tone="information" title="تخصصی فعال نیست">
-              بعد از خرید یا دریافت یک دوره، مسیر مرتبط اینجا می‌آید.{" "}
-              <Link href="/courses">مرور دوره‌ها</Link>
-            </Notice>
-          ) : (
-            <TrackOverviewCards tracks={tracks} ownedSlugs={owned} />
-          )}
-        </DisinabPlate>
+        {SHOW_TRACK_STACK ? (
+          <DisinabPlate
+            className="disinab-folio__panel"
+            aria-labelledby="folio-tracks"
+          >
+            <header className="disinab-folio__head disinab-folio__head--split">
+              <div>
+                <h2 id="folio-tracks">تخصص‌های من</h2>
+                <p className="disinab__line">
+                  فقط بر اساس دوره‌هایی که واقعاً در حسابتان فعال است.
+                </p>
+              </div>
+              <Link className="z-btn z-btn--secondary" href="/dashboard/tracks">
+                جزئیات تخصص‌ها
+              </Link>
+            </header>
+            {tracks.length === 0 ? (
+              <Notice tone="information" title="تخصصی فعال نیست">
+                بعد از خرید یا دریافت یک دوره، مسیر مرتبط اینجا می‌آید.{" "}
+                <Link href="/courses">مرور دوره‌ها</Link>
+              </Notice>
+            ) : (
+              <TrackOverviewCards tracks={tracks} ownedSlugs={owned} />
+            )}
+          </DisinabPlate>
+        ) : null}
 
         <DisinabPlate
           className="disinab-folio__panel"

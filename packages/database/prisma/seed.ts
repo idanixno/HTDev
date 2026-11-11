@@ -978,7 +978,7 @@ async function seedCms(admin: { id: string }) {
       guestCtaHref: "/login",
       authedCtaLabel: "حساب من",
       authedCtaHref: "/dashboard",
-      showCart: true,
+      showCart: false,
       showThemeToggle: true,
       trustsLabel: "اعتماد و پرداخت",
       mobileMenuTitle: "منو",

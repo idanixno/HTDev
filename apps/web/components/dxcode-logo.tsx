@@ -94,28 +94,28 @@ export function DxCodeLogo({
         </>
       )}
 
-      {/* Outer hex — radius 16, inset from plate */}
+      {/* Outer hex — enlarged so chevron sits clearly inside */}
       <path
-        d={hexPath(16)}
+        d={hexPath(19.2)}
         fill={`url(#${uid}-metal)`}
         opacity="0.92"
       />
       {/* Inner face */}
-      <path d={hexPath(12.2)} fill={`url(#${uid}-face)`} />
+      <path d={hexPath(15.4)} fill={`url(#${uid}-face)`} />
       {/* Inner hex ring */}
       <path
-        d={hexPath(9.6)}
+        d={hexPath(12.6)}
         fill="none"
         stroke={`url(#${uid}-cyan)`}
-        strokeWidth="1.35"
-        opacity="0.85"
+        strokeWidth="1.4"
+        opacity="0.9"
       />
-      {/* Portal chevron > — bbox centered on (32, 32) */}
+      {/* Portal chevron > — centered, inset from ring */}
       <path
-        d="M28 25.2 36 32 28 38.8"
+        d="M28.4 26.6 34.8 32 28.4 37.4"
         fill="none"
         stroke={`url(#${uid}-cyan)`}
-        strokeWidth="3.1"
+        strokeWidth="2.85"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

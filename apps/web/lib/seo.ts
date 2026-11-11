@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import {
+  INSTRUCTOR_NAME,
+  SHOW_INSTRUCTOR_NAME,
+} from "./instructor-display";
 import { absoluteUrl, siteUrl } from "./site-url";
 
 const DEFAULT_TITLE = "از یادگیری کد تا درک مهندسی";
@@ -38,9 +42,10 @@ export function buildPageMetadata(input: {
     robots: input.noIndex
       ? { index: false, follow: false, nocache: true }
       : { index: true, follow: true },
-    authors: (input.authors ?? (isArticle ? ["آرمان راد"] : undefined))?.map(
-      (name) => ({ name }),
-    ),
+    authors: (
+      input.authors ??
+      (isArticle && SHOW_INSTRUCTOR_NAME ? [INSTRUCTOR_NAME] : undefined)
+    )?.map((name) => ({ name })),
     openGraph: {
       type: isArticle ? "article" : "website",
       locale: "fa_IR",
@@ -54,7 +59,9 @@ export function buildPageMetadata(input: {
             publishedTime: input.publishedTime ?? undefined,
             modifiedTime:
               input.modifiedTime ?? input.publishedTime ?? undefined,
-            authors: input.authors ?? ["آرمان راد"],
+            authors:
+              input.authors ??
+              (SHOW_INSTRUCTOR_NAME ? [INSTRUCTOR_NAME] : undefined),
           }
         : {}),
     },

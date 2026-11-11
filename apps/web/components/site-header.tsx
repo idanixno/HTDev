@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { fetchSiteChrome } from "../lib/catalog";
-import { CartLink } from "./cart-link";
+import { fetchCurrentUser } from "../lib/session";
 import { HeaderAccount } from "./header-account";
 import { MobileNav } from "./mobile-nav";
 import { SiteHeaderNav } from "./site-header-nav";
@@ -9,7 +9,11 @@ import { DxCodeLogo } from "./dxcode-logo";
 import { DxCodeWordmark } from "./dxcode-wordmark";
 
 export async function SiteHeader() {
-  const chrome = await fetchSiteChrome();
+  const [chrome, user] = await Promise.all([
+    fetchSiteChrome(),
+    fetchCurrentUser(),
+  ]);
+  const authed = Boolean(user);
 
   return (
     <header className="site-header disinab-header">
@@ -19,11 +23,12 @@ export async function SiteHeader() {
           guestLabel={chrome.guestCtaLabel}
           authedHref={chrome.authedCtaHref}
           authedLabel={chrome.authedCtaLabel}
+          authed={authed}
         />
 
         <Link href="/" className="site-brand disinab-header__brand">
           <span className="disinab-header__mark" aria-hidden="true">
-            <DxCodeLogo className="disinab-header__logo" decorative />
+            <DxCodeLogo className="disinab-header__logo" decorative bare />
           </span>
           <span className="disinab-header__copy">
             {chrome.brandName === "DXCode" ? (
@@ -40,7 +45,6 @@ export async function SiteHeader() {
         <SiteHeaderNav links={chrome.headerLinks} />
 
         <div className="site-header__actions disinab-header__actions">
-          {chrome.showCart ? <CartLink /> : null}
           {chrome.showThemeToggle ? <ThemeToggle /> : null}
           <MobileNav
             groups={chrome.mobileGroups}
@@ -52,6 +56,7 @@ export async function SiteHeader() {
             authedCtaLabel={chrome.authedCtaLabel}
             authedCtaHref={chrome.authedCtaHref}
             showThemeToggle={chrome.showThemeToggle}
+            authed={authed}
           />
         </div>
       </div>

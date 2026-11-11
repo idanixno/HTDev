@@ -27,7 +27,7 @@ export async function SiteFooter() {
         <div className="site-footer__brand disinab-footer__brand">
           <div className="disinab-footer__brand-row">
             <span className="disinab-footer__mark" aria-hidden="true">
-              <DxCodeLogo className="disinab-footer__logo" decorative />
+              <DxCodeLogo className="disinab-footer__logo" decorative bare />
             </span>
             <div className="disinab-footer__brand-copy">
               {chrome.brandName === "DXCode" ? (

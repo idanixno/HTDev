@@ -7,7 +7,6 @@ import { createPortal } from "react-dom";
 import type { ChromeGroup } from "../lib/site-chrome";
 import { DisinabStatus } from "./disinab";
 import { DxCodeWordmark } from "./dxcode-wordmark";
-import { useSessionAuthed } from "./header-account";
 import { ThemeToggle } from "./theme-toggle";
 import { useMenuDrawer } from "./use-menu-drawer";
 
@@ -54,6 +53,7 @@ export function MobileNav({
   authedCtaLabel,
   authedCtaHref,
   showThemeToggle = true,
+  authed = false,
 }: {
   groups: ChromeGroup[];
   brandName: string;
@@ -64,12 +64,12 @@ export function MobileNav({
   authedCtaLabel: string;
   authedCtaHref: string;
   showThemeToggle?: boolean;
+  authed?: boolean;
 }) {
   const pathname = usePathname() || "";
   const router = useRouter();
   const panelRef = useRef<HTMLElement>(null);
   const { open, close, toggle } = useMenuDrawer("(max-width: 1100px)");
-  const authed = useSessionAuthed();
 
   useEffect(() => {
     if (open) panelRef.current?.focus();
@@ -205,25 +205,6 @@ export function MobileNav({
                           );
                         }),
                       )}
-                      <li>
-                        <DrawerLink
-                          href="/cart"
-                          current={pathname === "/cart"}
-                          className={
-                            "disinab-nav-drawer__link" +
-                            (pathname === "/cart" ? " is-current" : "")
-                          }
-                          onNavigate={navigate}
-                        >
-                          <span>سبد خرید</span>
-                          {pathname === "/cart" ? (
-                            <span
-                              className="disinab-nav-drawer__dot"
-                              aria-hidden="true"
-                            />
-                          ) : null}
-                        </DrawerLink>
-                      </li>
                     </ul>
                   </div>
 

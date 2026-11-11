@@ -103,9 +103,6 @@ export function CourseSyllabus({
                         <div className="syllabus__main">
                           <div className="syllabus__heading">
                             <strong>{lesson.title}</strong>
-                            {!isFree && lesson.isPreview ? (
-                              <em>پیش‌نمایش</em>
-                            ) : null}
                           </div>
                           <div className="syllabus__watch">
                             {lesson.durationMinutes != null ? (

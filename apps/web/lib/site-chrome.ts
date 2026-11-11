@@ -79,7 +79,7 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
   guestCtaHref: "/login",
   authedCtaLabel: "حساب من",
   authedCtaHref: "/dashboard",
-  showCart: true,
+  showCart: false,
   showThemeToggle: true,
   trustsLabel: "اعتماد و پرداخت",
   mobileMenuTitle: "منو",

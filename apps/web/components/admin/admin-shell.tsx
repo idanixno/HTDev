@@ -73,7 +73,7 @@ export function AdminShell({
             <div className="admin-shell__brand-top">
               <Link href="/admin" className="admin-shell__brand-link">
                 <span className="admin-shell__brand-mark" aria-hidden="true">
-                  <DxCodeLogo decorative className="admin-shell__logo" />
+                  <DxCodeLogo decorative bare className="admin-shell__logo" />
                 </span>
                 <span className="admin-shell__brand-copy">
                   <DxCodeWordmark className="admin-shell__brand-kicker" />
@@ -145,6 +145,7 @@ export function AdminShell({
               <span className="admin-shell__mark" aria-hidden="true">
                 <DxCodeLogo
                   decorative
+                  bare
                   className="admin-shell__admin-logo"
                   title="لوگوی ادمین DXCode"
                 />

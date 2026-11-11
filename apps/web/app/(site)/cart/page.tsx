@@ -1,9 +1,6 @@
-import type { Metadata } from "next";
-import { CartView } from "../../../components/cart-view";
-import { privateMetadata } from "../../../lib/seo";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = privateMetadata("سبد خرید");
-
+/** Cart removed — purchase uses the per-course invoice preview. */
 export default function CartPage() {
-  return <CartView />;
+  redirect("/courses");
 }

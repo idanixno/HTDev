@@ -13,6 +13,7 @@ import {
 } from "../../../../lib/commerce";
 import { fetchCurrentUser } from "../../../../lib/session";
 import { fetchMySpotAccess } from "../../../../lib/spotplayer";
+import { SHOW_TRACK_STACK } from "../../../../lib/track-display";
 
 type Search = Promise<{ orderId?: string }>;
 
@@ -132,9 +133,11 @@ export default async function PaymentSuccessPage({
 
         <div className="disinab-payment__actions">
           <Button href="/dashboard">حساب من</Button>
-          <Button href="/dashboard/tracks" variant="secondary">
-            تخصص‌ها
-          </Button>
+          {SHOW_TRACK_STACK ? (
+            <Button href="/dashboard/tracks" variant="secondary">
+              تخصص‌ها
+            </Button>
+          ) : null}
           <p className="disinab-payment__more">
             <Link href="/dashboard#folio-courses">دوره‌های من</Link>
           </p>

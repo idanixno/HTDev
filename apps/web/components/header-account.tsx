@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 function AccountIcon({ authed }: { authed: boolean }) {
   if (authed) {
@@ -44,51 +43,20 @@ function AccountIcon({ authed }: { authed: boolean }) {
   );
 }
 
-let authedProbe: Promise<boolean> | null = null;
-
-function probeSessionAuthed(): Promise<boolean> {
-  if (!authedProbe) {
-    authedProbe = fetch("/api/auth/me", { credentials: "same-origin" })
-      .then((res) => res.ok)
-      .catch(() => false)
-      .finally(() => {
-        // Allow refresh after navigation/login within same tab session.
-        window.setTimeout(() => {
-          authedProbe = null;
-        }, 30_000);
-      });
-  }
-  return authedProbe;
-}
-
-export function useSessionAuthed() {
-  const [authed, setAuthed] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    void probeSessionAuthed().then((value) => {
-      if (!cancelled) setAuthed(value);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return authed;
-}
-
 export function HeaderAccount({
   guestHref,
   guestLabel,
   authedHref,
   authedLabel,
+  authed = false,
 }: {
   guestHref: string;
   guestLabel: string;
   authedHref: string;
   authedLabel: string;
+  /** Server-known session — avoids wrong guest icon while logged in. */
+  authed?: boolean;
 }) {
-  const authed = useSessionAuthed();
   const href = authed ? authedHref : guestHref;
   const label = authed ? authedLabel : guestLabel;
 

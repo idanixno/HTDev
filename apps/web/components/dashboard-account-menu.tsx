@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SHOW_TRACK_STACK } from "../lib/track-display";
 
 const LINKS = [
   { href: "/dashboard", label: "نمای کلی", exact: true },
-  { href: "/dashboard/tracks", label: "تخصص‌ها" },
+  ...(SHOW_TRACK_STACK
+    ? [{ href: "/dashboard/tracks", label: "تخصص‌ها" } as const]
+    : []),
   { href: "/dashboard/tickets", label: "پشتیبانی" },
 ] as const;
 

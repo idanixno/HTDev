@@ -9,10 +9,12 @@ import { ownedCourseSlugs } from "../../../../lib/enrollment";
 import { fetchMyRelevantTracks } from "../../../../lib/my-tracks";
 import { buildTrackProgress } from "../../../../lib/track-progress";
 import { fetchCurrentUser } from "../../../../lib/session";
+import { SHOW_TRACK_STACK } from "../../../../lib/track-display";
 
 export default async function DashboardTracksPage() {
   const user = await fetchCurrentUser();
   if (!user) redirect("/login?next=/dashboard/tracks");
+  if (!SHOW_TRACK_STACK) redirect("/dashboard");
 
   const owned = await ownedCourseSlugs();
   const tracks = await fetchMyRelevantTracks(owned);

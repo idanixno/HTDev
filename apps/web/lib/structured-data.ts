@@ -1,8 +1,12 @@
+import {
+  INSTRUCTOR_NAME,
+  SHOW_INSTRUCTOR_NAME,
+} from "./instructor-display";
 import { absoluteUrl } from "./site-url";
 
 const AUTHOR = {
   "@type": "Person" as const,
-  name: "آرمان راد",
+  name: INSTRUCTOR_NAME,
   url: absoluteUrl("/"),
 };
 
@@ -71,7 +75,7 @@ export function courseJsonLd(input: {
     url: input.url,
     image: input.image ?? undefined,
     provider: PUBLISHER,
-    instructor: AUTHOR,
+    ...(SHOW_INSTRUCTOR_NAME ? { instructor: AUTHOR } : {}),
   };
 }
 
@@ -112,7 +116,7 @@ export function articleJsonLd(input: {
           url: image,
         }
       : undefined,
-    author: AUTHOR,
+    ...(SHOW_INSTRUCTOR_NAME ? { author: AUTHOR } : {}),
     publisher: PUBLISHER,
     articleSection: input.articleSection ?? "مقالات",
     timeRequired:

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@zharfa/ui";
-import { AddToCartButton } from "../../../../components/add-to-cart-button";
+import { ArticleCard } from "../../../../components/article-card";
 import { CourseStickyBar } from "../../../../components/course-sticky-bar";
 import { CourseSyllabus } from "../../../../components/course-syllabus";
 import { CourseWaitlistForm } from "../../../../components/course-waitlist-form";
@@ -15,25 +15,27 @@ import {
 import { CourseTrackTimeline } from "../../../../components/course-track-timeline";
 import { DisinabCourseCarousel } from "../../../../components/disinab-course-carousel";
 import {
-  canAddCourseToCart,
   courseDiscount,
   formatCourseDuration,
   fetchCourse,
   fetchCourseTracks,
   fetchCourses,
   fetchRelatedArticles,
-  toCartItem,
 } from "../../../../lib/catalog";
 import { absoluteUrl } from "../../../../lib/site-url";
 import { fetchCheckoutOptions } from "../../../../lib/commerce";
 import { ownedCourseSlugs, userOwnsCourse } from "../../../../lib/enrollment";
-import { relativePublished } from "../../../../lib/relative-time";
+import {
+  INSTRUCTOR_NAME,
+  SHOW_INSTRUCTOR_NAME,
+} from "../../../../lib/instructor-display";
 import { buildPageMetadata } from "../../../../lib/seo";
 import { fetchCurrentUser } from "../../../../lib/session";
 import {
   breadcrumbJsonLd,
   courseJsonLd,
 } from "../../../../lib/structured-data";
+import { SHOW_TRACK_STACK } from "../../../../lib/track-display";
 
 type Params = Promise<{ slug: string }>;
 
@@ -88,7 +90,9 @@ export default async function CourseDetailPage({
         )
       : Promise.resolve([]),
     fetchRelatedArticles(slug),
-    fetchCourseTracks(slug),
+    SHOW_TRACK_STACK
+      ? fetchCourseTracks(slug)
+      : Promise.resolve([]),
     user ? ownedCourseSlugs() : Promise.resolve(new Set<string>()),
   ]);
   const isFree = course.offerKind === "FREE";
@@ -133,7 +137,7 @@ export default async function CourseDetailPage({
     ? {
         href: "/dashboard#courses",
         label: "مشاهده در حساب من",
-        priceLabel: "دسترسی فعال",
+        priceLabel: "شما دانشجوی این دوره هستید",
       }
     : isFree
       ? {
@@ -151,18 +155,10 @@ export default async function CourseDetailPage({
               href: purchaseHref,
               label: user ? "ثبت‌نام در این دوره" : "ورود و ثبت‌نام",
               priceLabel: course.priceLabel,
-              secondaryHref: canAddCourseToCart(course)
-                ? "#course-buy"
-                : undefined,
-              secondaryLabel: canAddCourseToCart(course)
-                ? "سبد خرید"
-                : undefined,
             }
           : {
               href: "#course-buy",
-              label: canAddCourseToCart(course)
-                ? "افزودن به سبد"
-                : "مشاهده دوره",
+              label: "مشاهده دوره",
               priceLabel: course.priceLabel,
             }
         : {
@@ -172,7 +168,9 @@ export default async function CourseDetailPage({
           };
 
   const buyFacts = [
-    { label: "مدرس", value: "آرمان راد" },
+    ...(SHOW_INSTRUCTOR_NAME
+      ? [{ label: "مدرس", value: INSTRUCTOR_NAME }]
+      : []),
     ...(formatCourseDuration(course.durationHours)
       ? [
           {
@@ -194,6 +192,24 @@ export default async function CourseDetailPage({
         <strong className="course-status">{course.statusLabel}</strong>
       ),
     },
+    ...(!enrolled
+      ? [
+          {
+            label: "قیمت",
+            value: (
+              <span className="course-detail__price course-detail__price--fact">
+                <span>{course.priceLabel}</span>
+                {discount ? (
+                  <>
+                    <s>{discount.compareLabel}</s>
+                    <em>{discount.badge}</em>
+                  </>
+                ) : null}
+              </span>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const buyBox = (
@@ -205,12 +221,16 @@ export default async function CourseDetailPage({
           ? "course-buy disinab-course-buy course-buy--owned"
           : "course-buy disinab-course-buy"
       }
+      aria-labelledby="course-title"
     >
+      <h1 id="course-title" className="disinab-course-buy__title">
+        {course.title}
+      </h1>
+      {course.summary ? (
+        <p className="disinab__line disinab-course-buy__lead">{course.summary}</p>
+      ) : null}
       {enrolled ? (
         <div className="course-enrolled">
-          <div className="disinab-course-buy__head">
-            <DisinabBadge tone="live">فعال</DisinabBadge>
-          </div>
           <p className="course-enrolled__title">شما دانشجوی این دوره هستید.</p>
           <p className="disinab__line">
             {isFree
@@ -218,22 +238,7 @@ export default async function CourseDetailPage({
               : "کلید لایسنس در حساب شماست و خرید دوباره لازم نیست."}
           </p>
         </div>
-      ) : (
-        <>
-          <div className="disinab-course-buy__head">
-            <DisinabBadge tone="accent">{course.statusLabel}</DisinabBadge>
-          </div>
-          <p className="course-detail__price">
-            <span>{course.priceLabel}</span>
-            {discount ? (
-              <>
-                <s>{discount.compareLabel}</s>
-                <em>{discount.badge}</em>
-              </>
-            ) : null}
-          </p>
-        </>
-      )}
+      ) : null}
       <DisinabFacts items={buyFacts} />
       {enrolled ? (
         <div className="course-detail__actions disinab-course-buy__actions">
@@ -243,9 +248,6 @@ export default async function CourseDetailPage({
         </div>
       ) : (
         <div className="course-detail__actions disinab-course-buy__actions">
-          {isFree ? null : canAddCourseToCart(course) ? (
-            <AddToCartButton item={toCartItem(course)} />
-          ) : null}
           {isFree ? (
             <Button
               href={
@@ -296,7 +298,9 @@ export default async function CourseDetailPage({
               <DisinabPlate
                 as="header"
                 className="course-story__intro disinab-course-intro"
-                aria-labelledby="course-title"
+                aria-labelledby={
+                  course.description ? "course-desc-heading" : undefined
+                }
               >
                 <div className="disinab-course-intro__head">
                   <nav className="crumbs disinab-course-intro__crumbs" aria-label="مسیر">
@@ -336,23 +340,13 @@ export default async function CourseDetailPage({
                     )}
                   </figure>
                 ) : null}
-                <h1 id="course-title">{course.title}</h1>
-                {course.summary ? (
-                  <p className="disinab__line course-story__lead">
-                    {course.summary}
-                  </p>
+                {course.description ? (
+                  <div className="disinab-course-intro__desc">
+                    <h2 id="course-desc-heading">توضیحات دوره</h2>
+                    <p className="disinab__line">{course.description}</p>
+                  </div>
                 ) : null}
               </DisinabPlate>
-
-              {course.description ? (
-                <DisinabPlate
-                  className="course-about disinab-course-about"
-                  aria-labelledby="course-about"
-                >
-                  <h2 id="course-about">دربارهٔ این دوره</h2>
-                  <p className="disinab__line">{course.description}</p>
-                </DisinabPlate>
-              ) : null}
 
               <CourseSyllabus
                 modules={course.modules}
@@ -432,46 +426,11 @@ export default async function CourseDetailPage({
           </header>
           <div className="course-articles__scroller disinab-course-articles__scroller">
             <ul className="course-articles__track disinab-course-articles__track">
-              {relatedArticles.map((article) => {
-                const when = relativePublished(article.publishedAt);
-                return (
-                  <li key={article.id}>
-                    <article className="note-card disinab-course-articles__card">
-                      <Link href={article.href} className="note-card__media">
-                        {article.coverAsset ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={article.coverAsset} alt="" />
-                        ) : (
-                          <span className="dx-wordmark dx-wordmark--inline">
-                            DXCode
-                          </span>
-                        )}
-                      </Link>
-                      <div className="note-card__body">
-                        <p className="note-card__meta">
-                          {when ? <span>{when}</span> : null}
-                          <span>
-                            {article.readingMinutes.toLocaleString("fa-IR")}{" "}
-                            دقیقه مطالعه
-                          </span>
-                        </p>
-                        <h3>
-                          <Link href={article.href}>{article.title}</Link>
-                        </h3>
-                        {article.summary ? (
-                          <p className="note-card__summary">{article.summary}</p>
-                        ) : null}
-                        <Link
-                          className="note-card__read disinab-course-articles__read"
-                          href={article.href}
-                        >
-                          خواندن مقاله
-                        </Link>
-                      </div>
-                    </article>
-                  </li>
-                );
-              })}
+              {relatedArticles.map((article, index) => (
+                <li key={article.id}>
+                  <ArticleCard article={article} index={index} />
+                </li>
+              ))}
             </ul>
           </div>
         </DisinabPlate>

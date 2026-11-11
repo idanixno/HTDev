@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleBody } from "../../../../components/article-body";
+import { ArticleCard } from "../../../../components/article-card";
 import { fetchArticle, fetchArticles } from "../../../../lib/catalog";
 import { parseArticleMarkdown } from "../../../../lib/article-markdown";
-import { relativePublished } from "../../../../lib/relative-time";
+import {
+  INSTRUCTOR_NAME,
+  SHOW_INSTRUCTOR_NAME,
+} from "../../../../lib/instructor-display";
 import { buildPageMetadata } from "../../../../lib/seo";
 import { absoluteUrl } from "../../../../lib/site-url";
 import { articlePageGraph } from "../../../../lib/structured-data";
@@ -44,7 +48,7 @@ export async function generateMetadata({
     kind: "article",
     publishedTime: article.publishedAt,
     modifiedTime: article.updatedAt ?? article.publishedAt,
-    authors: ["آرمان راد"],
+    authors: SHOW_INSTRUCTOR_NAME ? [INSTRUCTOR_NAME] : undefined,
   });
 }
 
@@ -149,13 +153,15 @@ export default async function ArticlePage({ params }: { params: Params }) {
           {article.updatedAt ? (
             <meta itemProp="dateModified" content={article.updatedAt} />
           ) : null}
-          <li
-            itemProp="author"
-            itemScope
-            itemType="https://schema.org/Person"
-          >
-            <span itemProp="name">آرمان راد</span>
-          </li>
+          {SHOW_INSTRUCTOR_NAME ? (
+            <li
+              itemProp="author"
+              itemScope
+              itemType="https://schema.org/Person"
+            >
+              <span itemProp="name">{INSTRUCTOR_NAME}</span>
+            </li>
+          ) : null}
         </ul>
       </header>
 
@@ -208,41 +214,12 @@ export default async function ArticlePage({ params }: { params: Params }) {
       {others.length > 0 ? (
         <aside className="reading__more" aria-labelledby="more-notes">
           <h2 id="more-notes">ادامهٔ خواندن</h2>
-          <ul className="reading__next">
-            {others.map((item) => {
-              const when = relativePublished(item.publishedAt);
-              return (
-                <li key={item.id}>
-                  <Link href={item.href}>
-                    {item.coverAsset ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.coverAsset}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <span
-                        className="reading__thumb dx-wordmark dx-wordmark--inline"
-                        aria-hidden="true"
-                      >
-                        DXCode
-                      </span>
-                    )}
-                    <span className="reading__next-copy">
-                      <span>{item.title}</span>
-                      <small>
-                        {when ? <span>{when}</span> : null}
-                        <span>
-                          {item.readingMinutes.toLocaleString("fa-IR")} دقیقه
-                        </span>
-                      </small>
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
+          <ul className="note-grid reading__more-grid">
+            {others.map((item, index) => (
+              <li key={item.id}>
+                <ArticleCard article={item} index={index} />
+              </li>
+            ))}
           </ul>
         </aside>
       ) : null}

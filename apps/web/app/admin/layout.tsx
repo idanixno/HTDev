@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AdminShell } from "../../components/admin/admin-shell";
 import { requireOwner } from "../../components/admin/require-owner";
+import { SiteHeader } from "../../components/site-header";
 import { fetchAdminNavBadges } from "../../lib/admin";
 import { privateMetadata } from "../../lib/seo";
 
@@ -16,6 +17,7 @@ export default async function AdminLayout({
 
   return (
     <div className="shell shell--admin">
+      <SiteHeader />
       <main className="shell__main">
         <AdminShell displayName={user.displayName} badges={badges}>
           {children}

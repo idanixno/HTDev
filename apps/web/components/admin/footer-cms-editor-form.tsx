@@ -117,7 +117,7 @@ export function FooterCmsEditorForm({
           guestCtaHref: values.guestCtaHref.trim() || null,
           authedCtaLabel: values.authedCtaLabel.trim() || null,
           authedCtaHref: values.authedCtaHref.trim() || null,
-          showCart: values.showCart,
+          showCart: false,
           showThemeToggle: values.showThemeToggle,
           trustsLabel: values.trustsLabel.trim() || null,
           mobileMenuTitle: values.mobileMenuTitle.trim() || null,
@@ -242,16 +242,6 @@ export function FooterCmsEditorForm({
             value={values.authedCtaHref}
             onChange={(e) => patch({ authedCtaHref: e.target.value })}
           />
-        </label>
-        <label className="z-field" style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input
-            type="checkbox"
-            checked={values.showCart}
-            onChange={(e) => patch({ showCart: e.target.checked })}
-          />
-          <span className="z-field__label" style={{ margin: 0 }}>
-            نمایش سبد خرید
-          </span>
         </label>
         <label className="z-field" style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input
