@@ -9,7 +9,6 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.base.json ./
 COPY packages/config/package.json packages/config/
 COPY packages/ui/package.json packages/ui/
-COPY packages/database/package.json packages/database/
 COPY apps/web/package.json apps/web/
 RUN pnpm install --frozen-lockfile --filter @zharfa/web...
 
@@ -17,11 +16,8 @@ FROM base AS builder
 COPY --from=deps /app /app
 COPY packages/config packages/config
 COPY packages/ui packages/ui
-COPY packages/database packages/database
 COPY apps/web apps/web
-# Prisma client generate needs schema; no DB connection required
 WORKDIR /app
-RUN pnpm --filter @zharfa/database exec prisma generate
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ARG NEXT_PUBLIC_SITE_URL=https://example.com
