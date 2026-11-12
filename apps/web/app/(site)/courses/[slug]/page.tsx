@@ -442,8 +442,6 @@ export default async function CourseDetailPage({
         priceLabel={sticky.priceLabel}
         href={sticky.href}
         label={sticky.label}
-        secondaryHref={sticky.secondaryHref}
-        secondaryLabel={sticky.secondaryLabel}
       />
     </div>
   );
