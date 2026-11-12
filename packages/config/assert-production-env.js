@@ -16,13 +16,13 @@ function isTruthyFlag(value) {
   return value === "true" || value === "1";
 }
 
-function requireHttpsUrl(name, value) {
+function requireHttpsUrl(name, value, allowHttp = false) {
   if (!value || !value.trim()) {
     return `${name} is required in production`;
   }
   try {
     const url = new URL(value.trim());
-    if (url.protocol !== "https:") {
+    if (url.protocol !== "https:" && !(allowHttp && url.protocol === "http:")) {
       return `${name} must use https in production (got ${url.protocol})`;
     }
   } catch {
@@ -40,6 +40,7 @@ export function assertProductionEnv(role, env = process.env) {
 
   /** @type {string[]} */
   const errors = [];
+  const allowHttp = isTruthyFlag(env.ALLOW_INSECURE_HTTP);
 
   if (isTruthyFlag(env.PAYMENT_MOCK_HOOKS)) {
     errors.push("PAYMENT_MOCK_HOOKS must be false in production");
@@ -67,17 +68,22 @@ export function assertProductionEnv(role, env = process.env) {
     errors.push("INTERNAL_SECURITY_TOKEN must not equal SESSION_SECRET");
   }
 
-  const webOriginErr = requireHttpsUrl("WEB_ORIGIN", env.WEB_ORIGIN);
+  const webOriginErr = requireHttpsUrl("WEB_ORIGIN", env.WEB_ORIGIN, allowHttp);
   if (webOriginErr) errors.push(webOriginErr);
 
   const siteErr = requireHttpsUrl(
     "NEXT_PUBLIC_SITE_URL",
     env.NEXT_PUBLIC_SITE_URL || env.WEB_ORIGIN,
+    allowHttp,
   );
   if (siteErr) errors.push(siteErr);
 
   if (role === "api" || role === "web") {
-    const apiPublicErr = requireHttpsUrl("API_PUBLIC_URL", env.API_PUBLIC_URL);
+    const apiPublicErr = requireHttpsUrl(
+      "API_PUBLIC_URL",
+      env.API_PUBLIC_URL,
+      allowHttp,
+    );
     if (apiPublicErr) errors.push(apiPublicErr);
   }
 

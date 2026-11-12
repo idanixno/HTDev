@@ -39,7 +39,9 @@ function setSessionCookie(
   token: string,
   expiresAt: Date,
 ): void {
-  const secure = process.env.NODE_ENV === "production";
+  const secure =
+    process.env.NODE_ENV === "production" &&
+    process.env.ALLOW_INSECURE_HTTP !== "true";
   res.cookie(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure,
@@ -52,7 +54,9 @@ function setSessionCookie(
 function clearSessionCookie(res: Response): void {
   res.clearCookie(SESSION_COOKIE_NAME, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure:
+      process.env.NODE_ENV === "production" &&
+      process.env.ALLOW_INSECURE_HTTP !== "true",
     sameSite: "lax",
     path: "/",
   });

@@ -23,7 +23,9 @@ export function sessionCookieOptions(
       : expiresAt ?? undefined;
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure:
+      process.env.NODE_ENV === "production" &&
+      process.env.ALLOW_INSECURE_HTTP !== "true",
     sameSite: "lax",
     path: "/",
     ...(expires ? { expires } : {}),

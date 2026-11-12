@@ -72,7 +72,9 @@ function reportSuspiciousProbe(request: NextRequest, pathname: string) {
 function clearOwnerMarker(res: NextResponse) {
   res.cookies.set(OWNER_MARKER_COOKIE, "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure:
+      process.env.NODE_ENV === "production" &&
+      process.env.ALLOW_INSECURE_HTTP !== "true",
     sameSite: "lax",
     path: "/",
     maxAge: 0,
@@ -173,7 +175,9 @@ export async function middleware(request: NextRequest) {
   if (mintOwnerMarker) {
     response.cookies.set(OWNER_MARKER_COOKIE, mintOwnerMarker, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure:
+        process.env.NODE_ENV === "production" &&
+        process.env.ALLOW_INSECURE_HTTP !== "true",
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 12,
