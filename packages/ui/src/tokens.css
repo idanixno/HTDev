@@ -84,7 +84,7 @@
   --zharfa-shadow-glow: 0 0 40px color-mix(in srgb, var(--dx-blue) 22%, transparent);
   --zharfa-z-header: 20;
   --zharfa-z-overlay: 40;
-  --zharfa-container: 1120px;
+  --zharfa-container: 1040px;
   --zharfa-container-wide: 1440px;
 
   /* Typography — Persian UI · Brand Latin · Tech mono */

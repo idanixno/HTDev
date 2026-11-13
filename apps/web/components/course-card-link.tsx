@@ -3,10 +3,8 @@ import {
   courseCardStatusLabel,
   courseDiscount,
   formatCourseDurationClock,
-  formatTomanLabel,
   type PublicCourseCard,
 } from "../lib/catalog";
-import { relativePublished } from "../lib/relative-time";
 
 export function CourseCardLink({
   course,
@@ -17,21 +15,9 @@ export function CourseCardLink({
 }) {
   const discount = courseDiscount(course);
   const status = courseCardStatusLabel(course);
-  const byline =
-    course.category?.title ??
-    relativePublished(course.publishedAt ?? null) ??
-    undefined;
-  // Free always fills the price slot; skip repeating status labels like «به‌زودی».
   const isFreePrice =
     course.offerKind === "FREE" ||
     (course.offerKind === "COMING_SOON" && course.priceToman <= 0);
-  const priceLabel = isFreePrice
-    ? "رایگان!"
-    : course.priceToman > 0
-      ? formatTomanLabel(course.priceToman)
-      : course.priceLabel && course.priceLabel !== status
-        ? course.priceLabel
-        : undefined;
 
   return (
     <CourseCard
@@ -41,21 +27,18 @@ export function CourseCardLink({
       href={course.href}
       coverSrc={course.coverAsset ?? undefined}
       coverAlt={course.title}
-      priceLabel={priceLabel}
-      compareAtLabel={discount?.compareLabel}
-      discountLabel={discount?.badge}
-      statusLabel={status}
-      byline={byline}
-      durationLabel={formatCourseDurationClock(course.durationHours)}
-      action={
+      priceLabel={
         enrolled ? (
-          <p className="course-access-note">شما دانشجوی این دوره هستید</p>
+          <span className="course-access-note">شما دانشجوی این دوره هستید</span>
         ) : (
-          <a className="z-btn z-btn--primary" href={course.href}>
+          <a className="z-course-card__view" href={course.href}>
             مشاهده دوره
           </a>
         )
       }
+      discountLabel={discount?.badge}
+      statusLabel={status}
+      durationLabel={formatCourseDurationClock(course.durationHours)}
     />
   );
 }

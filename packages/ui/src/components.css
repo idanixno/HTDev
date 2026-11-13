@@ -52,8 +52,8 @@
   }
 
   .z-course-card__action .z-btn {
-    min-height: 36px;
-    font-size: 0.8125rem;
+    min-height: 34px;
+    font-size: 0.8rem;
   }
 }
 
@@ -423,7 +423,7 @@ textarea.z-field__control {
 }
 
 .z-course-card {
-  --z-course-card-radius: 22px;
+  --z-course-card-radius: 16px;
   position: relative;
   isolation: isolate;
   display: flex;
@@ -474,7 +474,7 @@ textarea.z-field__control {
   flex: none;
   width: 100%;
   max-width: none;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   margin: 0;
   overflow: hidden;
   isolation: isolate;
@@ -495,9 +495,9 @@ textarea.z-field__control {
 
 .z-course-card__media-frame {
   position: absolute;
-  inset: 12px;
+  inset: 8px;
   z-index: 1;
-  border-radius: 14px;
+  border-radius: 10px;
   border: 1px solid
     color-mix(in srgb, var(--zharfa-action-primary) 28%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
@@ -648,8 +648,8 @@ textarea.z-field__control {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px 16px 15px;
+  gap: 8px;
+  padding: 12px 12px 12px;
   min-height: 0;
 }
 
@@ -664,18 +664,25 @@ textarea.z-field__control {
   line-height: 1.2;
 }
 
+.z-course-card__heading {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
 .z-course-card__title {
-  display: -webkit-box;
+  flex: 1 1 auto;
   margin: 0;
-  min-height: 0;
+  min-width: 0;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  font-size: 1.22rem;
+  font-size: 1rem;
   font-weight: 800;
-  line-height: 1.45;
+  line-height: 1.4;
   color: var(--zharfa-text-primary);
-  text-wrap: pretty;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .z-course-card__title a {
@@ -692,10 +699,12 @@ textarea.z-field__control {
 
 .z-course-card__meta-row {
   display: flex;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
-  margin-top: auto;
+  margin-top: 0;
 }
 
 .z-course-card__status-inline {
@@ -786,7 +795,7 @@ textarea.z-field__control {
 }
 
 .z-course-card__price {
-  font-size: 1.08rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--zharfa-text-primary);
   font-variant-numeric: tabular-nums;
@@ -813,12 +822,12 @@ textarea.z-field__control {
 
 .z-course-card__action .z-btn {
   width: 100%;
-  min-height: 42px;
-  border-radius: 12px;
-  font-size: 0.92rem;
+  min-height: 36px;
+  border-radius: 10px;
+  font-size: 0.84rem;
   font-weight: 700;
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, white 14%, transparent),
-    0 12px 24px -18px
+    0 10px 20px -16px
       color-mix(in srgb, var(--zharfa-action-primary) 55%, transparent);
 }

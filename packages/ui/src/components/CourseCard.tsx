@@ -129,23 +129,25 @@ export function CourseCard({
         <div className="z-course-card__media">{media}</div>
       )}
       <div className="z-course-card__body">
-        <h3 className="z-course-card__title">
-          {href ? <a href={href}>{title}</a> : title}
-        </h3>
+        <div className="z-course-card__heading">
+          <h3 className="z-course-card__title">
+            {href ? <a href={href}>{title}</a> : title}
+          </h3>
 
-        {statusLabel || byline ? (
-          <div className="z-course-card__meta-row">
-            {statusLabel ? (
-              <span className="z-course-card__status-inline">
-                {showCheck ? <StatusCheck /> : null}
-                {statusLabel}
-              </span>
-            ) : null}
-            {byline ? (
-              <span className="z-course-card__byline">{byline}</span>
-            ) : null}
-          </div>
-        ) : null}
+          {statusLabel || byline ? (
+            <div className="z-course-card__meta-row">
+              {statusLabel ? (
+                <span className="z-course-card__status-inline">
+                  {showCheck ? <StatusCheck /> : null}
+                  {statusLabel}
+                </span>
+              ) : null}
+              {byline ? (
+                <span className="z-course-card__byline">{byline}</span>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
 
         <div className="z-course-card__foot">
           {durationLabel ? (
