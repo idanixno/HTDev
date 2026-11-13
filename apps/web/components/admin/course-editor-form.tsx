@@ -204,8 +204,8 @@ export function CourseEditorForm({
           id="course-description"
           name="description"
           label="توضیح"
-          variant="basic"
-          rows={6}
+          variant="full"
+          rows={12}
           value={values.description}
           onChange={(description) => patch({ description })}
         />

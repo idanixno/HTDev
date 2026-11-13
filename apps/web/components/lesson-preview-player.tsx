@@ -38,7 +38,6 @@ export function LessonWatch({
           aria-label={title}
           onContextMenu={(event) => event.preventDefault()}
         />
-        <p className="lesson-dialog__note">این ویدیو فقط برای مشاهده است و دانلود ندارد.</p>
       </Dialog>
     </>
   );

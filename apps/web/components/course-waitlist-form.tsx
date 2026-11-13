@@ -46,7 +46,8 @@ export function CourseWaitlistForm({
   if (done) {
     return (
       <p className="course-waitlist__ok" role="status">
-        پیش‌ثبت‌نام ثبت شد. بعد از انتشار، پیامک می‌فرستیم.
+        <span>پیش‌ثبت‌نام شما انجام شد</span>
+        <span>به محض انتشار دوره اطلاع می‌دهیم</span>
       </p>
     );
   }
