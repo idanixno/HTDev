@@ -16,9 +16,13 @@ export function safeNextPath(
   value = value.trim();
   if (!value.startsWith("/")) return fallback;
   if (value.startsWith("//")) return fallback;
+  // "/\\evil" or "/\/evil" style protocol-relative after normalize
+  if (value.startsWith("/\\")) return fallback;
   if (value.includes("\\")) return fallback;
   if (value.includes("://")) return fallback;
-  if (/[\s<>"]/.test(value)) return fallback;
+  if (value.includes("@")) return fallback;
+  if (/[\s<>"']/.test(value)) return fallback;
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value.slice(1))) return fallback;
   if (value.length > 512) return fallback;
   return value;
 }

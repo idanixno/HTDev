@@ -25,17 +25,27 @@ export function isPrivatePath(pathname: string): boolean {
   );
 }
 
-function apiConnectSources(): string {
+function apiConnectSources(isDev: boolean): string {
   const sources = new Set<string>(["'self'"]);
-  for (const raw of [
-    process.env.NEXT_PUBLIC_API_URL,
-    process.env.API_INTERNAL_URL,
-    "http://localhost:4000",
-    "http://127.0.0.1:4000",
-  ]) {
+  // Browser CSP must only list public origins — never Docker/internal hosts.
+  const candidates = [process.env.NEXT_PUBLIC_API_URL];
+  if (isDev) {
+    candidates.push(
+      process.env.API_INTERNAL_URL,
+      "http://localhost:4000",
+      "http://127.0.0.1:4000",
+    );
+  }
+  for (const raw of candidates) {
     if (!raw?.trim()) continue;
     try {
-      sources.add(new URL(raw.trim()).origin);
+      const origin = new URL(raw.trim()).origin;
+      // Keep production CSP on https public hosts only.
+      if (!isDev && origin.startsWith("http://")) continue;
+      if (!isDev && /^(http:\/\/)?(localhost|127\.|api:|0\.0\.0\.0)/i.test(origin)) {
+        continue;
+      }
+      sources.add(origin);
     } catch {
       /* ignore invalid */
     }
@@ -59,7 +69,7 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    `connect-src ${apiConnectSources()}`,
+    `connect-src ${apiConnectSources(isDev)}`,
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
