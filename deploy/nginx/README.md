@@ -7,7 +7,7 @@
 نام حمله: **Path Traversal** / **Directory Traversal** (گاهی «dot-dot-slash»).
 نمونهٔ پیلود: `/static/../../etc/passwd` یا فرم انکودشده `%2e%2e%2f` / `%252e%252e%2f`.
 
-حالت سخت‌گیر: هر `..` در URI خام، مسیر نرمال‌شده، یا query؛ به‌علاوه `%2e%2e`، double-encode، null/CRLF، backslash و probeهای `/etc/passwd` قبل از پروکسی `404` می‌شوند.
+حالت دقیق: فقط segmentهای تراورسال (`/../`، انکود `%2e%2e%2f`، double-encode، backslash، null) و probeهای `/etc/passwd` بلاک می‌شوند — نه هر `..` وسط توکن (مثل `a..b`).
 
 ## ۱) استک اپ روی سرور
 
