@@ -43,6 +43,16 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M4 16.5 12 21l8-4.5" />
     </NavIcon>
   ),
+  "/admin/topics": (
+    <NavIcon>
+      <circle cx="12" cy="7" r="2.4" />
+      <circle cx="6.5" cy="16.5" r="2.2" />
+      <circle cx="17.5" cy="16.5" r="2.2" />
+      <path d="M12 9.4v2.2" />
+      <path d="M10.2 13.2 7.8 14.8" />
+      <path d="M13.8 13.2 16.2 14.8" />
+    </NavIcon>
+  ),
   "/admin/journal": (
     <NavIcon>
       <path d="M7 4.5h8.5A2.5 2.5 0 0 1 18 7v13H9A2.5 2.5 0 0 1 6.5 17.5V6A1.5 1.5 0 0 1 8 4.5" />

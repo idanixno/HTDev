@@ -1,9 +1,33 @@
 import type { MetadataRoute } from "next";
-import { fetchArticles, fetchCourses, fetchPath, fetchPaths } from "../lib/catalog";
+import {
+  fetchAllTopicsForSitemap,
+  fetchArticles,
+  fetchCourses,
+  fetchPath,
+  fetchPaths,
+  type PublicCourseCard,
+} from "../lib/catalog";
 import { absoluteUrl } from "../lib/site-url";
+
+async function fetchAllCourses(): Promise<PublicCourseCard[]> {
+  // ListCoursesQueryDto caps pageSize at 48.
+  const pageSize = 48;
+  const first = await fetchCourses({ page: 1, pageSize });
+  const items = [...first.items];
+  const totalPages = Math.max(1, first.totalPages || 1);
+  for (let page = 2; page <= totalPages; page += 1) {
+    const next = await fetchCourses({ page, pageSize });
+    items.push(...next.items);
+  }
+  return items;
+}
+
+/** Keep sitemap fresh after Topic/Course publish (avoid stale empty hubs). */
+export const revalidate = 60;
 
 /**
  * Public indexable URLs only. Admin, auth, cart, payments omitted.
+ * Topic hubs: PUBLISHED + indexable only (via catalog API filter).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -33,6 +57,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     },
     {
+      url: absoluteUrl("/topics"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
       url: absoluteUrl("/faq"),
       lastModified: now,
       changeFrequency: "monthly",
@@ -46,13 +76,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const [courseList, paths, articles] = await Promise.all([
-    fetchCourses({ page: 1, pageSize: 100 }),
+  const [courses, paths, articles, topics] = await Promise.all([
+    fetchAllCourses(),
     fetchPaths(),
     fetchArticles(),
+    fetchAllTopicsForSitemap(),
   ]);
 
-  const courseEntries: MetadataRoute.Sitemap = courseList.items
+  const courseEntries: MetadataRoute.Sitemap = courses
     .filter((course) => !course.noIndex)
     .map((course) => ({
       url: absoluteUrl(course.href),
@@ -90,11 +121,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
+  const topicEntries: MetadataRoute.Sitemap = topics.map((topic) => ({
+    url: absoluteUrl(topic.href),
+    lastModified: topic.updatedAt ? new Date(topic.updatedAt) : now,
+    changeFrequency: "weekly" as const,
+    priority: 0.65,
+  }));
+
   return [
     ...staticEntries,
     ...courseEntries,
     ...pathEntries,
     ...stepEntries,
     ...articleEntries,
+    ...topicEntries,
   ];
 }

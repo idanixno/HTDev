@@ -132,6 +132,63 @@ export function articleJsonLd(input: {
   };
 }
 
+export function collectionPageJsonLd(input: {
+  name: string;
+  description: string;
+  url: string;
+  items: Array<{ name: string; url: string }>;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+    inLanguage: "fa-IR",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "DXCode",
+      url: absoluteUrl("/"),
+    },
+    mainEntity:
+      input.items.length > 0
+        ? {
+            "@type": "ItemList",
+            itemListElement: input.items.map((item, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: item.name,
+              url: item.url,
+            })),
+          }
+        : undefined,
+  };
+}
+
+export function topicPageGraph(input: {
+  name: string;
+  description: string;
+  path: string;
+  breadcrumbs: Array<{ name: string; path: string }>;
+  items: Array<{ name: string; url: string }>;
+}) {
+  const url = absoluteUrl(input.path);
+  const crumbs = breadcrumbJsonLd(input.breadcrumbs);
+  const collection = collectionPageJsonLd({
+    name: input.name,
+    description: input.description,
+    url,
+    items: input.items,
+  });
+  const { "@context": _c1, ...crumbNode } = crumbs;
+  const { "@context": _c2, ...collectionNode } = collection;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [crumbNode, collectionNode],
+  };
+}
+
 export function articlePageGraph(input: {
   headline: string;
   description: string;

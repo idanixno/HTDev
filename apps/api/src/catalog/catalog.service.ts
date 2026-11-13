@@ -7,6 +7,7 @@ import {
   CourseOfferKind,
   CoursePublicationStatus,
   Prisma,
+  TopicPublicationStatus,
 } from "@zharfa/database";
 import { mergeSiteChrome } from "../cms/site-chrome";
 import { normalizePhone } from "../identity/normalization";
@@ -18,6 +19,10 @@ import {
   toPublicPathSummary,
 } from "./catalog.mapper";
 import type { CourseSort, ListCoursesQueryDto } from "./dto/list-courses.dto";
+import type {
+  ListTopicsQueryDto,
+  TopicContentQueryDto,
+} from "./dto/list-topics.dto";
 import { rankRelatedArticles } from "./related-articles";
 
 const courseCardInclude = {
@@ -458,6 +463,347 @@ export class CatalogService {
       throw new NotFoundException("مقاله یافت نشد.");
     }
     return toPublicArticle(article);
+  }
+
+  /** Published + indexable topics for sitemap / index. */
+  async listPublishedTopics(query: ListTopicsQueryDto = {}) {
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 24;
+    const where: Prisma.TopicWhereInput = {
+      status: TopicPublicationStatus.PUBLISHED,
+      indexable: true,
+    };
+    if (query.q) {
+      where.OR = [
+        { name: { contains: query.q, mode: "insensitive" } },
+        { description: { contains: query.q, mode: "insensitive" } },
+        { slug: { contains: query.q, mode: "insensitive" } },
+      ];
+    }
+
+    const [total, rows] = await this.prisma.$transaction([
+      this.prisma.topic.count({ where }),
+      this.prisma.topic.findMany({
+        where,
+        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          parent: { select: { slug: true, name: true } },
+          _count: {
+            select: {
+              children: {
+                where: {
+                  status: TopicPublicationStatus.PUBLISHED,
+                },
+              },
+              courseLinks: {
+                where: {
+                  course: {
+                    publicationStatus: CoursePublicationStatus.PUBLISHED,
+                    noIndex: false,
+                  },
+                },
+              },
+              journalLinks: {
+                where: {
+                  article: { published: true, noIndex: false },
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      items: rows.map((row) => ({
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
+        description: row.description,
+        h1: row.h1 ?? row.name,
+        href: `/topics/${row.slug}`,
+        parent: row.parent
+          ? {
+              slug: row.parent.slug,
+              name: row.parent.name,
+              href: `/topics/${row.parent.slug}`,
+            }
+          : null,
+        childCount: row._count.children,
+        courseCount: row._count.courseLinks,
+        articleCount: row._count.journalLinks,
+        updatedAt: row.updatedAt.toISOString(),
+        publishedAt: row.publishedAt?.toISOString() ?? null,
+      })),
+      page,
+      pageSize,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    };
+  }
+
+  /** Shallow published tree (roots + direct published children). */
+  async listTopicTree() {
+    const roots = await this.prisma.topic.findMany({
+      where: {
+        status: TopicPublicationStatus.PUBLISHED,
+        parentTopicId: null,
+      },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      include: {
+        children: {
+          where: { status: TopicPublicationStatus.PUBLISHED },
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+            description: true,
+            sortOrder: true,
+          },
+        },
+      },
+    });
+
+    return roots.map((root) => ({
+      id: root.id,
+      slug: root.slug,
+      name: root.name,
+      description: root.description,
+      href: `/topics/${root.slug}`,
+      children: root.children.map((child) => ({
+        id: child.id,
+        slug: child.slug,
+        name: child.name,
+        description: child.description,
+        href: `/topics/${child.slug}`,
+        sortOrder: child.sortOrder,
+      })),
+    }));
+  }
+
+  async getTopicBySlug(
+    slug: string,
+    contentQuery: TopicContentQueryDto = {},
+  ) {
+    const topicSelectParent = {
+      id: true,
+      slug: true,
+      name: true,
+      status: true,
+      parentTopicId: true,
+    } as const;
+
+    const topic = await this.prisma.topic.findFirst({
+      where: {
+        slug,
+        status: TopicPublicationStatus.PUBLISHED,
+      },
+      include: {
+        parent: {
+          select: {
+            ...topicSelectParent,
+            parent: {
+              select: {
+                ...topicSelectParent,
+                parent: { select: topicSelectParent },
+              },
+            },
+          },
+        },
+        children: {
+          where: { status: TopicPublicationStatus.PUBLISHED },
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+            description: true,
+          },
+        },
+        relationsFrom: {
+          where: {
+            toTopic: { status: TopicPublicationStatus.PUBLISHED },
+          },
+          include: {
+            toTopic: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                description: true,
+              },
+            },
+          },
+        },
+        relationsTo: {
+          where: {
+            fromTopic: { status: TopicPublicationStatus.PUBLISHED },
+          },
+          include: {
+            fromTopic: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                description: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!topic) {
+      throw new NotFoundException("موضوع یافت نشد.");
+    }
+
+    const children = topic.children;
+
+    const coursePage = contentQuery.page ?? 1;
+    const coursePageSize = contentQuery.pageSize ?? 12;
+    const articlePage = contentQuery.page ?? 1;
+    const articlePageSize = contentQuery.pageSize ?? 12;
+    const courseWhere: Prisma.CourseWhereInput = {
+      publicationStatus: CoursePublicationStatus.PUBLISHED,
+      noIndex: false,
+      topicLinks: { some: { topicId: topic.id } },
+    };
+    const articleWhere: Prisma.ArticleWhereInput = {
+      published: true,
+      noIndex: false,
+      topicLinks: { some: { topicId: topic.id } },
+    };
+    const [courseTotal, courseRows, articleTotal, articleRows] =
+      await this.prisma.$transaction([
+        this.prisma.course.count({ where: courseWhere }),
+        this.prisma.course.findMany({
+          where: courseWhere,
+          include: courseCardInclude,
+          orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+          skip: (coursePage - 1) * coursePageSize,
+          take: coursePageSize,
+        }),
+        this.prisma.article.count({ where: articleWhere }),
+        this.prisma.article.findMany({
+          where: articleWhere,
+          orderBy: [{ sortOrder: "asc" }, { publishedAt: "desc" }],
+          skip: (articlePage - 1) * articlePageSize,
+          take: articlePageSize,
+        }),
+      ]);
+
+    const breadcrumbs = this.breadcrumbsFromParentChain(topic);
+
+    const relatedMap = new Map<
+      string,
+      { id: string; slug: string; name: string; description: string | null; href: string }
+    >();
+    for (const rel of topic.relationsFrom) {
+      relatedMap.set(rel.toTopic.id, {
+        ...rel.toTopic,
+        href: `/topics/${rel.toTopic.slug}`,
+      });
+    }
+    for (const rel of topic.relationsTo) {
+      relatedMap.set(rel.fromTopic.id, {
+        ...rel.fromTopic,
+        href: `/topics/${rel.fromTopic.slug}`,
+      });
+    }
+
+    return {
+      id: topic.id,
+      slug: topic.slug,
+      name: topic.name,
+      h1: topic.h1 ?? topic.name,
+      description: topic.description,
+      introContent: topic.introContent,
+      seoTitle: topic.seoTitle,
+      seoDescription: topic.seoDescription,
+      canonicalUrl: topic.canonicalUrl,
+      indexable: topic.indexable,
+      href: `/topics/${topic.slug}`,
+      parent:
+        topic.parent && topic.parent.status === TopicPublicationStatus.PUBLISHED
+          ? {
+              slug: topic.parent.slug,
+              name: topic.parent.name,
+              href: `/topics/${topic.parent.slug}`,
+            }
+          : null,
+      breadcrumbs,
+      children: children.map((child) => ({
+        ...child,
+        href: `/topics/${child.slug}`,
+      })),
+      relatedTopics: [...relatedMap.values()],
+      courses: {
+        items: courseRows.map(toPublicCourseCard),
+        page: coursePage,
+        pageSize: coursePageSize,
+        total: courseTotal,
+        totalPages: Math.max(1, Math.ceil(courseTotal / coursePageSize)),
+      },
+      articles: {
+        items: articleRows.map(toPublicArticleCard),
+        page: articlePage,
+        pageSize: articlePageSize,
+        total: articleTotal,
+        totalPages: Math.max(1, Math.ceil(articleTotal / articlePageSize)),
+      },
+      publishedAt: topic.publishedAt?.toISOString() ?? null,
+      updatedAt: topic.updatedAt.toISOString(),
+    };
+  }
+
+  /** Build crumbs from nested parent include (max depth 3) — no per-level queries. */
+  private breadcrumbsFromParentChain(topic: {
+    slug: string;
+    name: string;
+    status?: TopicPublicationStatus;
+    parent: null | {
+      slug: string;
+      name: string;
+      status: TopicPublicationStatus;
+      parent: null | {
+        slug: string;
+        name: string;
+        status: TopicPublicationStatus;
+        parent: null | {
+          slug: string;
+          name: string;
+          status: TopicPublicationStatus;
+        };
+      };
+    };
+  }) {
+    const chain: Array<{ name: string; slug: string; href: string }> = [];
+    const pushIfPublished = (node: {
+      slug: string;
+      name: string;
+      status?: TopicPublicationStatus;
+    }) => {
+      if (node.status && node.status !== TopicPublicationStatus.PUBLISHED) {
+        return;
+      }
+      chain.push({
+        name: node.name,
+        slug: node.slug,
+        href: `/topics/${node.slug}`,
+      });
+    };
+
+    const p0 = topic.parent;
+    const p1 = p0?.parent ?? null;
+    const p2 = p1?.parent ?? null;
+    if (p2) pushIfPublished(p2);
+    if (p1) pushIfPublished(p1);
+    if (p0) pushIfPublished(p0);
+    pushIfPublished(topic);
+    return chain;
   }
 
   /** Collect phone for a COMING_SOON course. SMS goes out when offer leaves به‌زودی. */

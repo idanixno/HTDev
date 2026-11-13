@@ -13,6 +13,10 @@ import {
 } from "../identity/rate-limit.stub";
 import { CatalogService } from "./catalog.service";
 import { ListCoursesQueryDto } from "./dto/list-courses.dto";
+import {
+  ListTopicsQueryDto,
+  TopicContentQueryDto,
+} from "./dto/list-topics.dto";
 import { JoinWaitlistDto } from "./dto/waitlist.dto";
 
 @Controller("catalog")
@@ -22,6 +26,21 @@ export class CatalogController {
   @Get("categories")
   listCategories() {
     return this.catalog.listCategories();
+  }
+
+  @Get("topics")
+  listTopics(@Query() query: ListTopicsQueryDto) {
+    return this.catalog.listPublishedTopics(query);
+  }
+
+  @Get("topics/tree")
+  topicTree() {
+    return this.catalog.listTopicTree();
+  }
+
+  @Get("topics/:slug")
+  getTopic(@Param("slug") slug: string, @Query() query: TopicContentQueryDto) {
+    return this.catalog.getTopicBySlug(slug, query);
   }
 
   @Get("courses")

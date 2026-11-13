@@ -238,6 +238,74 @@ export async function fetchAdminCategories() {
   >("/admin/categories");
 }
 
+export type AdminTopicListItem = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  status: string;
+  indexable: boolean;
+  sortOrder: number;
+  parent: { id: string; name: string; slug: string } | null;
+  childCount: number;
+  courseCount: number;
+  articleCount: number;
+  href: string;
+  updatedAt: string;
+  publishedAt: string | null;
+};
+
+export type AdminTopicDetail = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  introContent: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  h1: string | null;
+  parentTopicId: string | null;
+  parent: { id: string; name: string; slug: string } | null;
+  canonicalUrl: string | null;
+  indexable: boolean;
+  status: string;
+  sortOrder: number;
+  publishedAt: string | null;
+  updatedAt: string;
+  children: Array<{ id: string; name: string; slug: string; status: string }>;
+  courseIds: string[];
+  courses: Array<{ id: string; title: string; slug: string }>;
+  articleIds: string[];
+  articles: Array<{ id: string; title: string; slug: string }>;
+  relations: Array<{
+    id: string;
+    relationType: string;
+    toTopic: { id: string; name: string; slug: string };
+  }>;
+  href: string;
+};
+
+export async function fetchAdminTopics(query?: {
+  q?: string;
+  status?: string;
+  page?: number;
+}) {
+  const qs = new URLSearchParams();
+  if (query?.q) qs.set("q", query.q);
+  if (query?.status) qs.set("status", query.status);
+  if (query?.page) qs.set("page", String(query.page));
+  const suffix = qs.toString() ? `?${qs}` : "";
+  return adminFetch<AdminListResult<AdminTopicListItem>>(
+    `/admin/topics${suffix}`,
+  );
+}
+
+export async function fetchAdminTopic(id: string) {
+  return adminFetch<AdminTopicDetail>(
+    `/admin/topics/${encodeURIComponent(id)}`,
+  );
+}
+
 export async function fetchAdminOrders(query?: {
   status?: string;
   licenseStatus?: string;

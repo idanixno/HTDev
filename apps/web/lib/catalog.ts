@@ -158,10 +158,20 @@ export type CourseListResult = {
  */
 export const CATALOG_REVALIDATE_SECONDS = 300;
 
-async function catalogFetch<T>(path: string): Promise<T | null> {
+async function catalogFetch<T>(
+  path: string,
+  init?: { cache?: RequestCache; revalidate?: number | false },
+): Promise<T | null> {
   try {
+    const cache = init?.cache;
+    const revalidate =
+      init?.revalidate === undefined
+        ? CATALOG_REVALIDATE_SECONDS
+        : init.revalidate;
     const res = await fetch(`${apiBaseUrl()}${path}`, {
-      next: { revalidate: CATALOG_REVALIDATE_SECONDS },
+      ...(cache === "no-store"
+        ? { cache: "no-store" as const }
+        : { next: { revalidate: revalidate === false ? 0 : revalidate } }),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -363,6 +373,147 @@ export async function fetchArticle(slug: string): Promise<PublicArticle | null> 
   return catalogFetch<PublicArticle>(
     `/catalog/articles/${encodeURIComponent(slug)}`,
   );
+}
+
+export type PublicTopicCard = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  h1: string;
+  href: string;
+  parent: { slug: string; name: string; href: string } | null;
+  childCount: number;
+  courseCount: number;
+  articleCount: number;
+  updatedAt: string;
+  publishedAt: string | null;
+};
+
+export type PublicTopicListResult = {
+  items: PublicTopicCard[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
+
+export type PublicTopicDetail = {
+  id: string;
+  slug: string;
+  name: string;
+  h1: string;
+  description: string | null;
+  introContent: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  canonicalUrl: string | null;
+  indexable: boolean;
+  href: string;
+  parent: { slug: string; name: string; href: string } | null;
+  breadcrumbs: Array<{ name: string; slug: string; href: string }>;
+  children: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    description: string | null;
+    href: string;
+  }>;
+  relatedTopics: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    description: string | null;
+    href: string;
+  }>;
+  courses: CourseListResult;
+  articles: {
+    items: PublicArticleCard[];
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+  publishedAt: string | null;
+  updatedAt: string;
+};
+
+export async function fetchTopics(params?: {
+  q?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<PublicTopicListResult> {
+  const sp = new URLSearchParams();
+  if (params?.q) sp.set("q", params.q);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.pageSize) sp.set("pageSize", String(params.pageSize));
+  const qs = sp.toString();
+  return (
+    (await catalogFetch<PublicTopicListResult>(
+      `/catalog/topics${qs ? `?${qs}` : ""}`,
+    )) ?? { items: [], page: 1, pageSize: 24, total: 0, totalPages: 1 }
+  );
+}
+
+export async function fetchTopicTree() {
+  return (
+    (await catalogFetch<
+      Array<{
+        id: string;
+        slug: string;
+        name: string;
+        description: string | null;
+        href: string;
+        children: Array<{
+          id: string;
+          slug: string;
+          name: string;
+          description: string | null;
+          href: string;
+          sortOrder: number;
+        }>;
+      }>
+    >("/catalog/topics/tree")) ?? []
+  );
+}
+
+export async function fetchTopic(
+  slug: string,
+  params?: { page?: number; pageSize?: number },
+): Promise<PublicTopicDetail | null> {
+  const sp = new URLSearchParams();
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.pageSize) sp.set("pageSize", String(params.pageSize));
+  const qs = sp.toString();
+  return catalogFetch<PublicTopicDetail>(
+    `/catalog/topics/${encodeURIComponent(slug)}${qs ? `?${qs}` : ""}`,
+  );
+}
+
+/** Sitemap must not serve a stale empty topic list after publish. */
+export async function fetchAllTopicsForSitemap(): Promise<PublicTopicCard[]> {
+  // ListTopicsQueryDto caps pageSize at 48 — do not exceed or the API returns 400.
+  const pageSize = 48;
+  const load = async (page: number) => {
+    const sp = new URLSearchParams({
+      page: String(page),
+      pageSize: String(pageSize),
+    });
+    return (
+      (await catalogFetch<PublicTopicListResult>(
+        `/catalog/topics?${sp}`,
+        { cache: "no-store" },
+      )) ?? { items: [], page: 1, pageSize, total: 0, totalPages: 1 }
+    );
+  };
+  const first = await load(1);
+  const items = [...first.items];
+  const totalPages = Math.max(1, first.totalPages || 1);
+  for (let page = 2; page <= totalPages; page += 1) {
+    const next = await load(page);
+    items.push(...next.items);
+  }
+  return items;
 }
 
 export function formatCourseDuration(hours: number | null): string | null {

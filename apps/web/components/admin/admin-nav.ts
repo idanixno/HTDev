@@ -15,6 +15,7 @@ export const ADMIN_MENU: Array<{ label: string; items: AdminNavItem[] }> = [
     items: [
       { href: "/admin/courses", label: "دوره‌ها", match: "/admin/courses" },
       { href: "/admin/categories", label: "دسته‌ها", match: "/admin/categories" },
+      { href: "/admin/topics", label: "موضوعات", match: "/admin/topics" },
       { href: "/admin/journal", label: "مقالات", match: "/admin/journal" },
       { href: "/admin/paths", label: "مسیرها", match: "/admin/paths" },
       { href: "/admin/cms", label: "محتوا، هدر و فوتر", match: "/admin/cms" },

@@ -12,8 +12,14 @@ import {
   CoursePublicationStatus,
   OrderStatus,
   Prisma,
+  TopicPublicationStatus,
+  TopicRelationType,
   UserRole,
 } from "@zharfa/database";
+import {
+  assertValidParent,
+  buildParentMaps,
+} from "../catalog/topic-hierarchy";
 import { decimalToNumber, formatTomanLabel } from "../catalog/pricing";
 import {
   canTransitionOrder,
@@ -28,6 +34,7 @@ import { SpotPlayerService } from "../spotplayer/spotplayer.service";
 import { AuditService } from "./audit.service";
 import type {
   CreatePathStepDto,
+  TopicRelationDto,
   UpsertArticleDto,
   UpsertCategoryDto,
   UpsertCouponDto,
@@ -36,6 +43,7 @@ import type {
   UpsertLearningPathDto,
   UpsertLessonDto,
   UpsertModuleDto,
+  UpsertTopicDto,
   UpdateFooterCmsDto,
   UpdateHomeCmsDto,
   UpdatePathsCmsDto,
@@ -712,6 +720,415 @@ export class AdminService {
       metadata: { pathId },
     });
     return { ok: true };
+  }
+
+  // ── Topics (SEO hubs; independent of Category) ───────────────────────
+
+  async listTopics(query: { q?: string; page?: number; pageSize?: number; status?: string }) {
+    const page = query.page ?? 1;
+    const pageSize = Math.min(query.pageSize ?? 30, 100);
+    const where: Prisma.TopicWhereInput = {};
+    if (
+      query.status &&
+      Object.values(TopicPublicationStatus).includes(
+        query.status as TopicPublicationStatus,
+      )
+    ) {
+      where.status = query.status as TopicPublicationStatus;
+    }
+    if (query.q) {
+      where.OR = [
+        { name: { contains: query.q, mode: "insensitive" } },
+        { slug: { contains: query.q, mode: "insensitive" } },
+        { description: { contains: query.q, mode: "insensitive" } },
+      ];
+    }
+
+    const [total, rows] = await this.prisma.$transaction([
+      this.prisma.topic.count({ where }),
+      this.prisma.topic.findMany({
+        where,
+        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          parent: { select: { id: true, name: true, slug: true } },
+          _count: {
+            select: {
+              children: true,
+              courseLinks: true,
+              journalLinks: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      items: rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        slug: row.slug,
+        description: row.description,
+        status: row.status,
+        indexable: row.indexable,
+        sortOrder: row.sortOrder,
+        parent: row.parent,
+        childCount: row._count.children,
+        courseCount: row._count.courseLinks,
+        articleCount: row._count.journalLinks,
+        href: `/topics/${row.slug}`,
+        updatedAt: row.updatedAt.toISOString(),
+        publishedAt: row.publishedAt?.toISOString() ?? null,
+      })),
+      page,
+      pageSize,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    };
+  }
+
+  async getTopic(id: string) {
+    const topic = await this.prisma.topic.findUnique({
+      where: { id },
+      include: {
+        parent: { select: { id: true, name: true, slug: true } },
+        children: {
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          select: { id: true, name: true, slug: true, status: true },
+        },
+        courseLinks: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            course: { select: { id: true, title: true, slug: true } },
+          },
+        },
+        journalLinks: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            article: { select: { id: true, title: true, slug: true } },
+          },
+        },
+        relationsFrom: {
+          include: {
+            toTopic: { select: { id: true, name: true, slug: true } },
+          },
+        },
+      },
+    });
+    if (!topic) throw new NotFoundException("موضوع یافت نشد.");
+    return {
+      id: topic.id,
+      name: topic.name,
+      slug: topic.slug,
+      description: topic.description,
+      introContent: topic.introContent,
+      seoTitle: topic.seoTitle,
+      seoDescription: topic.seoDescription,
+      h1: topic.h1,
+      parentTopicId: topic.parentTopicId,
+      parent: topic.parent,
+      canonicalUrl: topic.canonicalUrl,
+      indexable: topic.indexable,
+      status: topic.status,
+      sortOrder: topic.sortOrder,
+      publishedAt: topic.publishedAt?.toISOString() ?? null,
+      updatedAt: topic.updatedAt.toISOString(),
+      children: topic.children,
+      courseIds: topic.courseLinks.map((l) => l.courseId),
+      courses: topic.courseLinks.map((l) => l.course),
+      articleIds: topic.journalLinks.map((l) => l.articleId),
+      articles: topic.journalLinks.map((l) => l.article),
+      relations: topic.relationsFrom.map((r) => ({
+        id: r.id,
+        relationType: r.relationType,
+        toTopic: r.toTopic,
+      })),
+      href: `/topics/${topic.slug}`,
+    };
+  }
+
+  async upsertTopic(
+    actorId: string,
+    dto: UpsertTopicDto,
+    id?: string,
+    /** Raw JSON keys from the request body (avoids Nest undefined-field wipe). */
+    providedKeys?: string[],
+  ) {
+    const existing = id
+      ? await this.prisma.topic.findUnique({ where: { id } })
+      : null;
+    if (id && !existing) throw new NotFoundException("موضوع یافت نشد.");
+
+    const keys = new Set(
+      providedKeys ??
+        (id
+          ? Object.keys(dto as object)
+          : [
+              "name",
+              "slug",
+              "description",
+              "introContent",
+              "seoTitle",
+              "seoDescription",
+              "h1",
+              "parentTopicId",
+              "canonicalUrl",
+              "indexable",
+              "status",
+              "sortOrder",
+              "courseIds",
+              "articleIds",
+            ]),
+    );
+    const has = (key: string) => keys.has(key);
+
+    const parentTopicId = has("parentTopicId")
+      ? dto.parentTopicId?.trim() || null
+      : (existing?.parentTopicId ?? null);
+    await this.assertTopicParentAllowed(id ?? null, parentTopicId);
+
+    if (dto.courseIds) {
+      await this.assertCourseIdsExist(dto.courseIds);
+    }
+    if (dto.articleIds) {
+      await this.assertArticleIdsExist(dto.articleIds);
+    }
+
+    const becomingPublished =
+      dto.status === TopicPublicationStatus.PUBLISHED &&
+      existing?.status !== TopicPublicationStatus.PUBLISHED;
+
+    const optionalText = (
+      key: "description" | "introContent" | "seoTitle" | "seoDescription" | "h1" | "canonicalUrl",
+      fallback: string | null,
+    ) => {
+      if (!has(key)) return fallback;
+      const raw = dto[key];
+      if (raw == null) return null;
+      const trimmed = String(raw).trim();
+      return trimmed.length ? trimmed : null;
+    };
+
+    const data = {
+      name: dto.name.trim(),
+      slug: dto.slug.trim().toLowerCase(),
+      description: optionalText("description", existing?.description ?? null),
+      introContent: optionalText("introContent", existing?.introContent ?? null),
+      seoTitle: optionalText("seoTitle", existing?.seoTitle ?? null),
+      seoDescription: optionalText(
+        "seoDescription",
+        existing?.seoDescription ?? null,
+      ),
+      h1: optionalText("h1", existing?.h1 ?? null),
+      parentTopicId,
+      canonicalUrl: optionalText(
+        "canonicalUrl",
+        existing?.canonicalUrl ?? null,
+      ),
+      indexable: has("indexable")
+        ? (dto.indexable ?? true)
+        : (existing?.indexable ?? true),
+      status: dto.status,
+      sortOrder: has("sortOrder")
+        ? (dto.sortOrder ?? 0)
+        : (existing?.sortOrder ?? 0),
+      publishedAt: becomingPublished
+        ? new Date()
+        : dto.status === TopicPublicationStatus.PUBLISHED
+          ? (existing?.publishedAt ?? new Date())
+          : existing?.publishedAt ?? null,
+    };
+
+    const topic = await this.writeUnique(async () => {
+      if (id) {
+        return this.prisma.$transaction(async (tx) => {
+          const updated = await tx.topic.update({ where: { id }, data });
+          if (dto.courseIds) {
+            await tx.courseTopic.deleteMany({ where: { topicId: id } });
+            if (dto.courseIds.length) {
+              await tx.courseTopic.createMany({
+                data: dto.courseIds.map((courseId, index) => ({
+                  topicId: id,
+                  courseId,
+                  sortOrder: index,
+                })),
+              });
+            }
+          }
+          if (dto.articleIds) {
+            await tx.journalTopic.deleteMany({ where: { topicId: id } });
+            if (dto.articleIds.length) {
+              await tx.journalTopic.createMany({
+                data: dto.articleIds.map((articleId, index) => ({
+                  topicId: id,
+                  articleId,
+                  sortOrder: index,
+                })),
+              });
+            }
+          }
+          return updated;
+        });
+      }
+      return this.prisma.$transaction(async (tx) => {
+        const created = await tx.topic.create({ data });
+        if (dto.courseIds?.length) {
+          await tx.courseTopic.createMany({
+            data: dto.courseIds.map((courseId, index) => ({
+              topicId: created.id,
+              courseId,
+              sortOrder: index,
+            })),
+          });
+        }
+        if (dto.articleIds?.length) {
+          await tx.journalTopic.createMany({
+            data: dto.articleIds.map((articleId, index) => ({
+              topicId: created.id,
+              articleId,
+              sortOrder: index,
+            })),
+          });
+        }
+        return created;
+      });
+    });
+
+    await this.audit.record({
+      actorId,
+      action: id ? "topic.update" : "topic.create",
+      entityType: "Topic",
+      entityId: topic.id,
+      summary: id
+        ? `به‌روزرسانی موضوع «${topic.name}»`
+        : `ایجاد موضوع «${topic.name}»`,
+      metadata: { slug: topic.slug, status: topic.status },
+    });
+
+    return this.getTopic(topic.id);
+  }
+
+  async deleteTopic(actorId: string, id: string) {
+    const topic = await this.prisma.topic.findUnique({
+      where: { id },
+      include: { _count: { select: { children: true } } },
+    });
+    if (!topic) throw new NotFoundException("موضوع یافت نشد.");
+    if (topic._count.children > 0) {
+      throw new BadRequestException(
+        "این موضوع زیرموضوع دارد. اول زیرموضوع‌ها را جابه‌جا یا حذف کنید.",
+      );
+    }
+    await this.prisma.topic.delete({ where: { id } });
+    await this.audit.record({
+      actorId,
+      action: "topic.delete",
+      entityType: "Topic",
+      entityId: id,
+      summary: `حذف موضوع «${topic.name}»`,
+    });
+    return { ok: true };
+  }
+
+  async addTopicRelation(actorId: string, fromTopicId: string, dto: TopicRelationDto) {
+    if (fromTopicId === dto.toTopicId) {
+      throw new BadRequestException("موضوع نمی‌تواند به خودش مرتبط شود.");
+    }
+    const [from, to] = await Promise.all([
+      this.prisma.topic.findUnique({ where: { id: fromTopicId } }),
+      this.prisma.topic.findUnique({ where: { id: dto.toTopicId } }),
+    ]);
+    if (!from || !to) throw new NotFoundException("موضوع یافت نشد.");
+
+    const relationType = dto.relationType ?? TopicRelationType.RELATED;
+    const relation = await this.writeUnique(() =>
+      this.prisma.topicRelation.create({
+        data: {
+          fromTopicId,
+          toTopicId: dto.toTopicId,
+          relationType,
+        },
+      }),
+    );
+
+    await this.audit.record({
+      actorId,
+      action: "topic.relation.create",
+      entityType: "TopicRelation",
+      entityId: relation.id,
+      summary: `ارتباط ${relationType} از «${from.name}» به «${to.name}»`,
+    });
+    return relation;
+  }
+
+  async removeTopicRelation(actorId: string, relationId: string) {
+    const existing = await this.prisma.topicRelation.findUnique({
+      where: { id: relationId },
+    });
+    if (!existing) throw new NotFoundException("ارتباط یافت نشد.");
+    await this.prisma.topicRelation.delete({ where: { id: relationId } });
+    await this.audit.record({
+      actorId,
+      action: "topic.relation.delete",
+      entityType: "TopicRelation",
+      entityId: relationId,
+      summary: "حذف ارتباط موضوعی",
+      metadata: {
+        fromTopicId: existing.fromTopicId,
+        toTopicId: existing.toTopicId,
+        relationType: existing.relationType,
+      },
+    });
+    return { ok: true };
+  }
+
+  private async assertTopicParentAllowed(
+    topicId: string | null,
+    parentTopicId: string | null,
+  ) {
+    const rows = await this.prisma.topic.findMany({
+      select: { id: true, parentTopicId: true },
+    });
+    const { byId, childrenOf } = buildParentMaps(rows);
+    const result = assertValidParent({
+      topicId: topicId ?? undefined,
+      parentTopicId,
+      byId,
+      childrenOf,
+    });
+    if (result.ok) return;
+    if (result.reason === "MISSING_PARENT") {
+      throw new BadRequestException("والد انتخاب‌شده وجود ندارد.");
+    }
+    if (result.reason === "CYCLE") {
+      throw new BadRequestException(
+        "والد نامعتبر است؛ حلقه در سلسله‌مراتب موضوعات مجاز نیست.",
+      );
+    }
+    throw new BadRequestException(
+      "عمق سلسله‌مراتب موضوعات بیش از حد مجاز است (حداکثر ۳ سطح).",
+    );
+  }
+
+  private async assertCourseIdsExist(ids: string[]) {
+    if (!ids.length) return;
+    const count = await this.prisma.course.count({
+      where: { id: { in: ids } },
+    });
+    if (count !== ids.length) {
+      throw new BadRequestException("یکی از شناسه‌های دوره نامعتبر است.");
+    }
+  }
+
+  private async assertArticleIdsExist(ids: string[]) {
+    if (!ids.length) return;
+    const count = await this.prisma.article.count({
+      where: { id: { in: ids } },
+    });
+    if (count !== ids.length) {
+      throw new BadRequestException("یکی از شناسه‌های مقاله نامعتبر است.");
+    }
   }
 
   // ── Categories ───────────────────────────────────────────────────────

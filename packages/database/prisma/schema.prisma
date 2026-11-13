@@ -182,6 +182,7 @@ model Course {
   tickets               Ticket[]
   waitlistEntries       CourseWaitlistEntry[]
   purchaseNotes         CoursePurchaseNote[]
+  topicLinks            CourseTopic[]
 
   @@index([publicationStatus, offerKind])
   @@index([categoryId])
@@ -759,7 +760,102 @@ model Article {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
+  topicLinks JournalTopic[]
+
   @@index([published, sortOrder])
+}
+
+/// SEO / AEO topic hubs — independent of flat Course Category.
+enum TopicPublicationStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+/// Semantic edge between topics (orthogonal to parent/child).
+/// V1 admin UI focuses on RELATED; other values are API-ready.
+enum TopicRelationType {
+  RELATED
+  PREREQUISITE
+  NEXT
+  ALTERNATIVE
+}
+
+model Topic {
+  id              String                  @id @default(cuid())
+  name            String
+  slug            String                  @unique
+  description     String?
+  /// Markdown intro for the public hub page.
+  introContent    String?
+  seoTitle        String?
+  seoDescription  String?
+  h1              String?
+  parentTopicId   String?
+  /// Optional absolute or path canonical override; null → /topics/{slug}.
+  canonicalUrl    String?
+  indexable       Boolean                 @default(true)
+  status          TopicPublicationStatus  @default(DRAFT)
+  sortOrder       Int                     @default(0)
+  publishedAt     DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  parent          Topic?                  @relation("TopicTree", fields: [parentTopicId], references: [id], onDelete: Restrict)
+  children        Topic[]                 @relation("TopicTree")
+  courseLinks     CourseTopic[]
+  journalLinks    JournalTopic[]
+  relationsFrom   TopicRelation[]         @relation("TopicRelationFrom")
+  relationsTo     TopicRelation[]         @relation("TopicRelationTo")
+
+  @@index([status, indexable, sortOrder])
+  @@index([parentTopicId, sortOrder])
+}
+
+model CourseTopic {
+  id        String   @id @default(cuid())
+  courseId  String
+  topicId   String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topic  Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, topicId])
+  @@index([topicId, sortOrder])
+  @@index([courseId])
+}
+
+model JournalTopic {
+  id        String   @id @default(cuid())
+  articleId String
+  topicId   String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  topic   Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, topicId])
+  @@index([topicId, sortOrder])
+  @@index([articleId])
+}
+
+/// Directed semantic link. RELATED edges are treated as bidirectional in public UI.
+model TopicRelation {
+  id           String            @id @default(cuid())
+  fromTopicId  String
+  toTopicId    String
+  relationType TopicRelationType @default(RELATED)
+  createdAt    DateTime          @default(now())
+
+  fromTopic Topic @relation("TopicRelationFrom", fields: [fromTopicId], references: [id], onDelete: Cascade)
+  toTopic   Topic @relation("TopicRelationTo", fields: [toTopicId], references: [id], onDelete: Cascade)
+
+  @@unique([fromTopicId, toTopicId, relationType])
+  @@index([toTopicId, relationType])
+  @@index([fromTopicId, relationType])
 }
 
 /// Singleton home / landing CMS copy (id = "home").

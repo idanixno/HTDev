@@ -4,10 +4,15 @@ import {
   CoursePublicationStatus,
   CouponDiscountType,
   PaymentProvider,
+  TopicPublicationStatus,
+  TopicRelationType,
 } from "@zharfa/database";
 import { Type } from "class-transformer";
 import {
   Allow,
+  ArrayMaxSize,
+  ArrayUnique,
+  IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
@@ -663,5 +668,87 @@ export class UpsertLearningPathDto {
 }
 
 export class CreatePathStepDto extends UpdatePathStepDto {}
+
+export class UpsertTopicDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(120)
+  name!: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(80)
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  slug!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  description?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60000)
+  introContent?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  seoTitle?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(320)
+  seoDescription?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  h1?: string | null;
+
+  @IsOptional()
+  @IsString()
+  parentTopicId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  canonicalUrl?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  indexable?: boolean;
+
+  @IsEnum(TopicPublicationStatus)
+  status!: TopicPublicationStatus;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  sortOrder?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @ArrayMaxSize(200)
+  @IsString({ each: true })
+  courseIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @ArrayMaxSize(200)
+  @IsString({ each: true })
+  articleIds?: string[];
+}
+
+export class TopicRelationDto {
+  @IsString()
+  toTopicId!: string;
+
+  @IsOptional()
+  @IsEnum(TopicRelationType)
+  relationType?: TopicRelationType;
+}
 
 export { PaymentProvider };

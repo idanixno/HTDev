@@ -25,6 +25,7 @@ import {
   UpdateFooterCmsDto,
   UpdateHomeCmsDto,
   UpdatePathsCmsDto,
+  TopicRelationDto,
   UpsertArticleDto,
   UpsertCategoryDto,
   UpsertCouponDto,
@@ -36,6 +37,7 @@ import {
   UpsertLearningPathDto,
   UpsertLessonDto,
   UpsertModuleDto,
+  UpsertTopicDto,
   UpdateOrderStatusDto,
   UpdatePathStepDto,
 } from "./dto/admin.dto";
@@ -190,6 +192,65 @@ export class AdminController {
   @Delete("categories/:id")
   removeCategory(@Req() req: AuthedRequest, @Param("id") id: string) {
     return this.admin.deleteCategory(req.user!.id, id);
+  }
+
+  // Topics (SEO hubs)
+  @Get("topics")
+  topics(
+    @Query() query: AdminListQueryDto & { status?: string },
+  ) {
+    return this.admin.listTopics(query);
+  }
+
+  @Get("topics/:id")
+  topic(@Param("id") id: string) {
+    return this.admin.getTopic(id);
+  }
+
+  @Post("topics")
+  createTopic(@Req() req: AuthedRequest, @Body() body: UpsertTopicDto) {
+    return this.admin.upsertTopic(
+      req.user!.id,
+      body,
+      undefined,
+      Object.keys((req.body ?? {}) as object),
+    );
+  }
+
+  @Patch("topics/:id")
+  updateTopic(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: UpsertTopicDto,
+  ) {
+    return this.admin.upsertTopic(
+      req.user!.id,
+      body,
+      id,
+      Object.keys((req.body ?? {}) as object),
+    );
+  }
+
+  @Delete("topics/:id")
+  removeTopic(@Req() req: AuthedRequest, @Param("id") id: string) {
+    return this.admin.deleteTopic(req.user!.id, id);
+  }
+
+  @Post("topics/:id/relations")
+  addTopicRelation(
+    @Req() req: AuthedRequest,
+    @Param("id") id: string,
+    @Body() body: TopicRelationDto,
+  ) {
+    return this.admin.addTopicRelation(req.user!.id, id, body);
+  }
+
+  @Delete("topic-relations/:relationId")
+  removeTopicRelation(
+    @Req() req: AuthedRequest,
+    @Param("relationId") relationId: string,
+  ) {
+    return this.admin.removeTopicRelation(req.user!.id, relationId);
   }
 
   // Orders
