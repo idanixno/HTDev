@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Badge, Button, Notice } from "@zharfa/ui";
 import { authFetch } from "../lib/api-client";
+import { REQUIRED_FIELD_MESSAGE } from "../lib/field-messages";
 import {
   ticketStatusBadge,
   ticketStatusLabel,
@@ -20,17 +21,23 @@ export function TicketThread({
 }) {
   const router = useRouter();
   const [body, setBody] = useState("");
+  const [bodyError, setBodyError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function onReply(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!body.trim()) {
+      setBodyError(REQUIRED_FIELD_MESSAGE);
+      return;
+    }
+    setBodyError(null);
     setPending(true);
     try {
       await authFetch(`/api/tickets/${ticket.id}/reply`, {
         method: "POST",
-        body: JSON.stringify({ body }),
+        body: JSON.stringify({ body: body.trim() }),
       });
       setBody("");
       router.refresh();
@@ -115,18 +122,33 @@ export function TicketThread({
       </div>
 
       {ticket.status !== "CLOSED" ? (
-        <form className="ticket-form" onSubmit={onReply}>
-          <label className="ticket-form__label" htmlFor="reply-body">
-            پاسخ
-          </label>
-          <textarea
-            id="reply-body"
-            className="ticket-form__textarea"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            required
-            rows={3}
-          />
+        <form className="ticket-form" onSubmit={onReply} noValidate>
+          <div className={"z-field" + (bodyError ? " z-field--error" : "")}>
+            <label className="ticket-form__label z-field__label" htmlFor="reply-body">
+              پاسخ
+            </label>
+            <textarea
+              id="reply-body"
+              className="ticket-form__textarea z-field__control"
+              value={body}
+              onChange={(e) => {
+                setBody(e.target.value);
+                setBodyError(null);
+              }}
+              onBlur={() => {
+                if (!body.trim()) setBodyError(REQUIRED_FIELD_MESSAGE);
+              }}
+              required
+              rows={3}
+              aria-invalid={bodyError ? true : undefined}
+              aria-describedby={bodyError ? "reply-body-error" : undefined}
+            />
+            {bodyError ? (
+              <p className="z-field__error" id="reply-body-error" role="alert">
+                {bodyError}
+              </p>
+            ) : null}
+          </div>
           <Button type="submit" variant="primary" disabled={pending}>
             {pending ? "…" : "ارسال پاسخ"}
           </Button>

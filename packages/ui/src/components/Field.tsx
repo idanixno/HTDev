@@ -1,6 +1,11 @@
 "use client";
 
-import { useState, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+  useState,
+  type FormEvent,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from "react";
 
 export type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id"> & {
   id: string;
@@ -9,6 +14,43 @@ export type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id"> & {
   error?: ReactNode;
   mono?: boolean;
 };
+
+const REQUIRED_MESSAGE = "این فیلد الزامی است.";
+
+function validityMessage(
+  input: HTMLInputElement,
+  label: ReactNode,
+): string | null {
+  const { validity } = input;
+  if (validity.valid) return null;
+  if (validity.valueMissing) return REQUIRED_MESSAGE;
+  if (validity.tooShort) {
+    const min = input.minLength > 0 ? input.minLength : null;
+    if (input.type === "password") {
+      return min
+        ? `رمز عبور باید حداقل ${min.toLocaleString("fa-IR")} نویسه باشد.`
+        : "رمز عبور کوتاه است.";
+    }
+    return min
+      ? `حداقل ${min.toLocaleString("fa-IR")} نویسه لازم است.`
+      : "مقدار واردشده کوتاه است.";
+  }
+  if (validity.tooLong) return "مقدار واردشده بیش از حد بلند است.";
+  if (validity.typeMismatch) {
+    if (input.type === "email") return "ایمیل معتبر نیست.";
+    if (input.type === "url") return "آدرس معتبر نیست.";
+    return "مقدار این فیلد معتبر نیست.";
+  }
+  if (validity.patternMismatch) {
+    return typeof label === "string"
+      ? `مقدار «${label}» معتبر نیست.`
+      : "مقدار این فیلد معتبر نیست.";
+  }
+  if (validity.rangeUnderflow || validity.rangeOverflow) {
+    return "عدد خارج از محدوده مجاز است.";
+  }
+  return "مقدار این فیلد معتبر نیست.";
+}
 
 function EyeIcon({ off }: { off: boolean }) {
   return (
@@ -36,25 +78,39 @@ export function Field({
   className,
   disabled,
   type,
+  required,
+  onBlur,
+  onChange,
+  onInvalid,
   ...rest
 }: FieldProps) {
   const secret = type === "password";
   const [visible, setVisible] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const shownError = error ?? localError;
+
   const describedBy = [
-    error ? `${id}-error` : null,
-    hint && !error ? `${id}-hint` : null,
+    shownError ? `${id}-error` : null,
+    hint && !shownError ? `${id}-hint` : null,
   ]
     .filter(Boolean)
     .join(" ");
 
   const classes = [
     "z-field",
-    error ? "z-field--error" : "",
+    shownError ? "z-field--error" : "",
     disabled ? "z-field--disabled" : "",
     className ?? "",
   ]
     .filter(Boolean)
     .join(" ");
+
+  function handleInvalid(event: FormEvent<HTMLInputElement>) {
+    event.preventDefault();
+    const message = validityMessage(event.currentTarget, label);
+    if (message) setLocalError(message);
+    onInvalid?.(event);
+  }
 
   const control = (
     <input
@@ -64,8 +120,27 @@ export function Field({
         .filter(Boolean)
         .join(" ")}
       disabled={disabled}
-      aria-invalid={error ? true : undefined}
+      required={required}
+      aria-invalid={shownError ? true : undefined}
       aria-describedby={describedBy || undefined}
+      aria-required={required ? true : undefined}
+      onInvalid={handleInvalid}
+      onChange={(event) => {
+        if (localError) setLocalError(null);
+        event.currentTarget.setCustomValidity("");
+        onChange?.(event);
+      }}
+      onBlur={(event) => {
+        if (required && !event.currentTarget.value.trim()) {
+          setLocalError(REQUIRED_MESSAGE);
+        } else if (!event.currentTarget.checkValidity()) {
+          const message = validityMessage(event.currentTarget, label);
+          if (message) setLocalError(message);
+        } else if (localError) {
+          setLocalError(null);
+        }
+        onBlur?.(event);
+      }}
       {...rest}
     />
   );
@@ -92,12 +167,12 @@ export function Field({
       ) : (
         control
       )}
-      {error ? (
+      {shownError ? (
         <p className="z-field__error" id={`${id}-error`} role="alert">
-          {error}
+          {shownError}
         </p>
       ) : null}
-      {!error && hint ? (
+      {!shownError && hint ? (
         <p className="z-field__hint" id={`${id}-hint`}>
           {hint}
         </p>

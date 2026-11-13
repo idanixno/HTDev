@@ -16,21 +16,26 @@ function emptyToNull(value: unknown): string | null {
 
 function stripAt(value: string | null): string | null {
   if (!value) return null;
-  return value.replace(/^@+/, "");
+  const stripped = value.replace(/^@+/, "").trim();
+  return stripped || null;
 }
 
 function normalizeLinkedin(value: string | null): string | null {
   if (!value) return null;
-  return value
+  const normalized = value
     .replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//i, "")
-    .replace(/\/+$/, "");
+    .replace(/\/+$/, "")
+    .trim();
+  return normalized || null;
 }
 
 function normalizeStackOverflow(value: string | null): string | null {
   if (!value) return null;
-  return value
+  const normalized = value
     .replace(/^https?:\/\/(www\.)?stackoverflow\.com\/users\//i, "")
-    .replace(/\/+$/, "");
+    .replace(/\/+$/, "")
+    .trim();
+  return normalized || null;
 }
 
 export class UpdateProfileDto {
@@ -41,7 +46,7 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @Transform(({ value }) => stripAt(emptyToNull(value)))
-  @ValidateIf((_, value) => value != null)
+  @ValidateIf((_, value) => typeof value === "string" && value.length > 0)
   @IsString({ message: "آیدی تلگرام باید متن باشد." })
   @MaxLength(32, { message: "آیدی تلگرام بیش از حد بلند است." })
   @Matches(/^[A-Za-z][A-Za-z0-9_]{4,31}$/, {
@@ -51,7 +56,7 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @Transform(({ value }) => stripAt(emptyToNull(value)))
-  @ValidateIf((_, value) => value != null)
+  @ValidateIf((_, value) => typeof value === "string" && value.length > 0)
   @IsString({ message: "گیت‌هاب باید متن باشد." })
   @MaxLength(39, { message: "نام کاربری گیت‌هاب بیش از حد بلند است." })
   @Matches(/^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/, {
@@ -61,7 +66,7 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @Transform(({ value }) => normalizeLinkedin(emptyToNull(value)))
-  @ValidateIf((_, value) => value != null)
+  @ValidateIf((_, value) => typeof value === "string" && value.length > 0)
   @IsString({ message: "لینکدین باید متن باشد." })
   @MaxLength(100, { message: "نام کاربری لینکدین بیش از حد بلند است." })
   @Matches(/^[A-Za-z0-9](?:[A-Za-z0-9_-]{0,98}[A-Za-z0-9])?$/, {
@@ -71,7 +76,7 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @Transform(({ value }) => normalizeStackOverflow(emptyToNull(value)))
-  @ValidateIf((_, value) => value != null)
+  @ValidateIf((_, value) => typeof value === "string" && value.length > 0)
   @IsString({ message: "استک‌اورفلو باید متن باشد." })
   @MaxLength(80, { message: "شناسه استک‌اورفلو بیش از حد بلند است." })
   @Matches(/^\d+(?:\/[A-Za-z0-9_-]+)?$/, {

@@ -2,6 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import { Button, Field } from "@zharfa/ui";
+import {
+  REQUIRED_FIELD_MESSAGE,
+  requiredFieldError,
+} from "../lib/field-messages";
 
 export function CourseWaitlistForm({
   slug,
@@ -13,12 +17,23 @@ export function CourseWaitlistForm({
   const [phone, setPhone] = useState(defaultPhone);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    setFormError(null);
+    const local = requiredFieldError(phone);
+    if (local) {
+      setPhoneError(local);
+      return;
+    }
+    if (phone.replace(/\D/g, "").length < 10) {
+      setPhoneError("شماره موبایل معتبر نیست.");
+      return;
+    }
+    setPhoneError(null);
     setLoading(true);
-    setError(null);
     try {
       const res = await fetch(
         `/api/courses/${encodeURIComponent(slug)}/waitlist`,
@@ -32,12 +47,12 @@ export function CourseWaitlistForm({
         message?: string;
       };
       if (!res.ok) {
-        setError(data.message ?? "ثبت پیش‌ثبت‌نام ممکن نشد.");
+        setFormError(data.message ?? "ثبت پیش‌ثبت‌نام ممکن نشد.");
         return;
       }
       setDone(true);
     } catch {
-      setError("ارتباط برقرار نشد. دوباره تلاش کنید.");
+      setFormError("ارتباط برقرار نشد. دوباره تلاش کنید.");
     } finally {
       setLoading(false);
     }
@@ -53,7 +68,7 @@ export function CourseWaitlistForm({
   }
 
   return (
-    <form className="course-waitlist" onSubmit={submit}>
+    <form className="course-waitlist" onSubmit={submit} noValidate>
       <Field
         id={`waitlist-phone-${slug}`}
         label="شماره موبایل"
@@ -63,13 +78,20 @@ export function CourseWaitlistForm({
         dir="ltr"
         placeholder="09xxxxxxxxx"
         value={phone}
-        onChange={(event) => setPhone(event.target.value)}
+        onChange={(event) => {
+          setPhone(event.target.value);
+          setPhoneError(null);
+        }}
+        onBlur={() => {
+          if (!phone.trim()) setPhoneError(REQUIRED_FIELD_MESSAGE);
+        }}
+        error={phoneError}
         required
       />
       <Button type="submit" loading={loading}>
         پیش‌ثبت‌نام
       </Button>
-      {error ? <p className="course-waitlist__error">{error}</p> : null}
+      {formError ? <p className="course-waitlist__error">{formError}</p> : null}
       <p className="course-waitlist__hint">
         فقط برای خبر انتشار همین دوره استفاده می‌شود.
       </p>

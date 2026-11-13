@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Button, Field } from "@zharfa/ui";
+import { REQUIRED_FIELD_MESSAGE } from "../lib/field-messages";
 import type { PublicNotification } from "../lib/notification-shared";
 import type { PublicUser } from "../lib/session";
 import { LogoutButton } from "./logout-button";
@@ -147,6 +148,7 @@ export function IdCard({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   const telegram = user.telegramHandle?.trim() || "";
   const github = user.githubHandle?.trim() || "";
@@ -163,8 +165,17 @@ export function IdCard({
 
   async function save(event: FormEvent) {
     event.preventDefault();
-    setLoading(true);
     setError(null);
+    if (!displayName.trim()) {
+      setNameError(REQUIRED_FIELD_MESSAGE);
+      return;
+    }
+    if (displayName.trim().length < 2) {
+      setNameError("نام نمایشی حداقل ۲ نویسه است.");
+      return;
+    }
+    setNameError(null);
+    setLoading(true);
     try {
       const res = await fetch("/api/auth/me", {
         method: "PATCH",
@@ -178,11 +189,21 @@ export function IdCard({
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
-        message?: string;
+        message?: string | string[];
         user?: PublicUser;
       };
       if (!res.ok || !data.user) {
-        setError(data.message ?? "ذخیره اطلاعات ممکن نشد.");
+        const fromApi = Array.isArray(data.message)
+          ? data.message.filter(Boolean).join("، ")
+          : typeof data.message === "string"
+            ? data.message
+            : null;
+        setError(
+          fromApi ||
+            (res.status === 405
+              ? "سرور این درخواست را مسدود کرده است. پیکربندی nginx را برای PATCH بررسی کنید."
+              : "ذخیره اطلاعات ممکن نشد."),
+        );
         return;
       }
       setUser(data.user);
@@ -243,7 +264,14 @@ export function IdCard({
                 id="presence-name"
                 label="نام نمایشی"
                 value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
+                onChange={(event) => {
+                  setDisplayName(event.target.value);
+                  setNameError(null);
+                }}
+                onBlur={() => {
+                  if (!displayName.trim()) setNameError(REQUIRED_FIELD_MESSAGE);
+                }}
+                error={nameError}
                 required
               />
               <Field
