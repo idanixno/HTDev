@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { apiBaseUrl } from "./auth-constants";
+import { tagsForCatalogPath } from "./cache-tags";
 import { DEFAULT_SITE_CHROME, type SiteChrome } from "./site-chrome";
 
 export type CourseCardAvailability =
@@ -178,7 +179,12 @@ async function catalogFetch<T>(
     const res = await fetch(`${apiBaseUrl()}${path}`, {
       ...(cache === "no-store"
         ? { cache: "no-store" as const }
-        : { next: { revalidate: revalidate === false ? 0 : revalidate } }),
+        : {
+            next: {
+              revalidate: revalidate === false ? 0 : revalidate,
+              tags: tagsForCatalogPath(path),
+            },
+          }),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -297,7 +303,12 @@ export async function fetchHomeAnnouncement(): Promise<HomeAnnouncement> {
   try {
     const res = await fetch(
       `${apiBaseUrl()}/catalog/meta/home-announcement`,
-      { next: { revalidate: 30 } },
+      {
+        next: {
+          revalidate: 30,
+          tags: tagsForCatalogPath("/catalog/meta/home-announcement"),
+        },
+      },
     );
     if (!res.ok) return { enabled: false };
     const data = (await res.json()) as HomeAnnouncement;

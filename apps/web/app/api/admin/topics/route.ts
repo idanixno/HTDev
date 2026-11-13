@@ -1,4 +1,3 @@
-import { revalidateTopicSurfaces } from "../../../../lib/revalidate-topics";
 import { proxyAdminJson } from "../../../../lib/admin-proxy";
 
 export async function GET(request: Request) {
@@ -12,14 +11,5 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const res = await proxyAdminJson(request, "/admin/topics", "POST");
-  if (res.ok) {
-    try {
-      const data = (await res.clone().json()) as { slug?: string };
-      revalidateTopicSurfaces(data.slug);
-    } catch {
-      revalidateTopicSurfaces();
-    }
-  }
-  return res;
+  return proxyAdminJson(request, "/admin/topics", "POST");
 }

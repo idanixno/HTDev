@@ -2,12 +2,12 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiBaseUrl, SESSION_COOKIE_NAME } from "./auth-constants";
 import { assertSameOrigin } from "./csrf";
+import { purgeScopes, scopesForAdminPath } from "./site-cache";
 
 export async function proxyAdminJson(
   request: Request,
   apiPath: string,
   method: "GET" | "POST" | "PATCH" | "DELETE",
-  options?: { bodyText?: string },
 ) {
   const blocked = assertSameOrigin(request);
   if (blocked) return blocked;
@@ -19,9 +19,7 @@ export async function proxyAdminJson(
   }
 
   const body =
-    method === "DELETE" || method === "GET"
-      ? undefined
-      : (options?.bodyText ?? (await request.text()));
+    method === "DELETE" || method === "GET" ? undefined : await request.text();
   const res = await fetch(`${apiBaseUrl()}${apiPath}`, {
     method,
     headers: {
@@ -37,5 +35,11 @@ export async function proxyAdminJson(
   if (res.status === 401 || res.status === 403) {
     return NextResponse.json({ message: "یافت نشد." }, { status: 404 });
   }
-  return NextResponse.json(data, { status: res.status });
+
+  const headers = new Headers();
+  if (res.ok && method !== "GET") {
+    const purged = purgeScopes(scopesForAdminPath(apiPath));
+    if (purged.length) headers.set("x-cache-purged", purged.join(","));
+  }
+  return NextResponse.json(data, { status: res.status, headers });
 }
