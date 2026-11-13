@@ -1,108 +1,63 @@
-# Nginx امن برای DXCode
+# Nginx امن برای DXCode (حالت حداکثری)
 
-این کانفیگ فقط به `127.0.0.1:3000` (وب) و `127.0.0.1:4000` (API) پروکسی می‌کند — همان پورت‌هایی که `docker-compose.prod.yml` روی لوپ‌بک باز می‌کند.
+پروکسی فقط به `127.0.0.1:3000` (وب) و `127.0.0.1:4000` (API).
 
-## حملهٔ Path Traversal
+## Path Traversal
 
-نام حمله: **Path Traversal** / **Directory Traversal** (گاهی «dot-dot-slash»).
-نمونهٔ پیلود: `/static/../../etc/passwd` یا فرم انکودشده `%2e%2e%2f` / `%252e%252e%2f`.
+نام حمله: **Path Traversal** / **Directory Traversal**.  
+بلاک دقیق segment (`/../`، `%2e%2e%2f`، double-encode، …) — نه هر `..` وسط توکن.
 
-حالت دقیق: فقط segmentهای تراورسال (`/../`، انکود `%2e%2e%2f`، double-encode، backslash، null) و probeهای `/etc/passwd` بلاک می‌شوند — نه هر `..` وسط توکن (مثل `a..b`).
-
-## ۱) استک اپ روی سرور
+## نصب / ارتقا روی سرور
 
 ```bash
-cd /opt/htdev   # یا مسیر کلون شما
-cp .env.production.example .env.production
-nano .env.production   # دامنه HTTPS + رمزهای قوی
-
-# الزامی:
-# WEB_ORIGIN / NEXT_PUBLIC_SITE_URL / NEXT_PUBLIC_API_URL / API_PUBLIC_URL = https://...
-# SESSION_SECRET / OTP_PEPPER / INTERNAL_SECURITY_TOKEN ≥ ۲۴ کاراکتر و متفاوت
-# PAYMENT_MOCK_HOOKS=false و SPOTPLAYER_MOCK_HOOKS=false
-# POSTGRES_PASSWORD قوی
-
-pnpm prod:up
-pnpm prod:migrate
-
-curl -s http://127.0.0.1:3000/api/health
-curl -s http://127.0.0.1:4000/health
-```
-
-Postgres و Redis از اینترنت دیده نمی‌شوند (فقط شبکهٔ Docker). فقط وب/API روی لوپ‌بک bind شده‌اند.
-
-## ۲) فایروال (UFW)
-
-```bash
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow OpenSSH
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
-sudo ufw status
-```
-
-پورت‌های `3000` / `4000` / `5432` / `6379` را به اینترنت باز نکنید.
-
-## ۳) نصب Nginx + Certbot
-
-```bash
-sudo apt update
-sudo apt install -y nginx certbot python3-certbot-nginx
+cd ~/HTDev && git pull
 
 sudo mkdir -p /var/www/certbot /var/www/empty /etc/nginx/snippets /etc/nginx/conf.d
+
+sudo cp deploy/nginx/conf.d/dxcode-maps.conf \
+        deploy/nginx/conf.d/dxcode-http.conf /etc/nginx/conf.d/
+
 sudo cp deploy/nginx/snippets/dxcode-proxy.conf \
-        deploy/nginx/snippets/dxcode-security.conf /etc/nginx/snippets/
-sudo cp deploy/nginx/conf.d/dxcode-maps.conf /etc/nginx/conf.d/
-```
+        deploy/nginx/snippets/dxcode-security.conf \
+        deploy/nginx/snippets/dxcode-headers-web.conf \
+        deploy/nginx/snippets/dxcode-headers-api.conf \
+        /etc/nginx/snippets/
 
-`limit_req_zone` / `map` / `upstream` باید داخل بلوک `http { }` باشند. اگر فایل سایت جداست، این‌ها را از `dxcode.conf` به `/etc/nginx/conf.d/` منتقل کنید و فقط `server { }`ها را در `sites-available` بگذارید. `dxcode-maps.conf` را حتماً در `http` لود کنید.
-
-نسخهٔ ساده‌تر برای شروع سریع (گواهی SAN مشترک روی همان leaf):
-
-```bash
-# دامنه را جایگزین کنید — مسیر گواهی هر دو هاست → live/dxcode.ir
+# فقط server{} — zone/upstream در conf.d است
 sudo sed -e 's/YOUR_DOMAIN/dxcode.ir/g' \
          -e 's/YOUR_API_DOMAIN/api.dxcode.ir/g' \
          deploy/nginx/dxcode.conf \
   | sudo tee /etc/nginx/sites-available/dxcode >/dev/null
 
-# اگر ماژول headers-more ندارید:
-sudo sed -i '/more_clear_headers/d' /etc/nginx/sites-available/dxcode
-
 sudo ln -sf /etc/nginx/sites-available/dxcode /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl reload nginx
+
+# اگر ssl_certificate مسیر دیگری دارید اصلاح کنید؛ SAN مشترک → live/dxcode.ir
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-سپس در `.env.production` همهٔ URLها را `https://` کنید، `ENABLE_HSTS=true` بگذارید و استک را ری‌استارت کنید:
+اگر `nginx -t` از duplicate `limit_req_zone` / `upstream` خطا داد، تعریف تکراری را از فایل‌های قدیمی داخل `sites-available` یا `conf.d` حذف کنید.
 
-```bash
-pnpm prod:up
-```
-
-## ۴) چه امنیتی در این کانفیگ هست؟
+## چه چیزهایی سخت شده؟
 
 | مورد | کار |
 |------|-----|
-| Path Traversal (`../` / `%2e%2e`) | بلاک قبل از پروکسی |
-| TLS 1.2/1.3 + HSTS | اجبار HTTPS و جلوگیری از downgrade |
-| فقط پروکسی به 127.0.0.1 | اپ از اینترنت مستقیم در دسترس نیست |
-| `root` خالی برای اپ | جلوگیری از سرو شدن فایل دیسک |
-| `server_tokens off` | پنهان‌کردن نسخه Nginx |
-| Rate limit عمومی/لاگین/API | کاهش brute-force و اسکن |
-| بلاک `.env` / `.git` / wp-admin | قطع probeهای رایج |
-| محدودیت حجم بدنه | کاهش upload abuse |
-| هدرهای امنیتی | XSS/clickjacking mitigation پایه |
+| Path Traversal | maps + security snippet |
+| Method allow-list | وب: GET/HEAD/POST/OPTIONS — API: REST+OPTIONS |
+| Rate limit | عمومی / auth سخت‌تر / API / استاتیک |
+| TLS 1.2/1.3 | بدون session tickets؛ early data خاموش |
+| هدرها | HSTS preload، XFO DENY، بدون CSP ضعیف تکراری |
+| Scanner UA | nikto/sqlmap/nmap/… |
+| Probe paths | `.env` `.git` wp-admin phpmyadmin … |
+| default_server :80 | `444` برای Host ناشناس |
+| Proxy | حذف Server/X-Powered-By، خنثی‌سازی X-Original-URL |
 
-## ۵) نکات واقعی (نه شعار)
+## تست سریع
 
-- Nginx به‌تنهایی جلوی «همهٔ هک» را نمی‌گیرد؛ اپ هم rate-limit، CSRF، و secret قوی دارد.
-- SSH را با کلید قفل کنید؛ ورود پسوردی را ببندید.
-- بکاپ منظم از volumeهای Postgres بگیرید.
-- پنل `/admin` را فقط با حساب OWNER و پسورد قوی نگه دارید.
-- بعد از دیپلوی مسیر خرید + callback درگاه را یک‌بار کامل تست کنید.
-
-جزئیات بیشتر استک: [`docs/DEPLOYMENT.md`](../../docs/DEPLOYMENT.md)
+```bash
+curl -sI https://dxcode.ir | head
+curl -sI -X PUT https://dxcode.ir/          # 405
+curl -sI --path-as-is 'https://dxcode.ir/../../etc/passwd'  # 400/404
+curl -sI 'https://dxcode.ir/.git/HEAD'      # 404
+curl -s https://api.dxcode.ir/health
+```
