@@ -2673,6 +2673,89 @@ code {
   gap: var(--zharfa-space-12);
 }
 
+.cache-purge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 28%, var(--zharfa-border-default));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--zharfa-action-primary) 8%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--zharfa-text-primary) 6%, transparent);
+  color: var(--zharfa-text-secondary);
+  font: inherit;
+  font-size: var(--zharfa-text-14);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.cache-purge:hover:not(:disabled) {
+  color: var(--zharfa-text-primary);
+  background: color-mix(in srgb, var(--zharfa-action-primary) 16%, transparent);
+}
+
+.cache-purge:focus-visible {
+  outline: 2px solid var(--zharfa-action-primary);
+  outline-offset: 2px;
+}
+
+.cache-purge:disabled {
+  cursor: progress;
+}
+
+.cache-purge--loading .cache-purge__icon {
+  animation: cache-purge-sweep 0.9s ease-in-out infinite;
+}
+
+.cache-purge--done {
+  color: var(--zharfa-status-success);
+  border-color: color-mix(in srgb, var(--zharfa-status-success) 45%, transparent);
+}
+
+.cache-purge--error {
+  color: var(--zharfa-status-error);
+  border-color: color-mix(in srgb, var(--zharfa-status-error) 45%, transparent);
+}
+
+@keyframes cache-purge-sweep {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .cache-purge {
+    padding: 0;
+    width: 40px;
+    justify-content: center;
+  }
+
+  .cache-purge__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cache-purge--loading .cache-purge__icon {
+    animation: none;
+  }
+}
+
 .admin-shell__content {
   padding: var(--zharfa-space-32);
   animation: admin-enter 320ms var(--zharfa-motion-medium) both;

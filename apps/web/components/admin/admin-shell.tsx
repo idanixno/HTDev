@@ -12,6 +12,7 @@ import { AdminLiveBadge } from "./live-badge";
 import { ADMIN_MENU, isAdminNavCurrent } from "./admin-nav";
 import { AdminNavIcon } from "./admin-nav-icons";
 import { AdminNavPending } from "./admin-nav-pending";
+import { CachePurgeButton } from "./cache-purge-button";
 
 export function AdminShell({
   displayName,
@@ -187,6 +188,7 @@ export function AdminShell({
             </div>
           </div>
           <div className="admin-shell__top-actions">
+            <CachePurgeButton />
             <ThemeToggle />
             <LogoutButton />
           </div>
