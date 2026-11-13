@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArticleCard } from "../../../components/article-card";
-import { DisinabBadge, DisinabPlate } from "../../../components/disinab";
+import { DisinabPlate } from "../../../components/disinab";
 import { fetchArticles } from "../../../lib/catalog";
 import { buildPageMetadata } from "../../../lib/seo";
 
@@ -48,33 +48,30 @@ export default async function JournalPage({
                 مقالات{" "}
                 <span className="dx-wordmark dx-wordmark--inline">DXCode</span>
               </h1>
-              <DisinabBadge tone="accent">
-                {visible.length.toLocaleString("fa-IR")} مقاله
-              </DisinabBadge>
+              <form
+                className="catalog-search disinab-journal__search"
+                action="/journal"
+                method="get"
+                role="search"
+              >
+                <label className="visually-hidden" htmlFor="journal-search">
+                  جستجوی مقاله
+                </label>
+                <input
+                  id="journal-search"
+                  name="q"
+                  type="search"
+                  defaultValue={query}
+                  placeholder="جستجو در عنوان مقاله"
+                  autoComplete="off"
+                  maxLength={100}
+                />
+                <button type="submit">جستجو</button>
+              </form>
             </div>
             <p className="disinab__line">
               نوشته‌های کوتاه، قبل از باز کردن دوره.
             </p>
-            <form
-              className="catalog-search disinab-journal__search"
-              action="/journal"
-              method="get"
-              role="search"
-            >
-              <label className="visually-hidden" htmlFor="journal-search">
-                جستجوی مقاله
-              </label>
-              <input
-                id="journal-search"
-                name="q"
-                type="search"
-                defaultValue={query}
-                placeholder="جستجو در عنوان مقاله"
-                autoComplete="off"
-                maxLength={100}
-              />
-              <button type="submit">جستجو</button>
-            </form>
           </div>
         </div>
       </DisinabPlate>

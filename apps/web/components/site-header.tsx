@@ -36,9 +36,6 @@ export async function SiteHeader() {
             ) : (
               <span className="site-brand__name">{chrome.brandName}</span>
             )}
-            {chrome.brandTagline ? (
-              <span className="site-brand__tag">{chrome.brandTagline}</span>
-            ) : null}
           </span>
         </Link>
 

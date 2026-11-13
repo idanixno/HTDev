@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CatalogFilters } from "../../../components/catalog-filters";
 import { CourseCardLink } from "../../../components/course-card-link";
-import { DisinabBadge, DisinabPlate } from "../../../components/disinab";
+import { DisinabPlate } from "../../../components/disinab";
 import { fetchCategories, fetchCourses } from "../../../lib/catalog";
 import { buildPageMetadata } from "../../../lib/seo";
 import { ownedCourseSlugs } from "../../../lib/enrollment";
@@ -166,9 +166,6 @@ export default async function CoursesPage({
                   جستجو در عنوان و خلاصه، فیلتر با قلمرو و وضعیت.
                 </p>
               </div>
-              <DisinabBadge tone="accent">
-                {result.total.toLocaleString("fa-IR")} نتیجه
-              </DisinabBadge>
             </div>
           </div>
 

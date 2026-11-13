@@ -68,14 +68,6 @@ export default async function HomePage() {
             <p className="dx-hero__lead">
               دانش فناوری را عمیق یاد بگیر، واقعی بساز و حرفه‌ای رشد کن.
             </p>
-            <div className="dx-hero__actions">
-              <Link className="dx-hero__cta" href="/courses">
-                شروع یادگیری
-              </Link>
-              <Link className="dx-hero__ghost" href="/paths">
-                نقشهٔ راه
-              </Link>
-            </div>
             <form className="dx-hero__search" action="/courses" method="get">
               <label className="visually-hidden" htmlFor="home-search">
                 جستجوی دوره
@@ -118,32 +110,30 @@ export default async function HomePage() {
         </ul>
       </section>
 
-      <section
-        className="home-section disinab-home-catalog"
-        aria-labelledby="newest-heading"
-      >
-        <DisinabPlate className="disinab-home-catalog__plate">
-          <header className="home-section__head disinab-home-catalog__head">
-            <div className="home-section__top disinab-home-catalog__top">
-              <div>
-                <h2 id="newest-heading">تازه‌ترین دوره‌ها</h2>
-                <p className="disinab__line">
-                  تازه‌ترین انتشارها برای شروع عمیق.
-                </p>
+      {newest.items.length > 0 ? (
+        <section
+          className="home-section disinab-home-catalog"
+          aria-labelledby="newest-heading"
+        >
+          <DisinabPlate className="disinab-home-catalog__plate">
+            <header className="home-section__head disinab-home-catalog__head">
+              <div className="home-section__top disinab-home-catalog__top">
+                <div>
+                  <h2 id="newest-heading">تازه‌ترین دوره‌ها</h2>
+                  <p className="disinab__line">
+                    تازه‌ترین انتشارها برای شروع عمیق.
+                  </p>
+                </div>
+                <div className="disinab-home-catalog__actions">
+                  <Link
+                    className="home-section__more disinab-home-catalog__more"
+                    href="/courses?sort=newest"
+                  >
+                    همه دوره‌ها
+                  </Link>
+                </div>
               </div>
-              <div className="disinab-home-catalog__actions">
-                <Link
-                  className="home-section__more disinab-home-catalog__more"
-                  href="/courses?sort=newest"
-                >
-                  همه دوره‌ها
-                </Link>
-              </div>
-            </div>
-          </header>
-          {newest.items.length === 0 ? (
-            <p className="empty-note">دورهٔ منتشرشده‌ای در دسترس نیست.</p>
-          ) : (
+            </header>
             <ul className="home-grid disinab-home-catalog__grid">
               {newest.items.map((course, index) => (
                 <li
@@ -157,36 +147,34 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
-          )}
-        </DisinabPlate>
-      </section>
+          </DisinabPlate>
+        </section>
+      ) : null}
 
-      <section
-        className="home-section disinab-home-paths"
-        aria-labelledby="paths-heading"
-      >
-        <DisinabPlate className="disinab-home-paths__plate">
-          <header className="home-section__head disinab-home-paths__head">
-            <div className="home-section__top disinab-home-paths__top">
-              <div>
-                <h2 id="paths-heading">نقشهٔ راه</h2>
-                <p className="disinab__line">
-                  ترتیب پیشنهادی است، نه اشتراک و نه خرید اجباری بقیهٔ مسیر.
-                </p>
+      {paths.length > 0 ? (
+        <section
+          className="home-section disinab-home-paths"
+          aria-labelledby="paths-heading"
+        >
+          <DisinabPlate className="disinab-home-paths__plate">
+            <header className="home-section__head disinab-home-paths__head">
+              <div className="home-section__top disinab-home-paths__top">
+                <div>
+                  <h2 id="paths-heading">نقشهٔ راه</h2>
+                  <p className="disinab__line">
+                    ترتیب پیشنهادی است، نه اشتراک و نه خرید اجباری بقیهٔ مسیر.
+                  </p>
+                </div>
+                <div className="disinab-home-paths__actions">
+                  <Link
+                    className="home-section__more disinab-home-paths__more"
+                    href="/paths"
+                  >
+                    همه مسیرها
+                  </Link>
+                </div>
               </div>
-              <div className="disinab-home-paths__actions">
-                <Link
-                  className="home-section__more disinab-home-paths__more"
-                  href="/paths"
-                >
-                  همه مسیرها
-                </Link>
-              </div>
-            </div>
-          </header>
-          {paths.length === 0 ? (
-            <p className="empty-note">مسیر منتشرشده‌ای در دسترس نیست.</p>
-          ) : (
+            </header>
             <ul className="home-path-rail disinab-home-paths__rail">
               {paths.slice(0, 3).map((path, index) => (
                 <li
@@ -234,36 +222,34 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
-          )}
-        </DisinabPlate>
-      </section>
+          </DisinabPlate>
+        </section>
+      ) : null}
 
-      <section
-        className="home-section home-section--notes disinab-home-notes"
-        aria-labelledby="notes-heading"
-      >
-        <DisinabPlate className="disinab-home-notes__plate">
-          <header className="home-section__head disinab-home-notes__head">
-            <div className="home-section__top disinab-home-notes__top">
-              <div>
-                <h2 id="notes-heading">مقالات</h2>
-                <p className="disinab__line">
-                  یادداشت‌های کوتاه برای تصمیم‌های مهندسی، پرداخت و دسترسی.
-                </p>
+      {notes.length > 0 ? (
+        <section
+          className="home-section home-section--notes disinab-home-notes"
+          aria-labelledby="notes-heading"
+        >
+          <DisinabPlate className="disinab-home-notes__plate">
+            <header className="home-section__head disinab-home-notes__head">
+              <div className="home-section__top disinab-home-notes__top">
+                <div>
+                  <h2 id="notes-heading">مقالات</h2>
+                  <p className="disinab__line">
+                    یادداشت‌های کوتاه برای تصمیم‌های مهندسی، پرداخت و دسترسی.
+                  </p>
+                </div>
+                <div className="disinab-home-notes__actions">
+                  <Link
+                    className="home-section__more disinab-home-notes__more"
+                    href="/journal"
+                  >
+                    همه مقالات
+                  </Link>
+                </div>
               </div>
-              <div className="disinab-home-notes__actions">
-                <Link
-                  className="home-section__more disinab-home-notes__more"
-                  href="/journal"
-                >
-                  همه مقالات
-                </Link>
-              </div>
-            </div>
-          </header>
-          {notes.length === 0 ? (
-            <p className="empty-note">مقاله منتشرشده‌ای در دسترس نیست.</p>
-          ) : (
+            </header>
             <ul className="note-grid disinab-home-notes__grid">
               {notes.map((article, index) => (
                 <li key={article.id}>
@@ -271,9 +257,9 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
-          )}
-        </DisinabPlate>
-      </section>
+          </DisinabPlate>
+        </section>
+      ) : null}
     </>
   );
 }
