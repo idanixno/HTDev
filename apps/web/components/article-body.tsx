@@ -4,6 +4,7 @@ import {
   type Block,
   type Inline,
 } from "../lib/article-markdown";
+import { ArticleCodeBlock } from "./article-code-block";
 
 function Inlines({ items }: { items: Inline[] }) {
   return items.map((item, index) => {
@@ -72,14 +73,7 @@ function BlockView({
     );
   }
   if (block.type === "code") {
-    return (
-      <div className="article-body__code">
-        {block.lang ? <p className="article-body__lang">{block.lang}</p> : null}
-        <pre>
-          <code dir="ltr">{block.text}</code>
-        </pre>
-      </div>
-    );
+    return <ArticleCodeBlock lang={block.lang} text={block.text} />;
   }
   if (block.type === "image") {
     return (
