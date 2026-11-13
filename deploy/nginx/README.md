@@ -43,7 +43,7 @@ sudo nginx -t && sudo systemctl reload nginx
 | مورد | کار |
 |------|-----|
 | Path Traversal | maps + security snippet |
-| Method allow-list | وب: GET/HEAD/POST/OPTIONS — API: REST+OPTIONS |
+| Method allow-list | وب: GET/HEAD/POST/PUT/PATCH/DELETE/OPTIONS (BFF) — API: REST+OPTIONS |
 | Rate limit | عمومی / auth سخت‌تر / API / استاتیک |
 | TLS 1.2/1.3 | بدون session tickets؛ early data خاموش |
 | هدرها | HSTS preload، XFO DENY، بدون CSP ضعیف تکراری |
