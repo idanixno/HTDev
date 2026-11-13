@@ -34,6 +34,13 @@ export class ListCoursesQueryDto {
   @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
   category?: string;
 
+  /** Topic hub slug — courses linked via CourseTopic (published topics only). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
+  topic?: string;
+
   @IsOptional()
   @IsEnum(CourseOfferKind)
   offer?: CourseOfferKind;

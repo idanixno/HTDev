@@ -106,7 +106,12 @@ export class AdminController {
 
   @Post("courses")
   createCourse(@Req() req: AuthedRequest, @Body() body: UpsertCourseDto) {
-    return this.admin.upsertCourse(req.user!.id, body);
+    return this.admin.upsertCourse(
+      req.user!.id,
+      body,
+      undefined,
+      Object.keys((req.body ?? {}) as object),
+    );
   }
 
   @Patch("courses/:id")
@@ -115,7 +120,12 @@ export class AdminController {
     @Param("id") id: string,
     @Body() body: UpsertCourseDto,
   ) {
-    return this.admin.upsertCourse(req.user!.id, body, id);
+    return this.admin.upsertCourse(
+      req.user!.id,
+      body,
+      id,
+      Object.keys((req.body ?? {}) as object),
+    );
   }
 
   @Delete("courses/:id")
@@ -354,7 +364,12 @@ export class AdminController {
 
   @Post("articles")
   createArticle(@Req() req: AuthedRequest, @Body() body: UpsertArticleDto) {
-    return this.admin.upsertArticle(req.user!.id, body);
+    return this.admin.upsertArticle(
+      req.user!.id,
+      body,
+      undefined,
+      Object.keys((req.body ?? {}) as object),
+    );
   }
 
   @Patch("articles/:id")
@@ -363,7 +378,12 @@ export class AdminController {
     @Param("id") id: string,
     @Body() body: UpsertArticleDto,
   ) {
-    return this.admin.upsertArticle(req.user!.id, body, id);
+    return this.admin.upsertArticle(
+      req.user!.id,
+      body,
+      id,
+      Object.keys((req.body ?? {}) as object),
+    );
   }
 
   @Delete("articles/:id")

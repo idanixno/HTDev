@@ -177,6 +177,14 @@ export class UpsertCourseDto {
   @IsOptional()
   @IsBoolean()
   noIndex?: boolean;
+
+  /** Replace CourseTopic links when this key is present (including empty array). */
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @ArrayMaxSize(100)
+  @IsString({ each: true })
+  topicIds?: string[];
 }
 
 export class UpsertCouponDto {
@@ -333,6 +341,14 @@ export class UpsertArticleDto {
   @IsOptional()
   @IsInt()
   sortOrder?: number;
+
+  /** Replace JournalTopic links when this key is present (including empty array). */
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @ArrayMaxSize(100)
+  @IsString({ each: true })
+  topicIds?: string[];
 }
 
 export class UpsertModuleDto {

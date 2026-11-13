@@ -68,6 +68,16 @@ export class CatalogService {
     if (query.category) {
       where.category = { slug: query.category };
     }
+    if (query.topic) {
+      where.topicLinks = {
+        some: {
+          topic: {
+            slug: query.topic,
+            status: TopicPublicationStatus.PUBLISHED,
+          },
+        },
+      };
+    }
     if (query.offer) {
       where.offerKind = query.offer;
     }
@@ -125,6 +135,12 @@ export class CatalogService {
       include: {
         category: true,
         spotPlayerMapping: { select: { enabled: true } },
+        topicLinks: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            topic: { select: { slug: true, name: true, status: true } },
+          },
+        },
         modules: {
           orderBy: { sortOrder: "asc" },
           include: {
@@ -458,11 +474,29 @@ export class CatalogService {
   async getArticleBySlug(slug: string) {
     const article = await this.prisma.article.findFirst({
       where: { slug, published: true },
+      include: {
+        topicLinks: {
+          orderBy: { sortOrder: "asc" },
+          where: {
+            topic: { status: TopicPublicationStatus.PUBLISHED },
+          },
+          include: {
+            topic: { select: { slug: true, name: true } },
+          },
+        },
+      },
     });
     if (!article) {
       throw new NotFoundException("مقاله یافت نشد.");
     }
-    return toPublicArticle(article);
+    return {
+      ...toPublicArticle(article),
+      topics: article.topicLinks.map((link) => ({
+        slug: link.topic.slug,
+        name: link.topic.name,
+        href: `/topics/${link.topic.slug}`,
+      })),
+    };
   }
 
   /** Published + indexable topics for sitemap / index. */

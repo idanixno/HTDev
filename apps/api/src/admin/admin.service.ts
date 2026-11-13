@@ -120,12 +120,24 @@ export class AdminService {
     };
   }
 
-  async upsertCourse(actorId: string, dto: UpsertCourseDto, id?: string) {
+  async upsertCourse(
+    actorId: string,
+    dto: UpsertCourseDto,
+    id?: string,
+    providedKeys?: string[],
+  ) {
     this.assertCoursePricing(dto);
     const existing = id
       ? await this.prisma.course.findUnique({ where: { id } })
       : null;
     if (id && !existing) throw new NotFoundException("دوره یافت نشد.");
+
+    const keys = new Set(
+      providedKeys ??
+        Object.keys(dto as object).concat(id ? [] : ["topicIds"]),
+    );
+    const has = (key: string) => keys.has(key);
+
     const data = {
       slug: dto.slug.trim().toLowerCase(),
       title: dto.title.trim(),
@@ -145,16 +157,22 @@ export class AdminService {
           ? null
           : new Prisma.Decimal(dto.durationHours),
       lessonCount: dto.lessonCount ?? existing?.lessonCount ?? 0,
-      featured: dto.featured ?? false,
-      sortOrder: dto.sortOrder ?? 0,
+      featured: has("featured")
+        ? (dto.featured ?? false)
+        : (existing?.featured ?? false),
+      sortOrder: has("sortOrder")
+        ? (dto.sortOrder ?? 0)
+        : (existing?.sortOrder ?? 0),
       coverAsset: dto.coverAsset ?? null,
       previewAsset: this.cleanVideoAsset(dto.previewAsset),
       indexLabel: dto.indexLabel ?? null,
-      diagramKind: dto.diagramKind,
+      diagramKind: dto.diagramKind ?? existing?.diagramKind,
       seoTitle: dto.seoTitle?.trim() || null,
       seoDescription: dto.seoDescription?.trim() || null,
       ogImage: dto.ogImage?.trim() || null,
-      noIndex: dto.noIndex ?? false,
+      noIndex: has("noIndex")
+        ? (dto.noIndex ?? false)
+        : (existing?.noIndex ?? false),
       publishedAt:
         dto.publicationStatus === CoursePublicationStatus.PUBLISHED
           ? (existing?.publishedAt ?? new Date())
@@ -163,9 +181,28 @@ export class AdminService {
 
     const previousOffer = existing?.offerKind ?? null;
     const course = await this.writeUnique(async () =>
-      id
-        ? this.prisma.course.update({ where: { id }, data })
-        : this.prisma.course.create({ data }),
+      this.prisma.$transaction(async (tx) => {
+        if (has("topicIds")) {
+          await this.assertTopicIdsExist(dto.topicIds ?? [], tx);
+        }
+        const row = id
+          ? await tx.course.update({ where: { id }, data })
+          : await tx.course.create({ data });
+        if (has("topicIds")) {
+          await tx.courseTopic.deleteMany({ where: { courseId: row.id } });
+          const topicIds = dto.topicIds ?? [];
+          if (topicIds.length) {
+            await tx.courseTopic.createMany({
+              data: topicIds.map((topicId, index) => ({
+                courseId: row.id,
+                topicId,
+                sortOrder: index,
+              })),
+            });
+          }
+        }
+        return row;
+      }),
     );
 
     await this.audit.record({
@@ -180,6 +217,7 @@ export class AdminService {
         slug: course.slug,
         publicationStatus: course.publicationStatus,
         offerKind: course.offerKind,
+        topicCount: has("topicIds") ? (dto.topicIds?.length ?? 0) : undefined,
       },
     });
 
@@ -229,6 +267,20 @@ export class AdminService {
       where: { id },
       include: {
         category: true,
+        topicLinks: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            topic: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                status: true,
+                parentTopicId: true,
+              },
+            },
+          },
+        },
         modules: {
           orderBy: { sortOrder: "asc" },
           include: { lessons: { orderBy: { sortOrder: "asc" } } },
@@ -279,6 +331,14 @@ export class AdminService {
       seoDescription: course.seoDescription,
       ogImage: course.ogImage,
       noIndex: course.noIndex,
+      topicIds: course.topicLinks.map((link) => link.topicId),
+      topics: course.topicLinks.map((link) => ({
+        id: link.topic.id,
+        name: link.topic.name,
+        slug: link.topic.slug,
+        status: link.topic.status,
+        parentTopicId: link.topic.parentTopicId,
+      })),
       modules: course.modules.map((mod) => ({
         id: mod.id,
         title: mod.title,
@@ -434,7 +494,25 @@ export class AdminService {
   }
 
   async getArticle(id: string) {
-    const article = await this.prisma.article.findUnique({ where: { id } });
+    const article = await this.prisma.article.findUnique({
+      where: { id },
+      include: {
+        topicLinks: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            topic: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                status: true,
+                parentTopicId: true,
+              },
+            },
+          },
+        },
+      },
+    });
     if (!article) throw new NotFoundException("مقاله یافت نشد.");
     return {
       id: article.id,
@@ -450,15 +528,37 @@ export class AdminService {
       published: article.published,
       readingMinutes: article.readingMinutes,
       sortOrder: article.sortOrder,
+      topicIds: article.topicLinks.map((link) => link.topicId),
+      topics: article.topicLinks.map((link) => ({
+        id: link.topic.id,
+        name: link.topic.name,
+        slug: link.topic.slug,
+        status: link.topic.status,
+        parentTopicId: link.topic.parentTopicId,
+      })),
     };
   }
 
-  async upsertArticle(actorId: string, dto: UpsertArticleDto, id?: string) {
+  async upsertArticle(
+    actorId: string,
+    dto: UpsertArticleDto,
+    id?: string,
+    providedKeys?: string[],
+  ) {
     const existing = id
       ? await this.prisma.article.findUnique({ where: { id } })
       : null;
     if (id && !existing) throw new NotFoundException("مقاله یافت نشد.");
-    const published = dto.published ?? false;
+
+    const keys = new Set(
+      providedKeys ??
+        Object.keys(dto as object).concat(id ? [] : ["topicIds"]),
+    );
+    const has = (key: string) => keys.has(key);
+
+    const published = has("published")
+      ? (dto.published ?? false)
+      : (existing?.published ?? false);
     const blank = (value?: string | null) => {
       const trimmed = value?.trim();
       return trimmed ? trimmed : null;
@@ -472,16 +572,41 @@ export class AdminService {
       seoTitle: blank(dto.seoTitle),
       seoDescription: blank(dto.seoDescription),
       ogImage: blank(dto.ogImage),
-      noIndex: dto.noIndex ?? false,
+      noIndex: has("noIndex")
+        ? (dto.noIndex ?? false)
+        : (existing?.noIndex ?? false),
       published,
       publishedAt: published ? (existing?.publishedAt ?? new Date()) : null,
-      readingMinutes: dto.readingMinutes ?? null,
-      sortOrder: dto.sortOrder ?? 0,
+      readingMinutes: has("readingMinutes")
+        ? (dto.readingMinutes ?? null)
+        : (existing?.readingMinutes ?? null),
+      sortOrder: has("sortOrder")
+        ? (dto.sortOrder ?? 0)
+        : (existing?.sortOrder ?? 0),
     };
     const article = await this.writeUnique(async () =>
-      id
-        ? this.prisma.article.update({ where: { id }, data })
-        : this.prisma.article.create({ data }),
+      this.prisma.$transaction(async (tx) => {
+        if (has("topicIds")) {
+          await this.assertTopicIdsExist(dto.topicIds ?? [], tx);
+        }
+        const row = id
+          ? await tx.article.update({ where: { id }, data })
+          : await tx.article.create({ data });
+        if (has("topicIds")) {
+          await tx.journalTopic.deleteMany({ where: { articleId: row.id } });
+          const topicIds = dto.topicIds ?? [];
+          if (topicIds.length) {
+            await tx.journalTopic.createMany({
+              data: topicIds.map((topicId, index) => ({
+                articleId: row.id,
+                topicId,
+                sortOrder: index,
+              })),
+            });
+          }
+        }
+        return row;
+      }),
     );
     await this.audit.record({
       actorId,
@@ -491,7 +616,11 @@ export class AdminService {
       summary: id
         ? `به‌روزرسانی مقاله «${article.title}»`
         : `ایجاد مقاله «${article.title}»`,
-      metadata: { slug: article.slug, published: article.published },
+      metadata: {
+        slug: article.slug,
+        published: article.published,
+        topicCount: has("topicIds") ? (dto.topicIds?.length ?? 0) : undefined,
+      },
     });
     return { id: article.id, slug: article.slug, title: article.title };
   }
@@ -1128,6 +1257,19 @@ export class AdminService {
     });
     if (count !== ids.length) {
       throw new BadRequestException("یکی از شناسه‌های مقاله نامعتبر است.");
+    }
+  }
+
+  private async assertTopicIdsExist(
+    ids: string[],
+    db: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    if (!ids.length) return;
+    const count = await db.topic.count({
+      where: { id: { in: ids } },
+    });
+    if (count !== ids.length) {
+      throw new BadRequestException("یکی از شناسه‌های موضوع نامعتبر است.");
     }
   }
 

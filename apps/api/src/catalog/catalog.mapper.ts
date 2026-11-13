@@ -76,6 +76,12 @@ export type PublicCoursePurchaseNoteDto = {
   scope: "global" | "course";
 };
 
+export type PublicTopicRefDto = {
+  slug: string;
+  name: string;
+  href: string;
+};
+
 export type PublicCourseDetailDto = PublicCourseCardDto & {
   description: string | null;
   /** Public intro/preview video for the course hero (optional). */
@@ -89,6 +95,8 @@ export type PublicCourseDetailDto = PublicCourseCardDto & {
   modules: PublicModuleDto[];
   /** Merged global + exclusive «قبل از خرید» notes. */
   purchaseNotes: PublicCoursePurchaseNoteDto[];
+  /** Published topic hubs linked via CourseTopic. */
+  topics: PublicTopicRefDto[];
 };
 
 export type PublicPathStepDto = {
@@ -192,6 +200,9 @@ export function toPublicCourseDetail(
   course: CourseWithCategory & {
     modules: (CurriculumModule & { lessons: Lesson[] })[];
     spotPlayerMapping?: { enabled: boolean } | null;
+    topicLinks?: Array<{
+      topic: { slug: string; name: string; status: string };
+    }>;
   },
   purchaseNotes: PublicCoursePurchaseNoteDto[] = [],
 ): PublicCourseDetailDto {
@@ -200,6 +211,13 @@ export function toPublicCourseDetail(
   const spotPlayerProtected =
     course.offerKind !== CourseOfferKind.FREE &&
     Boolean(course.spotPlayerMapping?.enabled);
+  const topics = (course.topicLinks ?? [])
+    .filter((link) => link.topic.status === "PUBLISHED")
+    .map((link) => ({
+      slug: link.topic.slug,
+      name: link.topic.name,
+      href: `/topics/${link.topic.slug}`,
+    }));
   return {
     ...toPublicCourseCard(course),
     description: course.description,
@@ -226,6 +244,7 @@ export function toPublicCourseDetail(
       }),
     })),
     purchaseNotes,
+    topics,
   };
 }
 
