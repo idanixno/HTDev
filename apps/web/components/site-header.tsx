@@ -18,13 +18,16 @@ export async function SiteHeader() {
   return (
     <header className="site-header disinab-header">
       <div className="site-header__inner disinab-header__bar">
-        <HeaderAccount
-          guestHref={chrome.guestCtaHref}
-          guestLabel={chrome.guestCtaLabel}
-          authedHref={chrome.authedCtaHref}
-          authedLabel={chrome.authedCtaLabel}
-          authed={authed}
-        />
+        <div className="disinab-header__leading">
+          <HeaderAccount
+            guestHref={chrome.guestCtaHref}
+            guestLabel={chrome.guestCtaLabel}
+            authedHref={chrome.authedCtaHref}
+            authedLabel={chrome.authedCtaLabel}
+            authed={authed}
+          />
+          <ThemeToggle />
+        </div>
 
         <Link href="/" className="site-brand disinab-header__brand">
           <span className="disinab-header__mark" aria-hidden="true">
@@ -42,7 +45,6 @@ export async function SiteHeader() {
         <SiteHeaderNav links={chrome.headerLinks} />
 
         <div className="site-header__actions disinab-header__actions">
-          {chrome.showThemeToggle ? <ThemeToggle /> : null}
           <MobileNav
             groups={chrome.mobileGroups}
             brandName={chrome.brandName}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { JetBrains_Mono, Orbitron, Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
 import { buildPageMetadata, siteMetadataBase } from "../lib/seo";
 import "./globals.css";
 
@@ -111,6 +112,7 @@ export default function RootLayout({
       dir="rtl"
       data-theme="dark"
       className={`${iranSans.variable} ${iranSans.className} ${orbitron.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
     >
       <body
         style={
@@ -123,6 +125,9 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
+        <Script id="zharfa-theme-init" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem("zharfa-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();`}
+        </Script>
         {children}
       </body>
     </html>

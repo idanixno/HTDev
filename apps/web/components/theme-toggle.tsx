@@ -45,7 +45,23 @@ function MoonIcon() {
 
 function applyTheme(next: Theme) {
   document.documentElement.setAttribute("data-theme", next);
-  window.localStorage.setItem("zharfa-theme", next);
+  try {
+    window.localStorage.setItem("zharfa-theme", next);
+  } catch {
+    /* private mode */
+  }
+}
+
+function readTheme(): Theme {
+  const attr = document.documentElement.getAttribute("data-theme");
+  if (attr === "light" || attr === "dark") return attr;
+  try {
+    return window.localStorage.getItem("zharfa-theme") === "light"
+      ? "light"
+      : "dark";
+  } catch {
+    return "dark";
+  }
 }
 
 function prefersReducedMotion() {
@@ -56,18 +72,20 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("zharfa-theme");
-    const next: Theme = stored === "light" ? "light" : "dark";
-    setTheme(next);
-    document.documentElement.setAttribute("data-theme", next);
+    const current = readTheme();
+    setTheme(current);
+    applyTheme(current);
   }, []);
 
   function toggle(event: MouseEvent<HTMLButtonElement>) {
-    const next: Theme = theme === "dark" ? "light" : "dark";
+    // Always flip from the live DOM theme — avoids stale React state / double-click.
+    const current = readTheme();
+    const next: Theme = current === "dark" ? "light" : "dark";
     const root = document.documentElement;
+
     const commit = () => {
-      setTheme(next);
       applyTheme(next);
+      setTheme(next);
     };
 
     if (prefersReducedMotion()) {
@@ -89,11 +107,18 @@ export function ThemeToggle() {
 
     const startViewTransition = document.startViewTransition?.bind(document);
     if (startViewTransition) {
-      const transition = startViewTransition(commit);
-      void transition.finished.finally(() => {
+      try {
+        const transition = startViewTransition(commit);
+        void transition.finished.finally(() => {
+          delete root.dataset.themeTo;
+          setTheme(readTheme());
+        });
+        return;
+      } catch {
+        commit();
         delete root.dataset.themeTo;
-      });
-      return;
+        return;
+      }
     }
 
     root.classList.add("is-theme-switching");
