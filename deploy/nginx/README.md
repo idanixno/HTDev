@@ -7,7 +7,7 @@
 نام حمله: **Path Traversal** / **Directory Traversal** (گاهی «dot-dot-slash»).
 نمونهٔ پیلود: `/static/../../etc/passwd` یا فرم انکودشده `%2e%2e%2f` / `%252e%252e%2f`.
 
-کانفیگ DXCode با `conf.d/dxcode-maps.conf` + `snippets/dxcode-security.conf` این الگوها را قبل از پروکسی `404` می‌کند، `root` اپ را خالی می‌گذارد (فقط proxy)، و فایل‌های حساس/اسکنر را بلاک می‌کند.
+حالت سخت‌گیر: هر `..` در URI خام، مسیر نرمال‌شده، یا query؛ به‌علاوه `%2e%2e`، double-encode، null/CRLF، backslash و probeهای `/etc/passwd` قبل از پروکسی `404` می‌شوند.
 
 ## ۱) استک اپ روی سرور
 
