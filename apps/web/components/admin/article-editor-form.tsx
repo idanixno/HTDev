@@ -7,6 +7,10 @@ import { authFetch } from "../../lib/api-client";
 import { AssetImageField } from "./asset-image-field";
 import { MarkdownEditor } from "./markdown-editor";
 import { SeoAssistantPanel } from "./seo-assistant-panel";
+import {
+  TopicMultiSelect,
+  type TopicOption,
+} from "./topic-multi-select";
 
 export type ArticleEditorInitial = {
   slug: string;
@@ -21,6 +25,7 @@ export type ArticleEditorInitial = {
   published: boolean;
   readingMinutes: string;
   sortOrder: string;
+  topicIds: string[];
 };
 
 const EMPTY: ArticleEditorInitial = {
@@ -36,19 +41,23 @@ const EMPTY: ArticleEditorInitial = {
   published: false,
   readingMinutes: "",
   sortOrder: "0",
+  topicIds: [],
 };
 
 export function ArticleEditorForm({
   articleId,
   initial,
+  topicOptions = [],
 }: {
   articleId?: string;
   initial?: Partial<ArticleEditorInitial>;
+  topicOptions?: TopicOption[];
 }) {
   const router = useRouter();
   const [values, setValues] = useState<ArticleEditorInitial>({
     ...EMPTY,
     ...initial,
+    topicIds: initial?.topicIds ?? EMPTY.topicIds,
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -98,6 +107,7 @@ export function ArticleEditorForm({
             published: values.published,
             readingMinutes: minutes ? Number(minutes) : null,
             sortOrder: Number(values.sortOrder || 0),
+            topicIds: values.topicIds,
           }),
         },
       );
@@ -254,6 +264,13 @@ export function ArticleEditorForm({
           value={values.sortOrder}
           onChange={(e) => patch({ sortOrder: e.target.value })}
         />
+        <div className="editor-form__wide">
+          <TopicMultiSelect
+            options={topicOptions}
+            value={values.topicIds}
+            onChange={(topicIds) => patch({ topicIds })}
+          />
+        </div>
         <label className="editor-check">
           <input
             type="checkbox"

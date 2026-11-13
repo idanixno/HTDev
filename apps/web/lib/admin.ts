@@ -117,6 +117,14 @@ export type AdminCourseDraft = {
   seoDescription: string | null;
   ogImage: string | null;
   noIndex: boolean;
+  topicIds?: string[];
+  topics?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+    parentTopicId: string | null;
+  }>;
   modules: Array<{
     id: string;
     title: string;
@@ -154,6 +162,14 @@ export type AdminArticleDraft = {
   published: boolean;
   readingMinutes: number | null;
   sortOrder: number;
+  topicIds?: string[];
+  topics?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+    parentTopicId: string | null;
+  }>;
 };
 
 export async function fetchAdminArticles() {
@@ -289,15 +305,31 @@ export async function fetchAdminTopics(query?: {
   q?: string;
   status?: string;
   page?: number;
+  pageSize?: number;
 }) {
   const qs = new URLSearchParams();
   if (query?.q) qs.set("q", query.q);
   if (query?.status) qs.set("status", query.status);
   if (query?.page) qs.set("page", String(query.page));
+  if (query?.pageSize) qs.set("pageSize", String(query.pageSize));
   const suffix = qs.toString() ? `?${qs}` : "";
   return adminFetch<AdminListResult<AdminTopicListItem>>(
     `/admin/topics${suffix}`,
   );
+}
+
+/** All admin topics (paginated under the hood) for selectors. */
+export async function fetchAdminTopicOptions() {
+  const pageSize = 100;
+  const first = await fetchAdminTopics({ page: 1, pageSize });
+  if (!first) return null;
+  const items = [...first.items];
+  for (let page = 2; page <= first.totalPages; page += 1) {
+    const next = await fetchAdminTopics({ page, pageSize });
+    if (!next) break;
+    items.push(...next.items);
+  }
+  return items;
 }
 
 export async function fetchAdminTopic(id: string) {

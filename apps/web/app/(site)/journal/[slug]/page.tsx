@@ -129,6 +129,17 @@ export default async function ArticlePage({ params }: { params: Params }) {
             {article.summary}
           </p>
         ) : null}
+        {(article.topics?.length ?? 0) > 0 ? (
+          <ul className="topic-chip-row" aria-label="موضوعات مرتبط">
+            {article.topics!.map((topic) => (
+              <li key={topic.slug}>
+                <Link href={topic.href} className="topic-chip">
+                  {topic.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
         <ul className="reading__byline" aria-label="اطلاعات انتشار">
           <li>

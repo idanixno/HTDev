@@ -68,6 +68,12 @@ export type PublicCoursePurchaseNote = {
   scope: "global" | "course";
 };
 
+export type PublicTopicRef = {
+  slug: string;
+  name: string;
+  href: string;
+};
+
 export type PublicCourseDetail = PublicCourseCard & {
   description: string | null;
   previewAsset: string | null;
@@ -75,6 +81,7 @@ export type PublicCourseDetail = PublicCourseCard & {
   publishedAt: string | null;
   modules: PublicCourseModule[];
   purchaseNotes?: PublicCoursePurchaseNote[];
+  topics?: PublicTopicRef[];
 };
 
 export type PublicCategory = {
@@ -215,11 +222,13 @@ export type PublicArticle = PublicArticleCard & {
   ogImage: string | null;
   noIndex: boolean;
   updatedAt?: string | null;
+  topics?: PublicTopicRef[];
 };
 
 export async function fetchCourses(params: {
   q?: string;
   category?: string;
+  topic?: string;
   offer?: string;
   level?: string;
   sort?: string;
@@ -229,6 +238,7 @@ export async function fetchCourses(params: {
   const sp = new URLSearchParams();
   if (params.q) sp.set("q", params.q);
   if (params.category) sp.set("category", params.category);
+  if (params.topic) sp.set("topic", params.topic);
   if (params.offer) sp.set("offer", params.offer);
   if (params.level) sp.set("level", params.level);
   if (params.sort && params.sort !== "catalog") sp.set("sort", params.sort);

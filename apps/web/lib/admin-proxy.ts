@@ -7,6 +7,7 @@ export async function proxyAdminJson(
   request: Request,
   apiPath: string,
   method: "GET" | "POST" | "PATCH" | "DELETE",
+  options?: { bodyText?: string },
 ) {
   const blocked = assertSameOrigin(request);
   if (blocked) return blocked;
@@ -18,7 +19,9 @@ export async function proxyAdminJson(
   }
 
   const body =
-    method === "DELETE" || method === "GET" ? undefined : await request.text();
+    method === "DELETE" || method === "GET"
+      ? undefined
+      : (options?.bodyText ?? (await request.text()));
   const res = await fetch(`${apiBaseUrl()}${apiPath}`, {
     method,
     headers: {

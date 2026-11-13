@@ -3,14 +3,16 @@ import { CourseEditorForm } from "../../../../components/admin/course-editor-for
 import { CourseNotesEditor } from "../../../../components/admin/course-notes-editor";
 import { CurriculumEditor } from "../../../../components/admin/curriculum-editor";
 import { fetchAdminCategories, fetchAdminCourse } from "../../../../lib/admin";
+import { loadTopicOptionsForEditors } from "../../../../lib/admin-topic-options";
 
 type Params = Promise<{ id: string }>;
 
 export default async function EditCoursePage({ params }: { params: Params }) {
   const { id } = await params;
-  const [course, categories] = await Promise.all([
+  const [course, categories, topicOptions] = await Promise.all([
     fetchAdminCourse(id),
     fetchAdminCategories(),
+    loadTopicOptionsForEditors(),
   ]);
   if (!course) notFound();
 
@@ -31,6 +33,7 @@ export default async function EditCoursePage({ params }: { params: Params }) {
           id: category.id,
           title: category.title,
         }))}
+        topicOptions={topicOptions}
         initial={{
           slug: course.slug,
           title: course.title,
@@ -55,6 +58,7 @@ export default async function EditCoursePage({ params }: { params: Params }) {
           seoDescription: course.seoDescription ?? "",
           ogImage: course.ogImage ?? "",
           noIndex: course.noIndex ?? false,
+          topicIds: course.topicIds ?? [],
         }}
       />
       <CurriculumEditor course={course} />

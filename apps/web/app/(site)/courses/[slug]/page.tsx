@@ -319,6 +319,17 @@ export default async function CourseDetailPage({
                   </nav>
                   <DisinabBadge tone="accent">{course.statusLabel}</DisinabBadge>
                 </div>
+                {(course.topics?.length ?? 0) > 0 ? (
+                  <ul className="topic-chip-row" aria-label="موضوعات مرتبط">
+                    {course.topics!.map((topic) => (
+                      <li key={topic.slug}>
+                        <Link href={topic.href} className="topic-chip">
+                          {topic.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
                 {course.previewAsset || course.coverAsset ? (
                   <figure className="course-plate">
                     {course.previewAsset ? (

@@ -3,7 +3,11 @@ import Link from "next/link";
 import { CatalogFilters } from "../../../components/catalog-filters";
 import { CourseCardLink } from "../../../components/course-card-link";
 import { DisinabPlate } from "../../../components/disinab";
-import { fetchCategories, fetchCourses } from "../../../lib/catalog";
+import {
+  fetchCategories,
+  fetchCourses,
+  fetchTopics,
+} from "../../../lib/catalog";
 import { buildPageMetadata } from "../../../lib/seo";
 import { ownedCourseSlugs } from "../../../lib/enrollment";
 import { fetchCurrentUser } from "../../../lib/session";
@@ -11,7 +15,7 @@ import { fetchCurrentUser } from "../../../lib/session";
 export const metadata: Metadata = buildPageMetadata({
   title: "دوره‌ها",
   description:
-    "کاتالوگ دوره‌های DXCode — فیلتر بر اساس قلمرو، وضعیت انتشار، و جستجو در عنوان و خلاصه.",
+    "کاتالوگ دوره‌های DXCode — فیلتر بر اساس قلمرو، موضوع، وضعیت انتشار، و جستجو در عنوان و خلاصه.",
   path: "/courses",
 });
 
@@ -26,6 +30,7 @@ const OFFER_FILTERS = [
 type SearchParams = Promise<{
   q?: string;
   category?: string;
+  topic?: string;
   offer?: string;
   page?: string;
 }>;
@@ -38,21 +43,25 @@ export default async function CoursesPage({
   const sp = await searchParams;
   const q = sp.q?.trim() || undefined;
   const category = sp.category?.trim() || undefined;
+  const topic = sp.topic?.trim() || undefined;
   const offer = sp.offer?.trim() || undefined;
   const page = Math.max(1, Number(sp.page ?? "1") || 1);
 
-  const [categories, result, user] = await Promise.all([
+  const [categories, topicsResult, result, user] = await Promise.all([
     fetchCategories(),
-    fetchCourses({ q, category, offer, page, pageSize: 12 }),
+    fetchTopics({ page: 1, pageSize: 48 }),
+    fetchCourses({ q, category, topic, offer, page, pageSize: 12 }),
     fetchCurrentUser(),
   ]);
   const owned = user ? await ownedCourseSlugs() : new Set<string>();
+  const topics = topicsResult.items;
 
   const buildHref = (overrides: Record<string, string | undefined>) => {
     const next = new URLSearchParams();
     const merged = {
       q: q ?? "",
       category: category ?? "",
+      topic: topic ?? "",
       offer: offer ?? "",
       page: String(page),
       ...overrides,
@@ -66,11 +75,52 @@ export default async function CoursesPage({
 
   const chip = (active: boolean) =>
     "catalog-chip" + (active ? " catalog-chip--active" : "");
-  const activeFilters = [category, offer].filter(Boolean).length;
+  const activeFilters = [category, topic, offer].filter(Boolean).length;
   const filtered = Boolean(q || activeFilters);
   const allCount = categories.reduce((n, c) => n + c.courseCount, 0);
   const activeCategory = categories.find((c) => c.slug === category);
+  const activeTopic = topics.find((t) => t.slug === topic);
   const activeOffer = OFFER_FILTERS.find((item) => item.value === (offer ?? ""));
+
+  const topicRail =
+    topics.length > 0 ? (
+      <section
+        className="disinab-catalog__rail"
+        aria-labelledby="catalog-rail-topic"
+      >
+        <div className="disinab-catalog__rail-head">
+          <div>
+            <p id="catalog-rail-topic" className="disinab-catalog__rail-label">
+              موضوع
+            </p>
+            <p className="disinab-catalog__rail-hint">هاب‌های موضوعی</p>
+          </div>
+          <span className="disinab-catalog__rail-count">
+            {topics.length.toLocaleString("fa-IR")} موضوع
+          </span>
+        </div>
+        <div className="disinab-catalog__seg" role="list">
+          <Link
+            href={buildHref({ topic: "", page: "1" })}
+            className={chip(!topic)}
+            role="listitem"
+          >
+            همه
+          </Link>
+          {topics.map((item) => (
+            <Link
+              key={item.id}
+              href={buildHref({ topic: item.slug, page: "1" })}
+              className={chip(topic === item.slug)}
+              role="listitem"
+            >
+              {item.name}
+              <em>{item.courseCount.toLocaleString("fa-IR")}</em>
+            </Link>
+          ))}
+        </div>
+      </section>
+    ) : null;
 
   const categoryRail = (
     <section
@@ -194,6 +244,7 @@ export default async function CoursesPage({
                 <input type="hidden" name="category" value={category} />
               ) : null}
               {offer ? <input type="hidden" name="offer" value={offer} /> : null}
+              {topic ? <input type="hidden" name="topic" value={topic} /> : null}
               <button type="submit">بیاب</button>
             </form>
 
@@ -207,6 +258,18 @@ export default async function CoursesPage({
                   valueLabel: activeCategory?.title ?? "همه",
                   children: categoryRail,
                 },
+                ...(topicRail
+                  ? [
+                      {
+                        id: "topic",
+                        label: "موضوع",
+                        hint: "هاب موضوعی",
+                        active: Boolean(topic),
+                        valueLabel: activeTopic?.name ?? "همه",
+                        children: topicRail,
+                      },
+                    ]
+                  : []),
                 {
                   id: "status",
                   label: "وضعیت",
@@ -226,6 +289,7 @@ export default async function CoursesPage({
                   {activeCategory ? (
                     <span>دسته: {activeCategory.title}</span>
                   ) : null}
+                  {activeTopic ? <span>موضوع: {activeTopic.name}</span> : null}
                   {activeOffer && activeOffer.value ? (
                     <span>وضعیت: {activeOffer.label}</span>
                   ) : null}

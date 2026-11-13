@@ -14,9 +14,16 @@ export default async function AdminNewTopicPage() {
   ]);
 
   if (!topics || !courses || !articles) {
+    const missing = [
+      !topics ? "موضوعات (احتمالاً migration جدول Topic روی سرور اجرا نشده)" : null,
+      !courses ? "دوره‌ها" : null,
+      !articles ? "مقالات" : null,
+    ].filter(Boolean);
     return (
       <Notice tone="error" title="خطا">
-        بارگذاری فرم موضوع ممکن نشد.
+        بارگذاری فرم موضوع ممکن نشد: {missing.join("، ")}. اگر فقط
+        موضوعات مشکل دارد، روی سرور{" "}
+        <code dir="ltr">pnpm prod:migrate</code> بزنید (بدون seed).
       </Notice>
     );
   }

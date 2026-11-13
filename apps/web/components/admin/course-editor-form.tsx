@@ -7,6 +7,10 @@ import { authFetch } from "../../lib/api-client";
 import { AssetImageField } from "./asset-image-field";
 import { MarkdownEditor } from "./markdown-editor";
 import { SeoAssistantPanel } from "./seo-assistant-panel";
+import {
+  TopicMultiSelect,
+  type TopicOption,
+} from "./topic-multi-select";
 
 type CategoryOption = { id: string; title: string };
 
@@ -32,6 +36,7 @@ export type CourseEditorInitial = {
   seoDescription: string;
   ogImage: string;
   noIndex: boolean;
+  topicIds: string[];
 };
 
 const EMPTY: CourseEditorInitial = {
@@ -56,6 +61,7 @@ const EMPTY: CourseEditorInitial = {
   seoDescription: "",
   ogImage: "",
   noIndex: false,
+  topicIds: [],
 };
 
 const MAX_VIDEO_BYTES = 150 * 1024 * 1024;
@@ -64,15 +70,18 @@ export function CourseEditorForm({
   courseId,
   initial,
   categories,
+  topicOptions = [],
 }: {
   courseId?: string;
   initial?: Partial<CourseEditorInitial>;
   categories: CategoryOption[];
+  topicOptions?: TopicOption[];
 }) {
   const router = useRouter();
   const [values, setValues] = useState<CourseEditorInitial>({
     ...EMPTY,
     ...initial,
+    topicIds: initial?.topicIds ?? EMPTY.topicIds,
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -130,6 +139,7 @@ export function CourseEditorForm({
       seoDescription: values.seoDescription.trim() || null,
       ogImage: values.ogImage.trim() || null,
       noIndex: values.noIndex,
+      topicIds: values.topicIds,
     };
 
     setLoading(true);
@@ -280,6 +290,13 @@ export function CourseEditorForm({
               ))}
             </select>
           </label>
+          <div className="editor-form__wide">
+            <TopicMultiSelect
+              options={topicOptions}
+              value={values.topicIds}
+              onChange={(topicIds) => patch({ topicIds })}
+            />
+          </div>
           <label className="z-field">
             <span className="z-field__label">انتشار</span>
             <select

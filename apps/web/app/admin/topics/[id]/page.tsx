@@ -25,9 +25,14 @@ export default async function AdminTopicEditPage({
 
   if (!topic) notFound();
   if (!topics || !courses || !articles) {
+    const missing = [
+      !topics ? "فهرست موضوعات (migration؟)" : null,
+      !courses ? "دوره‌ها" : null,
+      !articles ? "مقالات" : null,
+    ].filter(Boolean);
     return (
       <Notice tone="error" title="خطا">
-        بارگذاری فرم موضوع ممکن نشد.
+        بارگذاری فرم موضوع ممکن نشد: {missing.join("، ")}.
       </Notice>
     );
   }

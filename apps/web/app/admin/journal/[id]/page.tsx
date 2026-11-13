@@ -1,12 +1,16 @@
 import { notFound } from "next/navigation";
 import { ArticleEditorForm } from "../../../../components/admin/article-editor-form";
 import { fetchAdminArticle } from "../../../../lib/admin";
+import { loadTopicOptionsForEditors } from "../../../../lib/admin-topic-options";
 
 type Params = Promise<{ id: string }>;
 
 export default async function EditArticlePage({ params }: { params: Params }) {
   const { id } = await params;
-  const article = await fetchAdminArticle(id);
+  const [article, topicOptions] = await Promise.all([
+    fetchAdminArticle(id),
+    loadTopicOptionsForEditors(),
+  ]);
   if (!article) notFound();
 
   return (
@@ -19,6 +23,7 @@ export default async function EditArticlePage({ params }: { params: Params }) {
       </header>
       <ArticleEditorForm
         articleId={article.id}
+        topicOptions={topicOptions}
         initial={{
           slug: article.slug,
           title: article.title,
@@ -31,8 +36,11 @@ export default async function EditArticlePage({ params }: { params: Params }) {
           noIndex: article.noIndex,
           published: article.published,
           readingMinutes:
-            article.readingMinutes == null ? "" : String(article.readingMinutes),
+            article.readingMinutes == null
+              ? ""
+              : String(article.readingMinutes),
           sortOrder: String(article.sortOrder),
+          topicIds: article.topicIds ?? [],
         }}
       />
     </section>
