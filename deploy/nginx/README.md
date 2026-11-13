@@ -2,6 +2,13 @@
 
 این کانفیگ فقط به `127.0.0.1:3000` (وب) و `127.0.0.1:4000` (API) پروکسی می‌کند — همان پورت‌هایی که `docker-compose.prod.yml` روی لوپ‌بک باز می‌کند.
 
+## حملهٔ Path Traversal
+
+نام حمله: **Path Traversal** / **Directory Traversal** (گاهی «dot-dot-slash»).
+نمونهٔ پیلود: `/static/../../etc/passwd` یا فرم انکودشده `%2e%2e%2f` / `%252e%252e%2f`.
+
+کانفیگ DXCode با `conf.d/dxcode-maps.conf` + `snippets/dxcode-security.conf` این الگوها را قبل از پروکسی `404` می‌کند، `root` اپ را خالی می‌گذارد (فقط proxy)، و فایل‌های حساس/اسکنر را بلاک می‌کند.
+
 ## ۱) استک اپ روی سرور
 
 ```bash
@@ -44,30 +51,30 @@ sudo ufw status
 sudo apt update
 sudo apt install -y nginx certbot python3-certbot-nginx
 
-sudo mkdir -p /var/www/certbot /etc/nginx/snippets
-sudo cp deploy/nginx/snippets/dxcode-proxy.conf /etc/nginx/snippets/
+sudo mkdir -p /var/www/certbot /var/www/empty /etc/nginx/snippets /etc/nginx/conf.d
+sudo cp deploy/nginx/snippets/dxcode-proxy.conf \
+        deploy/nginx/snippets/dxcode-security.conf /etc/nginx/snippets/
+sudo cp deploy/nginx/conf.d/dxcode-maps.conf /etc/nginx/conf.d/
 ```
 
-`limit_req_zone` باید داخل بلوک `http { }` باشد. اگر فایل سایت جداست، خطوط `limit_req_zone` / `limit_conn_zone` / `map` / `upstream` را از `dxcode.conf` به `/etc/nginx/nginx.conf` (داخل `http`) منتقل کنید و فقط `server { }`ها را در `sites-available` بگذارید.
+`limit_req_zone` / `map` / `upstream` باید داخل بلوک `http { }` باشند. اگر فایل سایت جداست، این‌ها را از `dxcode.conf` به `/etc/nginx/conf.d/` منتقل کنید و فقط `server { }`ها را در `sites-available` بگذارید. `dxcode-maps.conf` را حتماً در `http` لود کنید.
 
-نسخهٔ ساده‌تر برای شروع سریع:
+نسخهٔ ساده‌تر برای شروع سریع (گواهی SAN مشترک روی همان leaf):
 
 ```bash
-# دامنه را جایگزین کنید
-sudo sed -e 's/YOUR_DOMAIN/zharfa.example.com/g' \
-         -e 's/YOUR_API_DOMAIN/api.zharfa.example.com/g' \
+# دامنه را جایگزین کنید — مسیر گواهی هر دو هاست → live/dxcode.ir
+sudo sed -e 's/YOUR_DOMAIN/dxcode.ir/g' \
+         -e 's/YOUR_API_DOMAIN/api.dxcode.ir/g' \
          deploy/nginx/dxcode.conf \
   | sudo tee /etc/nginx/sites-available/dxcode >/dev/null
 
-# اگر ماژول headers-more ندارید، خط more_clear_headers را حذف کنید:
+# اگر ماژول headers-more ندارید:
 sudo sed -i '/more_clear_headers/d' /etc/nginx/sites-available/dxcode
 
 sudo ln -sf /etc/nginx/sites-available/dxcode /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
-
-sudo certbot --nginx -d zharfa.example.com -d api.zharfa.example.com
 ```
 
 سپس در `.env.production` همهٔ URLها را `https://` کنید، `ENABLE_HSTS=true` بگذارید و استک را ری‌استارت کنید:
@@ -80,8 +87,10 @@ pnpm prod:up
 
 | مورد | کار |
 |------|-----|
+| Path Traversal (`../` / `%2e%2e`) | بلاک قبل از پروکسی |
 | TLS 1.2/1.3 + HSTS | اجبار HTTPS و جلوگیری از downgrade |
 | فقط پروکسی به 127.0.0.1 | اپ از اینترنت مستقیم در دسترس نیست |
+| `root` خالی برای اپ | جلوگیری از سرو شدن فایل دیسک |
 | `server_tokens off` | پنهان‌کردن نسخه Nginx |
 | Rate limit عمومی/لاگین/API | کاهش brute-force و اسکن |
 | بلاک `.env` / `.git` / wp-admin | قطع probeهای رایج |
