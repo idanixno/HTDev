@@ -16,7 +16,6 @@ import { fetchCurrentUser } from "../../../lib/session";
 import { SHOW_TRACK_STACK } from "../../../lib/track-display";
 import {
   fetchMySpotAccess,
-  licenseStatusLabel,
   type SpotPlayerLicenseStatus,
 } from "../../../lib/spotplayer";
 import {
@@ -25,18 +24,18 @@ import {
   ticketStatusLabel,
 } from "../../../lib/tickets";
 
-function statusBadge(
-  status: SpotPlayerLicenseStatus,
-): "success" | "pending" | "failure" | "information" {
+function licenseProvisioningLabel(status: SpotPlayerLicenseStatus): string {
   switch (status) {
     case "SUCCEEDED":
-      return "success";
+      return "صادر شده";
     case "FAILED":
+      return "صدور ناموفق";
     case "IN_PROGRESS":
+      return "در حال صدور";
     case "QUEUED":
-      return "pending";
-    default:
-      return "information";
+      return "در صف صدور";
+    case "PENDING":
+      return "در انتظار صدور";
   }
 }
 
@@ -97,12 +96,12 @@ export default async function DashboardPage() {
           <header className="disinab-folio__head">
             <h2 id="folio-courses">دوره‌ها</h2>
             <p className="disinab__line">
-              لایسنس‌ها و وضعیت دسترسی دوره‌های شما در یک صفحه.
+              ثبت‌نام دوره و وضعیت صدور لایسنس را جداگانه ببینید.
             </p>
           </header>
           {licenses.length === 0 ? (
             <Notice tone="information" title="هنوز دوره‌ای در حساب نیست">
-              پس از خرید تأییدشده، دوره اینجا دیده می‌شود.{" "}
+              پس از ثبت‌نام در دورهٔ رایگان یا خرید تأییدشده، دوره اینجا دیده می‌شود.{" "}
               <Link href="/courses">مرور دوره‌ها</Link>
             </Notice>
           ) : (
@@ -136,18 +135,15 @@ export default async function DashboardPage() {
                         <h3>
                           {href ? <Link href={href}>{title}</Link> : title}
                         </h3>
-                        {lic.status !== "SUCCEEDED" ? (
-                          <Badge status={statusBadge(lic.status)}>
-                            {lic.status === "FAILED"
-                              ? "در حال آماده‌سازی"
-                              : licenseStatusLabel(lic.status)}
-                          </Badge>
-                        ) : null}
+                        <Badge status="success">دانشجوی دوره</Badge>
                       </div>
                       <p className="access-card__meta">
                         {lic.accessSource === "FREE_COURSE"
                           ? "دوره رایگان"
                           : "سفارش پرداخت‌شده"}
+                        {" · "}
+                        {"صدور لایسنس: "}
+                        {licenseProvisioningLabel(lic.status)}
                       </p>
                       {lic.status === "SUCCEEDED" && lic.licenseKey ? (
                         <LicenseKey id={lic.id} value={lic.licenseKey} />

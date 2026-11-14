@@ -159,6 +159,16 @@ export function ArticleBody({
   courses?: Record<string, ReactNode>;
 }) {
   const blocks = parseArticleMarkdown(body);
+  return <ArticleBodyBlocks blocks={blocks} courses={courses} />;
+}
+
+export function ArticleBodyBlocks({
+  blocks,
+  courses,
+}: {
+  blocks: Block[];
+  courses?: Record<string, ReactNode>;
+}) {
   return (
     <div className="article-body">
       {blocks.map((block, index) => (

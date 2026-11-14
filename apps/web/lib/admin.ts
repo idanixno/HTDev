@@ -148,14 +148,14 @@ export async function fetchAdminNavBadges(): Promise<AdminNavBadges> {
 
 export async function fetchAdminCourses(
   q?: string,
-  page = 1,
-  pageSize = 100,
+  page?: number,
+  pageSize?: number,
 ) {
   const qs = new URLSearchParams();
   if (q) qs.set("q", q);
-  qs.set("page", String(page));
-  qs.set("pageSize", String(pageSize));
-  const suffix = `?${qs}`;
+  if (page !== undefined) qs.set("page", String(page));
+  if (pageSize !== undefined) qs.set("pageSize", String(pageSize));
+  const suffix = qs.size > 0 ? `?${qs}` : "";
   return adminFetch<
     AdminListResult<{
       id: string;

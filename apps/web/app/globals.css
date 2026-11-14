@@ -18191,6 +18191,42 @@ a.home-announcement__plate.disinab-home-announcement__plate:focus-visible {
   color: var(--zharfa-text-secondary);
 }
 
+.disinab-course-intro__desc .course-description {
+  display: grid;
+  gap: 16px;
+}
+
+.disinab-course-intro__desc .course-description__section {
+  max-width: 42rem;
+  padding: 18px;
+  border: 1px solid
+    color-mix(in srgb, var(--zharfa-action-primary) 24%, var(--zharfa-border-default));
+  border-radius: var(--zharfa-radius-16);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--zharfa-action-primary) 8%, transparent),
+      transparent 55%
+    ),
+    var(--zharfa-surface-card);
+}
+
+.disinab-course-intro__desc
+  .course-description__section--faq
+  .article-body
+  p:has(> strong:first-child) {
+  margin-top: 6px;
+  color: var(--zharfa-text-primary);
+}
+
+.disinab-course-intro__desc
+  .course-description__section--faq
+  .article-body
+  p:has(> strong:first-child)
+  strong {
+  font-weight: 800;
+}
+
 .disinab-course-intro__desc .article-body > :first-child {
   margin-top: 0;
 }

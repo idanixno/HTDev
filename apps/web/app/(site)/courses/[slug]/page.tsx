@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@zharfa/ui";
-import { ArticleBody } from "../../../../components/article-body";
+import { CourseDescription } from "../../../../components/course-description";
 import { ArticleCard } from "../../../../components/article-card";
 import { CourseStickyBar } from "../../../../components/course-sticky-bar";
 import { CourseSyllabus } from "../../../../components/course-syllabus";
@@ -350,7 +350,7 @@ export default async function CourseDetailPage({
                 {course.description ? (
                   <div className="disinab-course-intro__desc">
                     <h2 id="course-desc-heading">توضیحات دوره</h2>
-                    <ArticleBody body={course.description} />
+                    <CourseDescription body={course.description} />
                   </div>
                 ) : null}
               </DisinabPlate>
