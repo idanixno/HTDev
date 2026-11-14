@@ -29,6 +29,8 @@ curl -s http://127.0.0.1:3000/api/health
 - `SESSION_SECRET`، `OTP_PEPPER`، `INTERNAL_SECURITY_TOKEN` ≥۲۴ کاراکتر و متفاوت از هم
 - `WEB_ORIGIN` / `NEXT_PUBLIC_SITE_URL` / `API_PUBLIC_URL` باید `https://...` باشند
 - seed در پروداکشن اجباری نیست؛ در صورت نیاز یک‌بار با پسورد قوی بزنید
+- آپلود تصویر و ویدیو در مسیر volume پایدار `/data/media` ذخیره می‌شود؛ volume را هنگام حذف/انتقال سرور پاک نکنید
+- اگر چند نمونهٔ web پشت load balancer اجرا می‌کنید، `MEDIA_UPLOAD_DIR` باید storage مشترک همهٔ نمونه‌ها باشد
 - `/design-system` در پروداکشن مخفی است (۴۰۴)
 
 جزئیات env: [`.env.production.example`](../.env.production.example)

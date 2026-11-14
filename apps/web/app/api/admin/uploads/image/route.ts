@@ -1,10 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiBaseUrl, SESSION_COOKIE_NAME } from "../../../../../lib/auth-constants";
 import { assertSameOrigin } from "../../../../../lib/csrf";
+import { saveUploadedMedia } from "../../../../../lib/media-storage";
 
 export const runtime = "nodejs";
 
@@ -112,8 +111,6 @@ export async function POST(request: Request) {
   }
 
   const filename = `${randomUUID()}${kind.ext}`;
-  const dir = path.join(process.cwd(), "public", "media", "covers");
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, filename), bytes);
+  await saveUploadedMedia("covers", filename, bytes);
   return NextResponse.json({ url: `/media/covers/${filename}` });
 }

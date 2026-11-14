@@ -133,6 +133,9 @@ services:
       API_INTERNAL_URL: http://api:4000
       HOSTNAME: 0.0.0.0
       PORT: "3000"
+      MEDIA_UPLOAD_DIR: /data/media
+    volumes:
+      - zharfa_prod_media:/data/media
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
@@ -176,6 +179,7 @@ volumes:
   zharfa_prod_pg:
   zharfa_prod_redis:
   zharfa_prod_attachments:
+  zharfa_prod_media:
 
 networks:
   zharfa_prod:
