@@ -20,6 +20,36 @@ function StepGoIcon() {
   );
 }
 
+export function PathArtwork() {
+  return (
+    <svg
+      className="disinab-roadmap__artwork"
+      viewBox="0 0 640 260"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        className="disinab-roadmap__artwork-grid"
+        d="M0 52h640M0 104h640M0 156h640M0 208h640M80 0v260M160 0v260M240 0v260M320 0v260M400 0v260M480 0v260M560 0v260"
+      />
+      <path
+        className="disinab-roadmap__artwork-line"
+        d="m108 184 112-76 104 42 122-92 88 38"
+      />
+      <path
+        className="disinab-roadmap__artwork-line disinab-roadmap__artwork-line--secondary"
+        d="m108 184 102 30 114-64 122 42 88-96"
+      />
+      <circle className="disinab-roadmap__artwork-node" cx="108" cy="184" r="13" />
+      <circle className="disinab-roadmap__artwork-node" cx="220" cy="108" r="10" />
+      <circle className="disinab-roadmap__artwork-node" cx="324" cy="150" r="12" />
+      <circle className="disinab-roadmap__artwork-node" cx="446" cy="58" r="10" />
+      <circle className="disinab-roadmap__artwork-node" cx="534" cy="96" r="14" />
+      <circle className="disinab-roadmap__artwork-core" cx="534" cy="96" r="4" />
+    </svg>
+  );
+}
+
 export function PathRoadmapTable({ steps }: { steps: PublicPathStep[] }) {
   if (steps.length === 0) return null;
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleBody } from "../../../../components/article-body";
-import { PathRoadmapTable } from "../../../../components/path-roadmap";
+import { PathArtwork, PathRoadmapTable } from "../../../../components/path-roadmap";
 import { DisinabFacts, DisinabPlate } from "../../../../components/disinab";
 import { fetchPath } from "../../../../lib/catalog";
 import { buildPageMetadata } from "../../../../lib/seo";
@@ -41,7 +41,7 @@ export default async function PathDetailPage({
   const path = await fetchPath(slug);
   if (!path) notFound();
   const steps = path.steps ?? [];
-  const lead = path.description ?? path.summary;
+  const lead = path.summary;
 
   return (
     <article className="path-detail path-detail--live disinab-path-detail disinab-roadmap">
@@ -57,19 +57,27 @@ export default async function PathDetailPage({
           <span>{path.title}</span>
         </nav>
 
-        <header className="disinab-roadmap__head">
+        <header className="disinab-roadmap__head disinab-roadmap__detail-head">
+          <span className="disinab-roadmap__detail-kicker">
+            <span className="disinab-roadmap__detail-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22">
+                <path
+                  d="M5 19V5m0 14h14M5 5l5 4 4-3 5 4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="5" cy="5" r="1.5" fill="currentColor" />
+                <circle cx="19" cy="10" r="1.5" fill="currentColor" />
+              </svg>
+            </span>
+            نقشهٔ مسیر یادگیری
+          </span>
           <h1 id="path-detail-title">{path.title}</h1>
           {lead ? (
-            <div className="disinab-roadmap__lead">
-              <ArticleBody body={lead} />
-            </div>
-          ) : null}
-          {path.summary &&
-          path.description &&
-          path.summary !== path.description ? (
-            <p className="disinab-roadmap__lead disinab-roadmap__lead--secondary">
-              {path.summary}
-            </p>
+            <p className="disinab-roadmap__lead">{lead}</p>
           ) : null}
           {steps.length > 0 ? (
             <DisinabFacts
@@ -87,11 +95,38 @@ export default async function PathDetailPage({
           ) : null}
         </header>
 
-        {path.coverAsset ? (
-          <figure className="disinab-roadmap__cover">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+        <figure
+          className={
+            "disinab-roadmap__cover" +
+            (path.coverAsset ? "" : " disinab-roadmap__cover--abstract")
+          }
+        >
+          {path.coverAsset ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={path.coverAsset} alt="" />
-          </figure>
+          ) : (
+            <PathArtwork />
+          )}
+          <span className="disinab-roadmap__cover-label">
+            DXCODE <i /> LEARNING PATH
+          </span>
+        </figure>
+
+        {path.description ? (
+          <section
+            className="disinab-roadmap__description-panel"
+            aria-labelledby="path-description-heading"
+          >
+            <h2
+              id="path-description-heading"
+              className="disinab-roadmap__section-title"
+            >
+              دربارهٔ این مسیر
+            </h2>
+            <div className="disinab-roadmap__description">
+              <ArticleBody body={path.description} />
+            </div>
+          </section>
         ) : null}
 
         {steps.length > 0 ? (
