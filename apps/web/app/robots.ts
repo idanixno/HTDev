@@ -16,8 +16,6 @@ const PUBLIC_ALLOW = [
   "/paths",
   "/journal",
   "/topics",
-  "/faq",
-  "/terms",
 ] as const;
 
 const PRIVATE_DISALLOW = [

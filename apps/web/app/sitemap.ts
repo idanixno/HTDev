@@ -62,18 +62,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     },
-    {
-      url: absoluteUrl("/faq"),
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-    {
-      url: absoluteUrl("/terms"),
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.2,
-    },
   ];
 
   const [courses, paths, articles, topics] = await Promise.all([

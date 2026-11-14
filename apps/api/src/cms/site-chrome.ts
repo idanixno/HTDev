@@ -52,13 +52,6 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
         { href: "/journal", label: "مقالات" },
       ],
     },
-    {
-      label: "درباره",
-      links: [
-        { href: "/faq", label: "پرسش‌های رایج" },
-        { href: "/terms", label: "شرایط استفاده" },
-      ],
-    },
   ],
   mobileGroups: [
     {
@@ -67,13 +60,6 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
         { href: "/courses", label: "دوره‌ها" },
         { href: "/paths", label: "مسیرهای یادگیری" },
         { href: "/journal", label: "مقالات" },
-      ],
-    },
-    {
-      label: "درباره",
-      links: [
-        { href: "/faq", label: "پرسش‌ها" },
-        { href: "/terms", label: "شرایط استفاده" },
       ],
     },
   ],
@@ -107,6 +93,22 @@ function cleanHref(value: unknown): string | null {
   return null;
 }
 
+function isRetiredPage(href: string): boolean {
+  let pathname: string;
+  if (href.startsWith("/")) {
+    pathname = href.split(/[?#]/, 1)[0] ?? "";
+  } else {
+    try {
+      pathname = new URL(href).pathname;
+    } catch {
+      return false;
+    }
+  }
+  return ["/faq", "/terms"].some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
 export function parseChromeLinks(raw: unknown, fallback: ChromeLink[]): ChromeLink[] {
   if (!Array.isArray(raw)) return fallback;
   const links: ChromeLink[] = [];
@@ -115,7 +117,7 @@ export function parseChromeLinks(raw: unknown, fallback: ChromeLink[]): ChromeLi
     const row = item as Record<string, unknown>;
     const href = cleanHref(row.href);
     const label = cleanText(row.label, 60);
-    if (!href || !label) continue;
+    if (!href || !label || isRetiredPage(href)) continue;
     const match = cleanText(row.match, 120) ?? href;
     links.push({ href, label, match });
     if (links.length >= 12) break;

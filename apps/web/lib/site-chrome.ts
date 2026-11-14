@@ -50,13 +50,6 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
         { href: "/journal", label: "مقالات" },
       ],
     },
-    {
-      label: "درباره",
-      links: [
-        { href: "/faq", label: "پرسش‌های رایج" },
-        { href: "/terms", label: "شرایط استفاده" },
-      ],
-    },
   ],
   mobileGroups: [
     {
@@ -65,13 +58,6 @@ export const DEFAULT_SITE_CHROME: SiteChrome = {
         { href: "/courses", label: "دوره‌ها" },
         { href: "/paths", label: "مسیرهای یادگیری" },
         { href: "/journal", label: "مقالات" },
-      ],
-    },
-    {
-      label: "درباره",
-      links: [
-        { href: "/faq", label: "پرسش‌ها" },
-        { href: "/terms", label: "شرایط استفاده" },
       ],
     },
   ],

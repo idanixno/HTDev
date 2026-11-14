@@ -5,7 +5,6 @@ const ADMIN_SCOPE_RULES: Array<{ prefix: string; scopes: CacheScope[] }> = [
   { prefix: "/admin/cms/home", scopes: ["home"] },
   { prefix: "/admin/cms/paths", scopes: ["paths"] },
   { prefix: "/admin/cms/footer", scopes: ["chrome"] },
-  { prefix: "/admin/cms/faq", scopes: ["faq"] },
   { prefix: "/admin/cms/course-notes", scopes: ["courses"] },
   { prefix: "/admin/courses", scopes: ["courses", "topics", "paths", "home"] },
   { prefix: "/admin/modules", scopes: ["courses"] },
@@ -33,7 +32,6 @@ const SCOPE_PAGES: Record<CacheScope, string[]> = {
   topics: ["/topics", "/topics/[slug]"],
   paths: ["/paths", "/paths/[slug]", "/paths/[slug]/[step]"],
   home: ["/"],
-  faq: ["/faq"],
   chrome: [],
 };
 

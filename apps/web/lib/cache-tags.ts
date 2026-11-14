@@ -4,7 +4,6 @@ export type CacheScope =
   | "topics"
   | "paths"
   | "home"
-  | "faq"
   | "chrome";
 
 export const CATALOG_TAG = "catalog";
@@ -34,8 +33,6 @@ export function tagsForCatalogPath(path: string): string[] {
     scopes.add("paths");
   } else if (p === "/catalog/meta/home-announcement") {
     scopes.add("home");
-  } else if (p === "/catalog/faq") {
-    scopes.add("faq");
   } else if (p === "/catalog/footer-trusts") {
     scopes.add("chrome");
   }

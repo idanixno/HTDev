@@ -1,21 +1,19 @@
 import Link from "next/link";
-import { Badge, Button, Notice } from "@zharfa/ui";
+import { Notice } from "@zharfa/ui";
 import { CourseNotesEditor } from "../../../components/admin/course-notes-editor";
 import { FooterCmsEditorForm } from "../../../components/admin/footer-cms-editor-form";
 import { HomeCmsEditorForm } from "../../../components/admin/home-cms-editor-form";
 import { PathsCmsEditorForm } from "../../../components/admin/paths-cms-editor-form";
 import {
-  fetchAdminFaq,
   fetchAdminFooterCms,
   fetchAdminHomeCms,
   fetchAdminPathsCms,
 } from "../../../lib/admin";
 
 export default async function AdminCmsPage() {
-  const [home, footer, faq, pathsCms] = await Promise.all([
+  const [home, footer, pathsCms] = await Promise.all([
     fetchAdminHomeCms(),
     fetchAdminFooterCms(),
-    fetchAdminFaq(),
     fetchAdminPathsCms(),
   ]);
 
@@ -29,10 +27,9 @@ export default async function AdminCmsPage() {
           </h1>
           <p className="admin-page__subtitle">
             اطلاعیهٔ صفحهٔ اصلی، هیرو خانه، نقشهٔ راه، هدر و فوتر، نشان‌های
-            اعتماد، نکات قبل از خرید، و پرسش‌های متداول.
+            اعتماد و نکات قبل از خرید.
           </p>
         </div>
-        <Button href="/admin/cms/faq/new">پرسش جدید</Button>
       </header>
 
       {!home ? (
@@ -135,56 +132,6 @@ export default async function AdminCmsPage() {
         />
       </article>
 
-      <article
-        className="admin-panel"
-        style={{ marginTop: "var(--zharfa-space-24)" }}
-      >
-        <div className="admin-page__header" style={{ marginBottom: "1rem" }}>
-          <h2>پرسش‌های متداول</h2>
-        </div>
-        {!faq ? (
-          <Notice tone="error" title="خطا">
-            خواندن FAQ ممکن نشد.
-          </Notice>
-        ) : faq.length === 0 ? (
-          <Notice tone="information" title="خالی">
-            هنوز سؤالی ثبت نشده. با «پرسش جدید» شروع کنید.
-          </Notice>
-        ) : (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>سؤال</th>
-                  <th>ترتیب</th>
-                  <th>انتشار</th>
-                </tr>
-              </thead>
-              <tbody>
-                {faq.map((f) => (
-                  <tr key={f.id}>
-                    <td>
-                      <Link
-                        href={`/admin/cms/faq/${f.id}`}
-                        className="admin-table__primary"
-                      >
-                        {f.question}
-                      </Link>
-                      <div className="admin-table__muted">{f.answer}</div>
-                    </td>
-                    <td>{f.sortOrder}</td>
-                    <td>
-                      <Badge status={f.published ? "success" : "information"}>
-                        {f.published ? "منتشر" : "پیش‌نویس"}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </article>
     </section>
   );
 }
