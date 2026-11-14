@@ -49,6 +49,51 @@ export type AnalyticsDashboard = {
   };
 };
 
+export type CoursePerformanceReport = {
+  range: { from: string; to: string };
+  items: Array<{
+    courseId: string;
+    slug: string;
+    title: string;
+    publicationStatus: string;
+    paidOrders: number;
+    uniqueBuyers: number;
+    revenueToman: number;
+    enrollments: number;
+  }>;
+};
+
+export type RevenueAnalyticsReport = {
+  range: { from: string; to: string };
+  summary: {
+    orderValueToman: number;
+    paidOrderValueToman: number;
+    markedRefundOrderValueToman: number;
+    netOrderValueToman: number;
+    paidOrders: number;
+    ordersMarkedRefunded: number;
+    averageOrderValueToman: number;
+  };
+  daily: Array<{
+    date: string;
+    orderValueToman: number;
+    paidOrderValueToman: number;
+    markedRefundOrderValueToman: number;
+    paidOrders: number;
+    ordersMarkedRefunded: number;
+  }>;
+  courses: Array<{
+    courseId: string;
+    slug: string;
+    title: string;
+    orderValueToman: number;
+    paidOrderValueToman: number;
+    markedRefundOrderValueToman: number;
+    paidOrders: number;
+    ordersMarkedRefunded: number;
+  }>;
+};
+
 export type AdminListResult<T> = {
   items: T[];
   page: number;
@@ -66,6 +111,32 @@ export async function fetchAdminAnalytics(range?: {
   if (range?.to) qs.set("to", range.to);
   const suffix = qs.toString() ? `?${qs}` : "";
   return adminFetch<AnalyticsDashboard>(`/admin/analytics/dashboard${suffix}`);
+}
+
+export async function fetchAdminCoursePerformance(range?: {
+  from?: string;
+  to?: string;
+}): Promise<CoursePerformanceReport | null> {
+  const qs = new URLSearchParams();
+  if (range?.from) qs.set("from", range.from);
+  if (range?.to) qs.set("to", range.to);
+  const suffix = qs.toString() ? `?${qs}` : "";
+  return adminFetch<CoursePerformanceReport>(
+    `/admin/analytics/courses${suffix}`,
+  );
+}
+
+export async function fetchAdminRevenueAnalytics(range?: {
+  from?: string;
+  to?: string;
+}): Promise<RevenueAnalyticsReport | null> {
+  const qs = new URLSearchParams();
+  if (range?.from) qs.set("from", range.from);
+  if (range?.to) qs.set("to", range.to);
+  const suffix = qs.toString() ? `?${qs}` : "";
+  return adminFetch<RevenueAnalyticsReport>(
+    `/admin/analytics/revenue${suffix}`,
+  );
 }
 
 export type AdminNavBadges = Record<string, number>;
@@ -99,6 +170,8 @@ export type AdminCourseDraft = {
   title: string;
   summary: string | null;
   description: string | null;
+  instructorName: string | null;
+  showInstructor: boolean;
   categoryId: string | null;
   publicationStatus: string;
   offerKind: string;
@@ -542,18 +615,6 @@ export async function fetchAdminFooterCms() {
     paymentGatewayHtml: string | null;
     updatedAt: string | null;
   }>("/admin/cms/footer");
-}
-
-export async function fetchAdminFaq() {
-  return adminFetch<
-    Array<{
-      id: string;
-      question: string;
-      answer: string;
-      sortOrder: number;
-      published: boolean;
-    }>
-  >("/admin/cms/faq");
 }
 
 export async function fetchAdminActivity(q?: string) {

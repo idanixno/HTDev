@@ -90,6 +90,8 @@ Passwords are **env-configurable** (see `.env.example`). Defaults are for local 
 Login accepts **username, email, or phone** + password.
 
 - Admin panel: sign in as `admin` → http://localhost:3000/admin
+- Revenue analytics: `/admin/analytics/revenue` (verified paid orders grouped by payment date; refund amounts are explicitly marked as order values, not gateway-confirmed refunds)
+- Course performance report: `/admin/analytics/courses` (paid orders and enrollments from database records; visitor and lesson engagement are not currently measured)
 - Student flows: sign in as `sara` (or peers) → http://localhost:3000/dashboard
 - Recovery OTP is logged by the **console** email/SMS provider in API logs (no real SMS/email until credentials exist)
 
@@ -115,7 +117,6 @@ Do **not** claim `VERIFIED_REAL_INTEGRATION` without live merchant/SpotPlayer/SM
 | Student dashboard | `/dashboard` |
 | Admin shell (OWNER) | `/admin` (+ courses, orders, tickets, payments, SpotPlayer, CMS, …) |
 | Courses / paths / journal | `/courses`, `/courses/[slug]`, `/paths`, `/journal` |
-| FAQ and terms | `/faq`, `/terms` |
 | Purchase + payment pages | `/courses/[slug]/purchase`, `/payments/{pending,success,failure}` |
 | Student account | `/dashboard` (نمای کلی) · `/dashboard/tracks` (تخصص‌ها) · `/dashboard/tickets` (پشتیبانی) |
 | API identity | `POST /identity/register\|login\|logout`, `GET /identity/me`, recover routes |

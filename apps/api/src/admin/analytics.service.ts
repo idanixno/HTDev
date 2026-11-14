@@ -10,6 +10,14 @@ import {
   buildAnalyticsDashboard,
   type AnalyticsDashboard,
 } from "./analytics-aggregates";
+import {
+  buildCoursePerformanceReport,
+  type CoursePerformanceReport,
+} from "./course-performance";
+import {
+  buildRevenueAnalyticsReport,
+  type RevenueAnalyticsReport,
+} from "./revenue-analytics";
 import { resolveDateRange } from "./date-range";
 
 /**
@@ -127,6 +135,80 @@ export class AnalyticsService {
       pendingProvisioningCount,
       publishedCourseCount,
     });
+  }
+
+  async coursePerformance(query: {
+    from?: string;
+    to?: string;
+  }): Promise<CoursePerformanceReport> {
+    let range;
+    try {
+      range = resolveDateRange(query);
+    } catch (err) {
+      throw new BadRequestException(
+        err instanceof Error ? err.message : "بازه تاریخ نامعتبر است.",
+      );
+    }
+
+    const [courses, paidOrders, enrollments] = await Promise.all([
+      this.prisma.course.findMany({
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          publicationStatus: true,
+        },
+      }),
+      this.prisma.order.findMany({
+        where: {
+          status: OrderStatus.PAID,
+          paidAt: { gte: range.from, lte: range.to },
+        },
+        select: { courseId: true, userId: true, amountToman: true },
+      }),
+      this.prisma.enrollment.findMany({
+        where: { createdAt: { gte: range.from, lte: range.to } },
+        select: { courseId: true, userId: true },
+      }),
+    ]);
+
+    return buildCoursePerformanceReport({
+      range,
+      courses,
+      paidOrders,
+      enrollments,
+    });
+  }
+
+  async revenue(query: {
+    from?: string;
+    to?: string;
+  }): Promise<RevenueAnalyticsReport> {
+    let range;
+    try {
+      range = resolveDateRange(query);
+    } catch (err) {
+      throw new BadRequestException(
+        err instanceof Error ? err.message : "بازه تاریخ نامعتبر است.",
+      );
+    }
+
+    const orders = await this.prisma.order.findMany({
+      where: {
+        status: { in: [OrderStatus.PAID, OrderStatus.REFUNDED] },
+        currency: "IRT",
+        paidAt: { gte: range.from, lte: range.to },
+      },
+      select: {
+        courseId: true,
+        status: true,
+        paidAt: true,
+        amountToman: true,
+        course: { select: { slug: true, title: true } },
+      },
+    });
+
+    return buildRevenueAnalyticsReport({ range, orders });
   }
 
   /**

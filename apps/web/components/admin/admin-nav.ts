@@ -11,6 +11,21 @@ export const ADMIN_MENU: Array<{ label: string; items: AdminNavItem[] }> = [
     items: [{ href: "/admin", label: "داشبورد", match: "/admin", exact: true }],
   },
   {
+    label: "تحلیل‌ها",
+    items: [
+      {
+        href: "/admin/analytics/courses",
+        label: "عملکرد دوره‌ها",
+        match: "/admin/analytics/courses",
+      },
+      {
+        href: "/admin/analytics/revenue",
+        label: "تحلیل درآمد",
+        match: "/admin/analytics/revenue",
+      },
+    ],
+  },
+  {
     label: "کاتالوگ",
     items: [
       { href: "/admin/courses", label: "دوره‌ها", match: "/admin/courses" },
@@ -57,6 +72,7 @@ export const ADMIN_MENU: Array<{ label: string; items: AdminNavItem[] }> = [
         match: "/admin/integrations",
       },
       { href: "/admin/activity", label: "گزارش فعالیت", match: "/admin/activity" },
+      { href: "/admin/account", label: "پروفایل مدیر", match: "/admin/account" },
     ],
   },
 ];

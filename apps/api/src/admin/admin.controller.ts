@@ -60,6 +60,16 @@ export class AdminController {
     return this.analytics.dashboard(query);
   }
 
+  @Get("analytics/courses")
+  coursePerformance(@Query() query: AnalyticsQueryDto) {
+    return this.analytics.coursePerformance(query);
+  }
+
+  @Get("analytics/revenue")
+  revenue(@Query() query: AnalyticsQueryDto) {
+    return this.analytics.revenue(query);
+  }
+
   @Get("nav-badges")
   navBadges() {
     return this.analytics.navBadges();

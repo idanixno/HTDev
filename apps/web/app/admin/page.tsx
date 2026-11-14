@@ -165,6 +165,8 @@ export default async function AdminDashboardPage({
           <p className="admin-page__hint">
             ماژول‌ها:{" "}
             <Link href="/admin/orders">سفارش‌ها</Link> ·{" "}
+            <Link href="/admin/analytics/revenue">تحلیل درآمد</Link> ·{" "}
+            <Link href="/admin/analytics/courses">عملکرد دوره‌ها</Link> ·{" "}
             <Link href="/admin/courses">دوره‌ها</Link> ·{" "}
             <Link href="/admin/tickets">تیکت‌ها</Link> ·{" "}
             <Link href="/admin/activity">گزارش فعالیت</Link>

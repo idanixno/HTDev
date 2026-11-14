@@ -36,6 +36,23 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M8 12.5h5" />
     </NavIcon>
   ),
+  "/admin/analytics/courses": (
+    <NavIcon>
+      <path d="M4 19.5h16" />
+      <path d="M6.5 16V10" />
+      <path d="M12 16V5.5" />
+      <path d="M17.5 16v-3.5" />
+    </NavIcon>
+  ),
+  "/admin/analytics/revenue": (
+    <NavIcon>
+      <path d="M4 19.5h16" />
+      <path d="M6.5 16v-3" />
+      <path d="M12 16V8" />
+      <path d="M17.5 16V4.5" />
+      <path d="m5.5 9 5-3 5 1.5 4-4" />
+    </NavIcon>
+  ),
   "/admin/categories": (
     <NavIcon>
       <path d="M4 8.5 12 4l8 4.5-8 4.5L4 8.5Z" />
@@ -140,6 +157,12 @@ const ICONS: Record<string, ReactNode> = {
     <NavIcon>
       <circle cx="12" cy="12" r="8" />
       <path d="M12 7.5V12l3.2 2" />
+    </NavIcon>
+  ),
+  "/admin/account": (
+    <NavIcon>
+      <circle cx="12" cy="8" r="3" />
+      <path d="M5 20c.7-3.4 3.1-5.2 7-5.2s6.3 1.8 7 5.2" />
     </NavIcon>
   ),
 };
