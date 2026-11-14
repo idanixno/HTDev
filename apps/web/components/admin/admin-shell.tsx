@@ -152,7 +152,13 @@ export function AdminShell({
                 />
               </span>
               <div>
-                <p className="admin-shell__user">{displayName}</p>
+                <Link
+                  href="/admin/account"
+                  className="admin-shell__user"
+                  onClick={narrow ? close : undefined}
+                >
+                  {displayName}
+                </Link>
                 <p className="admin-shell__role">
                   مالک <DxCodeWordmark className="dx-wordmark--inline" />
                 </p>

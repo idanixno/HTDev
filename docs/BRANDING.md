@@ -1,7 +1,7 @@
 # DXCode branding
 
 **Product brand:** DXCode  
-**Visual system:** Knowledge Portal / Interlocking Knowledge (cyan `#29D8FF` · electric blue `#276BFF` · violet `#7657F6` · navy `#070B16`)
+**Visual system:** Interlocking DXCode mark (white `#FFFFFF` on deep navy `#080C16`)
 
 ## Typography
 
@@ -14,7 +14,7 @@
 | Code | **JetBrains Mono** | `--zharfa-font-code` | Code fields / samples |
 
 Wordmark component: `apps/web/components/dxcode-wordmark.tsx`  
-Portal mark: `apps/web/components/dxcode-logo.tsx` (hexagon + cyan `>`)
+Portal mark: `apps/web/components/dxcode-logo.tsx` (white interlocking mark on deep navy)
 
 ## Canonical source of truth
 
@@ -42,6 +42,7 @@ These are **not** user-facing brand strings. Do not rename without a dedicated m
 
 ## Assets
 
-- Logo component: `apps/web/components/dxcode-logo.tsx`
-- Favicon: `apps/web/app/icon.tsx` (App Router generated icon)
+- Shared logo paths and colors: `apps/web/components/dxcode-mark-paths.ts`
+- Logo component: `apps/web/components/dxcode-logo.tsx` (used in site chrome, admin, and pages)
+- Favicon: `apps/web/app/icon.tsx` (App Router generated icon, same shared mark)
 - Course/journal placeholders: `apps/web/public/artwork/**` (mark text `DXCODE`)

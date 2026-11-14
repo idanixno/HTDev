@@ -92,8 +92,8 @@ export default function DesignSystemPage() {
           <div>
             <DxCodeWordmark className="ds-type-card__specimen" />
             <p className="featured__lead" style={{ marginTop: 8 }}>
-              Hexagonal Knowledge Portal + cyan chevron. Favicon mirrors the same
-              geometry.
+              Interlocking DXCode mark in white on deep navy. The favicon uses
+              the same geometry.
             </p>
           </div>
         </div>

@@ -8,7 +8,7 @@ import type { PublicUser } from "../lib/session";
 import { LogoutButton } from "./logout-button";
 import { NotificationsPanel } from "./notifications-panel";
 import { DxCodeWordmark } from "./dxcode-wordmark";
-import { ZharfaStudentMark } from "./zharfa-student-mark";
+import { DxCodeLogo } from "./dxcode-logo";
 
 function PencilIcon() {
   return (
@@ -242,7 +242,7 @@ export function IdCard({
         ) : null}
         <div className="presence__hero">
           <div className="presence__mark" aria-hidden="true">
-            <ZharfaStudentMark />
+            <DxCodeLogo decorative bare className="presence__logo" />
           </div>
           <div className="presence__intro">
             <DxCodeWordmark as="p" className="presence__brand" />

@@ -6,6 +6,7 @@ import { SHOW_TRACK_STACK } from "../lib/track-display";
 
 const LINKS = [
   { href: "/dashboard", label: "نمای کلی", exact: true },
+  { href: "/dashboard/account", label: "حساب کاربری" },
   ...(SHOW_TRACK_STACK
     ? [{ href: "/dashboard/tracks", label: "تخصص‌ها" } as const]
     : []),

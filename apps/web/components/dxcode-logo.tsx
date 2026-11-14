@@ -1,27 +1,10 @@
-import { useId } from "react";
+import {
+  DXCODE_MARK_BACKGROUND,
+  DXCODE_MARK_COLORS,
+  DXCODE_MARK_PATHS,
+} from "./dxcode-mark-paths";
 
-/**
- * DXCode portal mark — hexagonal Knowledge Portal with cyan chevron.
- * Geometry is centered on the 64×64 viewBox (32, 32).
- */
-
-const CX = 32;
-const CY = 32;
-
-/** Pointy-top regular hex path, vertical left/right sides. */
-function hexPath(radius: number): string {
-  const r = (n: number) => Math.round(n * 100) / 100;
-  const halfW = (radius * Math.sqrt(3)) / 2;
-  const halfH = radius / 2;
-  const top = r(CY - radius);
-  const bot = r(CY + radius);
-  const right = r(CX + halfW);
-  const left = r(CX - halfW);
-  const upper = r(CY - halfH);
-  const side = r(radius);
-  return `M${CX} ${top} ${right} ${upper}v${side}L${CX} ${bot} ${left} ${r(CY + halfH)}V${upper}Z`;
-}
-
+/** DXCode interlocking mark, matching the supplied blue-and-cyan artwork. */
 export function DxCodeLogo({
   className = "",
   title = "DXCode",
@@ -31,11 +14,9 @@ export function DxCodeLogo({
   className?: string;
   title?: string;
   decorative?: boolean;
-  /** Hex + chevron only — no light plate (for dark nests). */
+  /** Draw only the mark when the surrounding brand container supplies the background. */
   bare?: boolean;
 }) {
-  const uid = useId().replace(/:/g, "");
-
   return (
     <svg
       className={`dxcode-logo ${className}`.trim()}
@@ -47,78 +28,12 @@ export function DxCodeLogo({
       aria-label={decorative ? undefined : title}
     >
       {decorative ? null : <title>{title}</title>}
-      <defs>
-        <linearGradient id={`${uid}-metal`} x1="18%" y1="6%" x2="86%" y2="94%">
-          <stop offset="0%" stopColor="#e8eef8" />
-          <stop offset="35%" stopColor="#7a8aa3" />
-          <stop offset="70%" stopColor="#3a4a66" />
-          <stop offset="100%" stopColor="#152033" />
-        </linearGradient>
-        <linearGradient id={`${uid}-face`} x1="20%" y1="10%" x2="80%" y2="90%">
-          <stop offset="0%" stopColor="#2a3b5c" />
-          <stop offset="55%" stopColor="#121a2c" />
-          <stop offset="100%" stopColor="#070b16" />
-        </linearGradient>
-        <linearGradient id={`${uid}-cyan`} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="var(--dx-cyan, #29d8ff)" />
-          <stop offset="100%" stopColor="var(--dx-blue, #276bff)" />
-        </linearGradient>
-        {bare ? null : (
-          <linearGradient id={`${uid}-plate`} x1="20%" y1="0%" x2="80%" y2="100%">
-            <stop offset="0%" stopColor="var(--zharfa-surface-raised)" />
-            <stop offset="100%" stopColor="var(--zharfa-bg-canvas)" />
-          </linearGradient>
-        )}
-      </defs>
-
       {bare ? null : (
-        <>
-          <rect
-            x="2"
-            y="2"
-            width="60"
-            height="60"
-            rx="16"
-            fill={`url(#${uid}-plate)`}
-          />
-          <rect
-            x="2.75"
-            y="2.75"
-            width="58.5"
-            height="58.5"
-            rx="15.25"
-            fill="none"
-            stroke="color-mix(in srgb, var(--dx-cyan, #29d8ff) 40%, var(--zharfa-border-default))"
-            strokeWidth="1.2"
-          />
-        </>
+        <rect width="64" height="64" fill={DXCODE_MARK_BACKGROUND} />
       )}
-
-      {/* Outer hex — enlarged so chevron sits clearly inside */}
-      <path
-        d={hexPath(19.2)}
-        fill={`url(#${uid}-metal)`}
-        opacity="0.92"
-      />
-      {/* Inner face */}
-      <path d={hexPath(15.4)} fill={`url(#${uid}-face)`} />
-      {/* Inner hex ring */}
-      <path
-        d={hexPath(12.6)}
-        fill="none"
-        stroke={`url(#${uid}-cyan)`}
-        strokeWidth="1.4"
-        opacity="0.9"
-      />
-      {/* Portal chevron > — centered, inset from ring */}
-      <path
-        d="M28.4 26.6 34.8 32 28.4 37.4"
-        fill="none"
-        stroke={`url(#${uid}-cyan)`}
-        strokeWidth="2.85"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      {DXCODE_MARK_PATHS.map((d, index) => (
+        <path key={d} d={d} fill={DXCODE_MARK_COLORS[index]} />
+      ))}
     </svg>
   );
 }

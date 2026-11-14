@@ -1,0 +1,7 @@
+export const DXCODE_MARK_PATHS = [
+  "M19.17 14.42H35.17L49.58 28.75V38.42H41.58V32L35.17 25.58H30.42Z",
+  "M14.42 25.58H22.42V32L28.83 38.42H33.58L44.75 49.58H28.75L14.42 35.17Z",
+] as const;
+
+export const DXCODE_MARK_BACKGROUND = "#080c16";
+export const DXCODE_MARK_COLORS = ["#ffffff", "#ffffff"] as const;
