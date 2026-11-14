@@ -146,13 +146,22 @@ export async function fetchAdminNavBadges(): Promise<AdminNavBadges> {
   return data?.badges ?? {};
 }
 
-export async function fetchAdminCourses(q?: string) {
-  const qs = q ? `?q=${encodeURIComponent(q)}` : "";
+export async function fetchAdminCourses(
+  q?: string,
+  page = 1,
+  pageSize = 100,
+) {
+  const qs = new URLSearchParams();
+  if (q) qs.set("q", q);
+  qs.set("page", String(page));
+  qs.set("pageSize", String(pageSize));
+  const suffix = `?${qs}`;
   return adminFetch<
     AdminListResult<{
       id: string;
       slug: string;
       title: string;
+      coverAsset: string | null;
       publicationStatus: string;
       offerKind: string;
       priceLabel: string;
@@ -161,7 +170,26 @@ export async function fetchAdminCourses(q?: string) {
       orderCount: number;
       updatedAt: string;
     }>
-  >(`/admin/courses${qs}`);
+  >(`/admin/courses${suffix}`);
+}
+
+/** All admin courses for selectors that need to bind a single course. */
+export async function fetchAdminCourseOptions() {
+  const pageSize = 100;
+  const first = await fetchAdminCourses(undefined, 1, pageSize);
+  if (!first) return null;
+  const items = [...first.items];
+  for (let page = 2; page <= first.totalPages; page += 1) {
+    const next = await fetchAdminCourses(undefined, page, pageSize);
+    if (!next) return null;
+    items.push(...next.items);
+  }
+  return items.map(({ id, title, slug, coverAsset }) => ({
+    id,
+    title,
+    slug,
+    coverAsset,
+  }));
 }
 
 export type AdminCourseDraft = {
@@ -308,6 +336,7 @@ export async function fetchAdminPathStep(pathId: string, stepId: string) {
     noIndex: boolean;
     sortOrder: number;
     path: { id: string; title: string; slug: string };
+    courseId: string | null;
     course: { title: string; slug: string } | null;
   }>(
     `/admin/paths/${encodeURIComponent(pathId)}/steps/${encodeURIComponent(stepId)}`,

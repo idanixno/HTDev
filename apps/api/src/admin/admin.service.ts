@@ -101,6 +101,7 @@ export class AdminService {
         id: c.id,
         slug: c.slug,
         title: c.title,
+        coverAsset: c.coverAsset,
         publicationStatus: c.publicationStatus,
         offerKind: c.offerKind,
         priceToman: decimalToNumber(c.priceToman),

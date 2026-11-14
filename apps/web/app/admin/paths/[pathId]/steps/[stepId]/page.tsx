@@ -1,14 +1,30 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Notice } from "@zharfa/ui";
 import { PathStepEditorForm } from "../../../../../../components/admin/path-step-editor-form";
-import { fetchAdminPathStep } from "../../../../../../lib/admin";
+import {
+  fetchAdminCourseOptions,
+  fetchAdminPathStep,
+} from "../../../../../../lib/admin";
 
 type Params = Promise<{ pathId: string; stepId: string }>;
 
 export default async function EditPathStepPage({ params }: { params: Params }) {
   const { pathId, stepId } = await params;
-  const step = await fetchAdminPathStep(pathId, stepId);
+  const [step, courseOptions] = await Promise.all([
+    fetchAdminPathStep(pathId, stepId),
+    fetchAdminCourseOptions(),
+  ]);
   if (!step) notFound();
+  if (!courseOptions) {
+    return (
+      <section className="admin-page">
+        <Notice tone="error" title="خطا">
+          فهرست دوره‌ها بارگذاری نشد؛ امکان انتخاب دوره برای این گام وجود ندارد.
+        </Notice>
+      </section>
+    );
+  }
 
   return (
     <section className="admin-page">
@@ -28,6 +44,7 @@ export default async function EditPathStepPage({ params }: { params: Params }) {
       <PathStepEditorForm
         pathId={pathId}
         stepId={stepId}
+        courseOptions={courseOptions}
         initial={{
           slug: step.slug,
           title: step.title,
@@ -38,6 +55,7 @@ export default async function EditPathStepPage({ params }: { params: Params }) {
           ogImage: step.ogImage ?? "",
           noIndex: step.noIndex,
           sortOrder: String(step.sortOrder ?? 0),
+          courseId: step.courseId ?? "",
         }}
       />
     </section>

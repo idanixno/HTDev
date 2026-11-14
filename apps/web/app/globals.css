@@ -7221,6 +7221,102 @@ html.is-theme-switching .course-articles {
   text-decoration: none;
 }
 
+.path-step-course-picker {
+  position: relative;
+}
+
+.path-step-course-picker__trigger {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-8);
+  background: var(--zharfa-surface-card);
+  cursor: pointer;
+  list-style: none;
+}
+
+.path-step-course-picker__trigger::-webkit-details-marker {
+  display: none;
+}
+
+.path-step-course-picker__chevron {
+  flex: 0 0 auto;
+  color: var(--zharfa-text-secondary);
+}
+
+.path-step-course-picker__menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  max-height: 320px;
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--zharfa-border-default);
+  border-radius: var(--zharfa-radius-8);
+  background: var(--zharfa-surface-card);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 24%);
+}
+
+.path-step-course-picker__option {
+  display: flex;
+  width: 100%;
+  min-height: 54px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: right;
+  cursor: pointer;
+}
+
+.path-step-course-picker__option:hover,
+.path-step-course-picker__option[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--zharfa-action-primary) 12%, transparent);
+}
+
+.path-step-course-picker__image,
+.path-step-course-picker__placeholder {
+  display: grid;
+  width: 64px;
+  height: 42px;
+  flex: 0 0 64px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--zharfa-text-primary) 8%, transparent);
+  color: var(--zharfa-text-secondary);
+  font-size: 0.72rem;
+  object-fit: cover;
+}
+
+.path-step-course-picker__copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.path-step-course-picker__copy > span,
+.path-step-course-picker__copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.path-step-course-picker__copy small {
+  color: var(--zharfa-text-secondary);
+  font-size: 0.75rem;
+}
+
 .article-table {
   overflow-x: auto;
   margin: 0 0 1.4em;

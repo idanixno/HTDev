@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import { Button, Field, Notice } from "@zharfa/ui";
 import { authFetch } from "../../lib/api-client";
 import { MarkdownEditor } from "./markdown-editor";
@@ -17,6 +17,7 @@ export type PathStepEditorInitial = {
   ogImage: string;
   noIndex: boolean;
   sortOrder: string;
+  courseId: string;
 };
 
 const EMPTY: PathStepEditorInitial = {
@@ -29,18 +30,27 @@ const EMPTY: PathStepEditorInitial = {
   ogImage: "",
   noIndex: false,
   sortOrder: "",
+  courseId: "",
 };
 
 export function PathStepEditorForm({
   pathId,
   stepId,
   initial,
+  courseOptions,
 }: {
   pathId: string;
   stepId?: string;
   initial?: Partial<PathStepEditorInitial>;
+  courseOptions: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    coverAsset: string | null;
+  }>;
 }) {
   const router = useRouter();
+  const courseMenu = useRef<HTMLDetailsElement>(null);
   const [values, setValues] = useState<PathStepEditorInitial>({
     ...EMPTY,
     ...initial,
@@ -86,6 +96,7 @@ export function PathStepEditorForm({
       ...(values.sortOrder.trim()
         ? { sortOrder: Number(values.sortOrder) }
         : {}),
+      courseId: values.courseId || null,
     };
     try {
       const saved = await authFetch<{ id: string }>(
@@ -158,6 +169,61 @@ export function PathStepEditorForm({
           value={values.sortOrder}
           onChange={(e) => patch({ sortOrder: e.target.value })}
         />
+        <div className="z-field">
+          <span className="z-field__label">دورهٔ وصل‌شده به این گام</span>
+          <details className="path-step-course-picker" ref={courseMenu}>
+            <summary className="path-step-course-picker__trigger">
+              {values.courseId ? (
+                (() => {
+                  const selected = courseOptions.find(
+                    (course) => course.id === values.courseId,
+                  );
+                  return selected ? (
+                    <CourseOptionContent course={selected} />
+                  ) : (
+                    <span>دورهٔ انتخاب‌شده در فهرست نیست</span>
+                  );
+                })()
+              ) : (
+                <span>بدون دوره</span>
+              )}
+              <span className="path-step-course-picker__chevron" aria-hidden="true">
+                ▾
+              </span>
+            </summary>
+            <div className="path-step-course-picker__menu">
+              <button
+                type="button"
+                className="path-step-course-picker__option"
+                aria-pressed={!values.courseId}
+                onClick={() => {
+                  patch({ courseId: "" });
+                  if (courseMenu.current) courseMenu.current.open = false;
+                }}
+              >
+                <span className="path-step-course-picker__placeholder" aria-hidden="true">
+                  —
+                </span>
+                <span>بدون دوره</span>
+              </button>
+              {courseOptions.map((course) => (
+                <button
+                  key={course.id}
+                  type="button"
+                  className="path-step-course-picker__option"
+                  aria-pressed={course.id === values.courseId}
+                  onClick={() => {
+                    patch({ courseId: course.id });
+                    if (courseMenu.current) courseMenu.current.open = false;
+                  }}
+                >
+                  <CourseOptionContent course={course} />
+                </button>
+              ))}
+            </div>
+          </details>
+          <input type="hidden" name="courseId" value={values.courseId} />
+        </div>
         <Field
           id="step-summary"
           name="summary"
@@ -251,5 +317,31 @@ export function PathStepEditorForm({
         ) : null}
       </div>
     </form>
+  );
+}
+
+function CourseOptionContent({
+  course,
+}: {
+  course: {
+    title: string;
+    slug: string;
+    coverAsset: string | null;
+  };
+}) {
+  const image = course.coverAsset ?? `/artwork/courses/${course.slug}.svg`;
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="path-step-course-picker__image"
+        src={image}
+        alt=""
+      />
+      <span className="path-step-course-picker__copy">
+        <span>{course.title}</span>
+        <small dir="ltr">{course.slug}</small>
+      </span>
+    </>
   );
 }
