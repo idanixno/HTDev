@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import type { PublicPath, PublicPathStep } from "../lib/catalog";
 import { formatCourseDurationClock, formatTomanLabel } from "../lib/catalog";
 import { offerKindLabel } from "../lib/status-labels";
+import { ArticleBody } from "./article-body";
 
 function StepGoIcon() {
   return (
@@ -20,13 +21,7 @@ function StepGoIcon() {
 }
 
 export function PathRoadmapTable({ steps }: { steps: PublicPathStep[] }) {
-  if (steps.length === 0) {
-    return (
-      <p className="disinab-roadmap__empty-steps">
-        گامی برای این مسیر ثبت نشده است.
-      </p>
-    );
-  }
+  if (steps.length === 0) return null;
 
   return (
     <ol className="disinab-roadmap__steps">
@@ -114,7 +109,11 @@ export function PathRoadmapSection({
         >
           {path.title}
         </Heading>
-        {lead ? <p className="disinab-roadmap__prose">{lead}</p> : null}
+        {lead ? (
+          <div className="disinab-roadmap__prose">
+            <ArticleBody body={lead} />
+          </div>
+        ) : null}
         {path.summary &&
         path.description &&
         path.summary !== path.description ? (
@@ -123,7 +122,7 @@ export function PathRoadmapSection({
           </p>
         ) : null}
       </div>
-      <PathRoadmapTable steps={steps} />
+      {steps.length > 0 ? <PathRoadmapTable steps={steps} /> : null}
     </section>
   );
 }

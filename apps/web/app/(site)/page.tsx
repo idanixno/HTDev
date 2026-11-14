@@ -202,9 +202,11 @@ export default async function HomePage() {
                       ) : null}
                     </span>
                     <span className="home-path-rail__foot">
-                      <em>
-                        {path.stepCount.toLocaleString("fa-IR")} گام
-                      </em>
+                      {path.stepCount > 0 ? (
+                        <em>
+                          {path.stepCount.toLocaleString("fa-IR")} گام
+                        </em>
+                      ) : null}
                       <span className="home-path-rail__go" aria-hidden="true">
                         <svg viewBox="0 0 24 24" width="18" height="18">
                           <path

@@ -6727,6 +6727,45 @@ html.is-theme-switching .course-articles {
   gap: 36px;
 }
 
+.disinab-roadmap__path-index {
+  gap: 18px;
+}
+
+.disinab-roadmap__path-card {
+  min-height: 100%;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.disinab-roadmap__path-card:hover,
+.disinab-roadmap__path-card:focus-visible {
+  border-color: color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 48%,
+    var(--zharfa-border-default)
+  );
+  box-shadow: var(--zharfa-shadow-soft), 0 0 0 3px color-mix(
+    in srgb,
+    var(--zharfa-action-primary) 14%,
+    transparent
+  );
+  transform: translateY(-2px);
+}
+
+.disinab-roadmap__path-card:focus-visible {
+  outline: 2px solid var(--zharfa-action-primary);
+  outline-offset: 3px;
+}
+
+.disinab-roadmap__path-action {
+  margin-top: 6px;
+  color: var(--zharfa-text-link);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
 .disinab-roadmap__section {
   display: grid;
   gap: 16px;
@@ -6759,6 +6798,21 @@ html.is-theme-switching .course-articles {
   font-size: 0.94rem;
   line-height: 1.85;
   text-wrap: pretty;
+}
+
+.disinab-roadmap__prose .article-body,
+.disinab-roadmap__lead .article-body {
+  font-size: inherit;
+}
+
+.disinab-roadmap__prose .article-body > :first-child,
+.disinab-roadmap__lead .article-body > :first-child {
+  margin-top: 0;
+}
+
+.disinab-roadmap__prose .article-body p,
+.disinab-roadmap__lead .article-body p {
+  font-size: inherit;
 }
 
 .disinab-roadmap__prose--secondary {

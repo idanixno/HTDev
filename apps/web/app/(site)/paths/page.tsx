@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PathRoadmapSection } from "../../../components/path-roadmap";
 import { DisinabPlate } from "../../../components/disinab";
 import {
-  fetchPath,
   fetchPaths,
   fetchPathsPageCms,
 } from "../../../lib/catalog";
@@ -26,9 +24,6 @@ export default async function PathsPage() {
     fetchPathsPageCms(),
     fetchPaths(),
   ]);
-  const paths = (
-    await Promise.all(listed.map((item) => fetchPath(item.slug)))
-  ).filter((path): path is NonNullable<typeof path> => Boolean(path));
 
   return (
     <div className="paths disinab-paths disinab-roadmap">
@@ -46,14 +41,40 @@ export default async function PathsPage() {
           ) : null}
         </header>
 
-        {paths.length === 0 ? (
+        {listed.length === 0 ? (
           <p className="disinab__line">مسیر منتشرشده‌ای در دسترس نیست.</p>
         ) : (
-          <div className="disinab-roadmap__stack">
-            {paths.map((path) => (
-              <PathRoadmapSection key={path.id} path={path} />
+          <ul className="path-index disinab-roadmap__path-index">
+            {listed.map((path) => (
+              <li key={path.id}>
+                <Link
+                  className="path-card disinab-roadmap__path-card"
+                  href={path.href}
+                >
+                  {path.coverAsset ? (
+                    <span className="path-card__media">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={path.coverAsset} alt="" />
+                    </span>
+                  ) : null}
+                  <span className="path-card__body">
+                    {path.stepCount > 0 ? (
+                      <span className="path-card__count">
+                        {path.stepCount.toLocaleString("fa-IR")} گام
+                      </span>
+                    ) : null}
+                    <strong>{path.title}</strong>
+                    {path.summary ? (
+                      <span className="path-card__summary">{path.summary}</span>
+                    ) : null}
+                    <span className="disinab-roadmap__path-action">
+                      مشاهدهٔ مسیر
+                    </span>
+                  </span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </DisinabPlate>
     </div>

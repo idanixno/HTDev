@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArticleBody } from "../../../../components/article-body";
 import { PathRoadmapTable } from "../../../../components/path-roadmap";
 import { DisinabFacts, DisinabPlate } from "../../../../components/disinab";
 import { fetchPath } from "../../../../lib/catalog";
@@ -41,7 +42,6 @@ export default async function PathDetailPage({
   if (!path) notFound();
   const steps = path.steps ?? [];
   const lead = path.description ?? path.summary;
-  const stepCount = path.stepCount || steps.length;
 
   return (
     <article className="path-detail path-detail--live disinab-path-detail disinab-roadmap">
@@ -59,7 +59,11 @@ export default async function PathDetailPage({
 
         <header className="disinab-roadmap__head">
           <h1 id="path-detail-title">{path.title}</h1>
-          {lead ? <p className="disinab-roadmap__lead">{lead}</p> : null}
+          {lead ? (
+            <div className="disinab-roadmap__lead">
+              <ArticleBody body={lead} />
+            </div>
+          ) : null}
           {path.summary &&
           path.description &&
           path.summary !== path.description ? (
@@ -67,18 +71,20 @@ export default async function PathDetailPage({
               {path.summary}
             </p>
           ) : null}
-          <DisinabFacts
-            items={[
-              {
-                label: "گام‌ها",
-                value: stepCount.toLocaleString("fa-IR"),
-              },
-              {
-                label: "ترتیب",
-                value: "پیشنهادی",
-              },
-            ]}
-          />
+          {steps.length > 0 ? (
+            <DisinabFacts
+              items={[
+                {
+                  label: "گام‌ها",
+                  value: steps.length.toLocaleString("fa-IR"),
+                },
+                {
+                  label: "ترتیب",
+                  value: "پیشنهادی",
+                },
+              ]}
+            />
+          ) : null}
         </header>
 
         {path.coverAsset ? (
@@ -88,21 +94,23 @@ export default async function PathDetailPage({
           </figure>
         ) : null}
 
-        <section
-          className="disinab-roadmap__section"
-          aria-labelledby="path-courses-heading"
-        >
-          <div className="disinab-roadmap__section-head">
-            <h2 id="path-courses-heading" className="disinab-roadmap__section-title">
-              ترتیب دوره‌ها
-            </h2>
-            <p className="disinab-roadmap__prose">
-              دوره‌های زیر را به ترتیب ببینید. در یادگیری عجله نکنید و هر مرحله را
-              قبل از رفتن به گام بعد درک کنید.
-            </p>
-          </div>
-          <PathRoadmapTable steps={steps} />
-        </section>
+        {steps.length > 0 ? (
+          <section
+            className="disinab-roadmap__section"
+            aria-labelledby="path-courses-heading"
+          >
+            <div className="disinab-roadmap__section-head">
+              <h2 id="path-courses-heading" className="disinab-roadmap__section-title">
+                ترتیب دوره‌ها
+              </h2>
+              <p className="disinab-roadmap__prose">
+                دوره‌های زیر را به ترتیب ببینید. در یادگیری عجله نکنید و هر مرحله را
+                قبل از رفتن به گام بعد درک کنید.
+              </p>
+            </div>
+            <PathRoadmapTable steps={steps} />
+          </section>
+        ) : null}
       </DisinabPlate>
     </article>
   );
