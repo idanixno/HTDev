@@ -19,6 +19,8 @@ export type CourseEditorInitial = {
   title: string;
   summary: string;
   description: string;
+  instructorName: string;
+  showInstructor: boolean;
   categoryId: string;
   publicationStatus: string;
   offerKind: string;
@@ -44,6 +46,8 @@ const EMPTY: CourseEditorInitial = {
   title: "",
   summary: "",
   description: "",
+  instructorName: "",
+  showInstructor: false,
   categoryId: "",
   publicationStatus: "DRAFT",
   offerKind: "COMING_SOON",
@@ -122,6 +126,8 @@ export function CourseEditorForm({
       title: values.title.trim(),
       summary: values.summary.trim() || null,
       description: values.description.trim() || null,
+      instructorName: values.instructorName.trim() || null,
+      showInstructor: values.showInstructor,
       categoryId: values.categoryId || null,
       publicationStatus: values.publicationStatus,
       offerKind,
@@ -184,303 +190,385 @@ export function CourseEditorForm({
           {error}
         </Notice>
       ) : null}
-      <div className="editor-form__grid">
-        <Field
-          id="course-title"
-          name="title"
-          label="عنوان"
-          value={values.title}
-          onChange={(e) => patch({ title: e.target.value })}
-          required
-        />
-        <Field
-          id="course-slug"
-          name="slug"
-          label="اسلاگ"
-          mono
-          dir="ltr"
-          value={values.slug}
-          onChange={(e) => patch({ slug: e.target.value })}
-          required
-        />
-        <Field
-          id="course-summary"
-          name="summary"
-          label="خلاصه"
-          value={values.summary}
-          onChange={(e) => patch({ summary: e.target.value })}
-        />
-        <MarkdownEditor
-          id="course-description"
-          name="description"
-          label="توضیح"
-          variant="full"
-          rows={12}
-          value={values.description}
-          onChange={(description) => patch({ description })}
-        />
-        <div className="editor-form__wide editor-seo-row">
-          <fieldset className="editor-seo">
-            <legend>سئو</legend>
+      <div className="editor-form__sections">
+        <section className="editor-form__section" aria-labelledby="course-content-heading">
+          <header className="editor-form__section-head">
+            <h2 id="course-content-heading">محتوای دوره</h2>
+            <p>عنوان و توضیحاتی که در صفحهٔ عمومی دوره نمایش داده می‌شوند.</p>
+          </header>
+          <div className="editor-form__grid">
             <Field
-              id="course-seo-title"
-              name="seoTitle"
-              label="عنوان سئو"
-              value={values.seoTitle}
-              onChange={(e) => patch({ seoTitle: e.target.value })}
+              id="course-title"
+              name="title"
+              label="عنوان"
+              value={values.title}
+              onChange={(e) => patch({ title: e.target.value })}
+              required
             />
-            <label className="z-field">
-              <span className="z-field__label">توضیح سئو</span>
-              <textarea
-                className="z-field__control"
-                name="seoDescription"
-                value={values.seoDescription}
-                onChange={(e) => patch({ seoDescription: e.target.value })}
-                rows={3}
-                maxLength={320}
-              />
-            </label>
             <Field
-              id="course-og"
-              name="ogImage"
-              label="تصویر اشتراک‌گذاری"
+              id="course-slug"
+              name="slug"
+              label="اسلاگ"
               mono
               dir="ltr"
-              value={values.ogImage}
-              onChange={(e) => patch({ ogImage: e.target.value })}
+              value={values.slug}
+              onChange={(e) => patch({ slug: e.target.value })}
+              required
             />
-            <label className="editor-check">
+            <Field
+              id="course-summary"
+              name="summary"
+              label="خلاصه"
+              value={values.summary}
+              onChange={(e) => patch({ summary: e.target.value })}
+            />
+            <div className="editor-form__wide editor-form__grid">
+              <Field
+                id="course-instructor"
+                name="instructorName"
+                label="مدرس دوره"
+                value={values.instructorName}
+                onChange={(e) => patch({ instructorName: e.target.value })}
+                maxLength={120}
+                placeholder="نام مدرس"
+              />
+              <label className="editor-check">
+                <input
+                  type="checkbox"
+                  name="showInstructor"
+                  checked={values.showInstructor}
+                  onChange={(e) => patch({ showInstructor: e.target.checked })}
+                />
+                <span>نام مدرس در صفحهٔ عمومی دوره نمایش داده شود</span>
+              </label>
+            </div>
+            <MarkdownEditor
+              id="course-description"
+              name="description"
+              label="توضیح"
+              variant="full"
+              rows={12}
+              value={values.description}
+              onChange={(description) => patch({ description })}
+            />
+          </div>
+        </section>
+
+        <details className="editor-form__section editor-form__section--secondary">
+          <summary className="editor-form__section-head">
+            <span>
+              <strong>تنظیمات SEO</strong>
+              <small>عنوان نتایج جستجو، توضیح متا و تحلیل بهینه‌سازی</small>
+            </span>
+          </summary>
+          <div className="editor-seo-row">
+            <fieldset className="editor-seo">
+              <legend>اطلاعات موتور جستجو</legend>
+              <Field
+                id="course-seo-title"
+                name="seoTitle"
+                label="عنوان سئو"
+                value={values.seoTitle}
+                onChange={(e) => patch({ seoTitle: e.target.value })}
+              />
+              <label className="z-field">
+                <span className="z-field__label">توضیح سئو</span>
+                <textarea
+                  className="z-field__control"
+                  name="seoDescription"
+                  value={values.seoDescription}
+                  onChange={(e) => patch({ seoDescription: e.target.value })}
+                  rows={3}
+                  maxLength={320}
+                />
+              </label>
+              <Field
+                id="course-og"
+                name="ogImage"
+                label="تصویر اشتراک‌گذاری"
+                mono
+                dir="ltr"
+                value={values.ogImage}
+                onChange={(e) => patch({ ogImage: e.target.value })}
+              />
+              <label className="editor-check">
+                <input
+                  type="checkbox"
+                  name="noIndex"
+                  checked={values.noIndex}
+                  onChange={(e) => patch({ noIndex: e.target.checked })}
+                />
+                <span>در موتور جستجو ایندکس نشود</span>
+              </label>
+            </fieldset>
+            <SeoAssistantPanel
+              values={seoValues}
+              onApply={(partial) => {
+                const next: Partial<CourseEditorInitial> = {};
+                if (partial.title != null) next.title = partial.title;
+                if (partial.slug != null) next.slug = partial.slug;
+                if (partial.seoTitle != null) next.seoTitle = partial.seoTitle;
+                if (partial.seoDescription != null)
+                  next.seoDescription = partial.seoDescription;
+                if (partial.summary != null) next.summary = partial.summary;
+                if (partial.body != null) next.description = partial.body;
+                patch(next);
+              }}
+            />
+          </div>
+        </details>
+
+        <section className="editor-form__section" aria-labelledby="course-categorization-heading">
+          <header className="editor-form__section-head">
+            <h2 id="course-categorization-heading">دسته‌بندی</h2>
+            <p>دسته و موضوع‌ها، پیدا کردن دوره را در کاتالوگ آسان می‌کنند.</p>
+          </header>
+          <div className="editor-form__grid">
+            <label className="z-field">
+              <span className="z-field__label">دسته</span>
+              <select
+                className="z-field__control"
+                name="categoryId"
+                value={values.categoryId}
+                onChange={(e) => patch({ categoryId: e.target.value })}
+              >
+                <option value="">بدون دسته</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="editor-form__wide">
+              <TopicMultiSelect
+                options={topicOptions}
+                value={values.topicIds}
+                onChange={(topicIds) => patch({ topicIds })}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="editor-form__section" aria-labelledby="course-offer-heading">
+          <header className="editor-form__section-head">
+            <h2 id="course-offer-heading">انتشار و قیمت‌گذاری</h2>
+            <p>وضعیت نمایش و شرایط خرید دوره را تنظیم کنید.</p>
+          </header>
+          <div className="editor-form__grid">
+            <label className="z-field">
+              <span className="z-field__label">انتشار</span>
+              <select
+                className="z-field__control"
+                name="publicationStatus"
+                value={values.publicationStatus}
+                onChange={(e) => patch({ publicationStatus: e.target.value })}
+              >
+                <option value="DRAFT">پیش‌نویس</option>
+                <option value="PUBLISHED">منتشرشده</option>
+                <option value="UNPUBLISHED">برداشته‌شده</option>
+                <option value="ARCHIVED">بایگانی</option>
+              </select>
+            </label>
+            <label className="z-field">
+              <span className="z-field__label">نوع پیشنهاد</span>
+              <select
+                className="z-field__control"
+                name="offerKind"
+                value={values.offerKind}
+                onChange={(e) => patch({ offerKind: e.target.value })}
+              >
+                <option value="PAID">پولی</option>
+                <option value="FREE">رایگان</option>
+                <option value="PRE_SALE">پیش‌فروش</option>
+                <option value="COMING_SOON">به‌زودی</option>
+              </select>
+            </label>
+            <Field
+              id="course-price"
+              name="priceToman"
+              label="قیمت (تومان)"
+              type="number"
+              min={0}
+              value={values.priceToman}
+              onChange={(e) => patch({ priceToman: e.target.value })}
+            />
+            <Field
+              id="course-compare"
+              name="compareAtToman"
+              label="قیمت قبل از تخفیف"
+              type="number"
+              min={0}
+              value={values.compareAtToman}
+              onChange={(e) => patch({ compareAtToman: e.target.value })}
+            />
+          </div>
+        </section>
+
+        <section className="editor-form__section" aria-labelledby="course-details-heading">
+          <header className="editor-form__section-head">
+            <h2 id="course-details-heading">مشخصات دوره</h2>
+            <p>سطح، مدت و ترتیب نمایش دوره را مشخص کنید.</p>
+          </header>
+          <div className="editor-form__grid">
+            <Field
+              id="course-level"
+              name="levelLabel"
+              label="سطح"
+              value={values.levelLabel}
+              onChange={(e) => patch({ levelLabel: e.target.value })}
+              placeholder="مقدماتی، میانی، پیشرفته"
+            />
+            <Field
+              id="course-hours"
+              name="durationHours"
+              label="مدت (ساعت)"
+              type="number"
+              min={0}
+              step="0.5"
+              value={values.durationHours}
+              onChange={(e) => patch({ durationHours: e.target.value })}
+            />
+            <Field
+              id="course-sort"
+              name="sortOrder"
+              label="ترتیب"
+              type="number"
+              value={values.sortOrder}
+              onChange={(e) => patch({ sortOrder: e.target.value })}
+            />
+          </div>
+        </section>
+
+        <section className="editor-form__section" aria-labelledby="course-media-heading">
+          <header className="editor-form__section-head">
+            <h2 id="course-media-heading">رسانه</h2>
+            <p>تصویر جلد و ویدیوی معرفی در صفحهٔ عمومی دوره استفاده می‌شوند.</p>
+          </header>
+          <div className="editor-form__grid">
+            <AssetImageField
+              id="course-cover"
+              name="coverAsset"
+              label="تصویر جلد"
+              className="editor-form__wide"
+              value={values.coverAsset}
+              placeholder="/artwork/courses/… یا آپلود"
+              disabled={loading}
+              onChange={(coverAsset) => patch({ coverAsset })}
+            />
+            <div className="video-source editor-form__wide">
+              <label className="z-field" htmlFor="course-preview">
+                <span className="z-field__label">ویدیوی معرفی / پیش‌نمایش</span>
+                <input
+                  id="course-preview"
+                  className="z-field__control"
+                  name="previewAsset"
+                  dir="ltr"
+                  value={values.previewAsset}
+                  placeholder="https://…/intro.mp4 یا /media/lessons/…"
+                  onChange={(e) => patch({ previewAsset: e.target.value })}
+                />
+              </label>
+              <label className="video-source__file">
+                <span>
+                  {videoBusy
+                    ? "در حال بارگذاری…"
+                    : "یا فایل mp4، webm یا ogg را بارگذاری کنید"}
+                </span>
+                <input
+                  type="file"
+                  accept="video/mp4,video/webm,video/ogg,.mp4,.webm,.ogg"
+                  disabled={videoBusy || loading}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (!file) return;
+                    if (file.size <= 0 || file.size > MAX_VIDEO_BYTES) {
+                      setVideoNote("حجم ویدیو باید کمتر از ۱۵۰ مگابایت باشد.");
+                      return;
+                    }
+                    const body = new FormData();
+                    body.set("file", file);
+                    setVideoBusy(true);
+                    setVideoNote(null);
+                    void (async () => {
+                      try {
+                        const res = await fetch(
+                          "/api/admin/uploads/lesson-video",
+                          { method: "POST", body },
+                        );
+                        const data = (await res.json()) as {
+                          url?: string;
+                          message?: string;
+                        };
+                        if (!res.ok || !data.url) {
+                          throw new Error(
+                            data.message || "بارگذاری ویدیو ناموفق بود.",
+                          );
+                        }
+                        patch({ previewAsset: data.url });
+                        setVideoNote(
+                          "فایل بارگذاری شد. ذخیره دوره را بزنید تا روی هیرو بنشیند.",
+                        );
+                      } catch (err) {
+                        setVideoNote(
+                          err instanceof Error
+                            ? err.message
+                            : "بارگذاری ویدیو ناموفق بود.",
+                        );
+                      } finally {
+                        setVideoBusy(false);
+                      }
+                    })();
+                  }}
+                />
+              </label>
+              {videoNote ? <p className="admin-page__hint">{videoNote}</p> : null}
+              <p className="admin-page__hint">
+                اگر پر باشد، در صفحهٔ دوره به‌جای تصویر جلد پخش می‌شود؛ تصویر جلد به‌عنوان پوستر
+                ویدیو می‌ماند.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="editor-form__section" aria-labelledby="course-card-heading">
+          <header className="editor-form__section-head">
+            <h2 id="course-card-heading">نمایش کارت دوره</h2>
+            <p>نحوهٔ نمایش این دوره در بخش‌های منتخب سایت را کنترل کنید.</p>
+          </header>
+          <div className="editor-form__grid">
+            <Field
+              id="course-index"
+              name="indexLabel"
+              label="برچسب شاخص کارت"
+              value={values.indexLabel}
+              onChange={(e) => patch({ indexLabel: e.target.value })}
+            />
+            <label className="z-field">
+              <span className="z-field__label">نمودار کارت</span>
+              <select
+                className="z-field__control"
+                name="diagramKind"
+                value={values.diagramKind}
+                onChange={(e) => patch({ diagramKind: e.target.value })}
+              >
+                <option value="BOUNDARY">مرز</option>
+                <option value="CHAIN">زنجیره</option>
+              </select>
+            </label>
+            <label className="editor-check editor-form__wide">
               <input
                 type="checkbox"
-                name="noIndex"
-                checked={values.noIndex}
-                onChange={(e) => patch({ noIndex: e.target.checked })}
+                name="featured"
+                checked={values.featured}
+                onChange={(e) => patch({ featured: e.target.checked })}
               />
-              <span>در موتور جستجو ایندکس نشود</span>
+              <span>نمایش در بخش ویژه صفحه اصلی</span>
             </label>
-          </fieldset>
-          <SeoAssistantPanel
-            values={seoValues}
-            onApply={(partial) => {
-              const next: Partial<CourseEditorInitial> = {};
-              if (partial.title != null) next.title = partial.title;
-              if (partial.slug != null) next.slug = partial.slug;
-              if (partial.seoTitle != null) next.seoTitle = partial.seoTitle;
-              if (partial.seoDescription != null)
-                next.seoDescription = partial.seoDescription;
-              if (partial.summary != null) next.summary = partial.summary;
-              if (partial.body != null) next.description = partial.body;
-              patch(next);
-            }}
-          />
-        </div>
-          <label className="z-field">
-            <span className="z-field__label">دسته</span>
-            <select
-              className="z-field__control"
-              name="categoryId"
-              value={values.categoryId}
-              onChange={(e) => patch({ categoryId: e.target.value })}
-            >
-              <option value="">بدون دسته</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="editor-form__wide">
-            <TopicMultiSelect
-              options={topicOptions}
-              value={values.topicIds}
-              onChange={(topicIds) => patch({ topicIds })}
-            />
           </div>
-          <label className="z-field">
-            <span className="z-field__label">انتشار</span>
-            <select
-              className="z-field__control"
-              name="publicationStatus"
-              value={values.publicationStatus}
-              onChange={(e) => patch({ publicationStatus: e.target.value })}
-            >
-              <option value="DRAFT">پیش‌نویس</option>
-              <option value="PUBLISHED">منتشرشده</option>
-              <option value="UNPUBLISHED">برداشته‌شده</option>
-              <option value="ARCHIVED">بایگانی</option>
-            </select>
-          </label>
-          <label className="z-field">
-            <span className="z-field__label">نوع پیشنهاد</span>
-            <select
-              className="z-field__control"
-              name="offerKind"
-              value={values.offerKind}
-              onChange={(e) => patch({ offerKind: e.target.value })}
-            >
-              <option value="PAID">پولی</option>
-              <option value="FREE">رایگان</option>
-              <option value="PRE_SALE">پیش‌فروش</option>
-              <option value="COMING_SOON">به‌زودی</option>
-            </select>
-          </label>
-          <Field
-            id="course-price"
-            name="priceToman"
-            label="قیمت (تومان)"
-            type="number"
-            min={0}
-            value={values.priceToman}
-            onChange={(e) => patch({ priceToman: e.target.value })}
-          />
-          <Field
-            id="course-compare"
-            name="compareAtToman"
-            label="قیمت قبل از تخفیف"
-            type="number"
-            min={0}
-            value={values.compareAtToman}
-            onChange={(e) => patch({ compareAtToman: e.target.value })}
-          />
-          <Field
-            id="course-level"
-            name="levelLabel"
-            label="سطح"
-            value={values.levelLabel}
-            onChange={(e) => patch({ levelLabel: e.target.value })}
-            placeholder="مقدماتی، میانی، پیشرفته"
-          />
-          <Field
-            id="course-hours"
-            name="durationHours"
-            label="مدت (ساعت)"
-            type="number"
-            min={0}
-            step="0.5"
-            value={values.durationHours}
-            onChange={(e) => patch({ durationHours: e.target.value })}
-          />
-          <Field
-            id="course-sort"
-            name="sortOrder"
-            label="ترتیب"
-            type="number"
-            value={values.sortOrder}
-            onChange={(e) => patch({ sortOrder: e.target.value })}
-          />
-          <AssetImageField
-            id="course-cover"
-            name="coverAsset"
-            label="تصویر جلد"
-            className="editor-form__wide"
-            value={values.coverAsset}
-            placeholder="/artwork/courses/… یا آپلود"
-            disabled={loading}
-            onChange={(coverAsset) => patch({ coverAsset })}
-          />
-          <div className="video-source editor-form__wide">
-            <label className="z-field" htmlFor="course-preview">
-              <span className="z-field__label">ویدیوی معرفی / پیش‌نمایش</span>
-              <input
-                id="course-preview"
-                className="z-field__control"
-                name="previewAsset"
-                dir="ltr"
-                value={values.previewAsset}
-                placeholder="https://…/intro.mp4 یا /media/lessons/…"
-                onChange={(e) => patch({ previewAsset: e.target.value })}
-              />
-            </label>
-            <label className="video-source__file">
-              <span>
-                {videoBusy
-                  ? "در حال بارگذاری…"
-                  : "یا فایل mp4، webm یا ogg را بارگذاری کنید"}
-              </span>
-              <input
-                type="file"
-                accept="video/mp4,video/webm,video/ogg,.mp4,.webm,.ogg"
-                disabled={videoBusy || loading}
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  event.target.value = "";
-                  if (!file) return;
-                  if (file.size <= 0 || file.size > MAX_VIDEO_BYTES) {
-                    setVideoNote("حجم ویدیو باید کمتر از ۱۵۰ مگابایت باشد.");
-                    return;
-                  }
-                  const body = new FormData();
-                  body.set("file", file);
-                  setVideoBusy(true);
-                  setVideoNote(null);
-                  void (async () => {
-                    try {
-                      const res = await fetch(
-                        "/api/admin/uploads/lesson-video",
-                        { method: "POST", body },
-                      );
-                      const data = (await res.json()) as {
-                        url?: string;
-                        message?: string;
-                      };
-                      if (!res.ok || !data.url) {
-                        throw new Error(
-                          data.message || "بارگذاری ویدیو ناموفق بود.",
-                        );
-                      }
-                      patch({ previewAsset: data.url });
-                      setVideoNote(
-                        "فایل بارگذاری شد. ذخیره دوره را بزنید تا روی هیرو بنشیند.",
-                      );
-                    } catch (err) {
-                      setVideoNote(
-                        err instanceof Error
-                          ? err.message
-                          : "بارگذاری ویدیو ناموفق بود.",
-                      );
-                    } finally {
-                      setVideoBusy(false);
-                    }
-                  })();
-                }}
-              />
-            </label>
-            {videoNote ? <p className="admin-page__hint">{videoNote}</p> : null}
-            <p className="admin-page__hint">
-              اگر پر باشد، در صفحهٔ دوره به‌جای تصویر جلد پخش می‌شود؛ تصویر جلد به‌عنوان پوستر
-              ویدیو می‌ماند.
-            </p>
-          </div>
-          <Field
-            id="course-index"
-            name="indexLabel"
-            label="برچسب شاخص کارت"
-            value={values.indexLabel}
-            onChange={(e) => patch({ indexLabel: e.target.value })}
-          />
-          <label className="z-field">
-            <span className="z-field__label">نمودار کارت</span>
-            <select
-              className="z-field__control"
-              name="diagramKind"
-              value={values.diagramKind}
-              onChange={(e) => patch({ diagramKind: e.target.value })}
-            >
-              <option value="BOUNDARY">مرز</option>
-              <option value="CHAIN">زنجیره</option>
-            </select>
-          </label>
-          <label className="editor-check">
-            <input
-              type="checkbox"
-              name="featured"
-              checked={values.featured}
-              onChange={(e) => patch({ featured: e.target.checked })}
-            />
-            <span>نمایش در بخش ویژه صفحه اصلی</span>
-          </label>
-        </div>
+        </section>
+      </div>
       <div className="editor-form__actions">
         <Button type="submit" loading={loading}>
           {courseId ? "ذخیره تغییرات" : "ایجاد دوره"}

@@ -16,7 +16,7 @@ const PUBLISHER = {
   url: absoluteUrl("/"),
   logo: {
     "@type": "ImageObject" as const,
-    url: absoluteUrl("/artwork/courses/clean-architecture.svg"),
+    url: absoluteUrl("/icon"),
   },
 };
 
@@ -65,6 +65,7 @@ export function courseJsonLd(input: {
   description: string;
   url: string;
   image?: string | null;
+  instructorName?: string | null;
 }) {
   return {
     "@context": "https://schema.org",
@@ -75,7 +76,14 @@ export function courseJsonLd(input: {
     url: input.url,
     image: input.image ?? undefined,
     provider: PUBLISHER,
-    ...(SHOW_INSTRUCTOR_NAME ? { instructor: AUTHOR } : {}),
+    ...(input.instructorName
+      ? {
+          instructor: {
+            "@type": "Person",
+            name: input.instructorName,
+          },
+        }
+      : {}),
   };
 }
 

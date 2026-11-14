@@ -6,6 +6,7 @@ import { ArticleBody } from "../../../../components/article-body";
 import { ArticleCard } from "../../../../components/article-card";
 import { CourseStickyBar } from "../../../../components/course-sticky-bar";
 import { CourseSyllabus } from "../../../../components/course-syllabus";
+import { CourseFreeEnrollment } from "../../../../components/course-free-enrollment";
 import { CourseWaitlistForm } from "../../../../components/course-waitlist-form";
 import { CoursePurchaseNoteBody } from "../../../../components/course-purchase-note-body";
 import {
@@ -26,10 +27,6 @@ import {
 import { absoluteUrl } from "../../../../lib/site-url";
 import { fetchCheckoutOptions } from "../../../../lib/commerce";
 import { ownedCourseSlugs, userOwnsCourse } from "../../../../lib/enrollment";
-import {
-  INSTRUCTOR_NAME,
-  SHOW_INSTRUCTOR_NAME,
-} from "../../../../lib/instructor-display";
 import { buildPageMetadata } from "../../../../lib/seo";
 import { fetchCurrentUser } from "../../../../lib/session";
 import {
@@ -111,6 +108,7 @@ export default async function CourseDetailPage({
         ? shareImage
         : absoluteUrl(shareImage)
       : null,
+    instructorName: course.instructorName,
   });
   const crumbsLd = breadcrumbJsonLd([
     { name: "خانه", path: "/" },
@@ -143,11 +141,11 @@ export default async function CourseDetailPage({
     : isFree
       ? {
           href: user
-            ? `/api/courses/${encodeURIComponent(slug)}/download`
+            ? "#course-buy"
             : `/login?next=/courses/${encodeURIComponent(slug)}`,
           label: user
-            ? "دانلود تمام ویدیوها"
-            : "ورود برای مشاهده",
+            ? "ثبت‌نام در دوره"
+            : "دسترسی رایگان با ورود",
           priceLabel: "رایگان",
         }
       : isPaidOffer
@@ -169,8 +167,8 @@ export default async function CourseDetailPage({
           };
 
   const buyFacts = [
-    ...(SHOW_INSTRUCTOR_NAME
-      ? [{ label: "مدرس", value: INSTRUCTOR_NAME }]
+    ...(course.instructorName
+      ? [{ label: "مدرس", value: course.instructorName }]
       : []),
     ...(formatCourseDuration(course.durationHours)
       ? [
@@ -250,16 +248,13 @@ export default async function CourseDetailPage({
       ) : (
         <div className="course-detail__actions disinab-course-buy__actions">
           {isFree ? (
-            <Button
-              href={
-                user
-                  ? `/api/courses/${encodeURIComponent(slug)}/download`
-                  : `/login?next=/courses/${encodeURIComponent(slug)}`
-              }
-              {...(user ? { download: true } : {})}
-            >
-              {user ? "شروع دوره رایگان" : "ورود برای مشاهده"}
-            </Button>
+            user ? (
+              <CourseFreeEnrollment slug={slug} />
+            ) : (
+              <Button href={`/login?next=/courses/${encodeURIComponent(slug)}`}>
+                دسترسی رایگان با ورود
+              </Button>
+            )
           ) : isPaidOffer ? (
             purchaseEnabled ? (
               <Button href={purchaseHref}>

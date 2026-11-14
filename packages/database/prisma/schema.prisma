@@ -141,6 +141,8 @@ model Course {
   title             String
   summary           String?
   description       String?
+  instructorName    String?
+  showInstructor    Boolean                 @default(false)
   categoryId        String?
   publicationStatus CoursePublicationStatus @default(DRAFT)
   offerKind         CourseOfferKind         @default(COMING_SOON)

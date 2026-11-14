@@ -199,7 +199,7 @@ export function CourseNotesEditor({
             maxLength={1000}
           />
           <span className="z-field__hint">
-            لینک اختیاری: [پرسش‌های رایج](/faq)
+            برای درج لینک، از قالب [عنوان](https://example.com) استفاده کنید.
           </span>
         </label>
         <div className="editor-form__grid">

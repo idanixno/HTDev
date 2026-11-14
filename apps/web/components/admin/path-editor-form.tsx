@@ -50,8 +50,17 @@ export function PathEditorForm({
     event.preventDefault();
     setLoading(true);
     setError(null);
+    const submitter = (event.nativeEvent as SubmitEvent).submitter;
+    const action =
+      submitter instanceof HTMLButtonElement ? submitter.value : null;
+    const published =
+      action === "publish"
+        ? true
+        : action === "draft"
+          ? false
+          : values.published;
     try {
-      const saved = await authFetch<{ id: string }>(
+      const saved = await authFetch<{ id: string; published: boolean }>(
         pathId ? `/api/admin/paths/${pathId}` : "/api/admin/paths",
         {
           method: pathId ? "PATCH" : "POST",
@@ -61,11 +70,15 @@ export function PathEditorForm({
             summary: values.summary.trim() || null,
             description: values.description.trim() || null,
             coverAsset: values.coverAsset.trim() || null,
-            published: values.published,
+            published,
             sortOrder: Number(values.sortOrder || 0),
           }),
         },
       );
+      if (saved.published !== published) {
+        throw new Error("وضعیت انتشار مسیر ذخیره نشد. دوباره تلاش کنید.");
+      }
+      patch({ published: saved.published });
       router.push(`/admin/paths/${saved.id}`);
       router.refresh();
     } catch (err) {
@@ -152,19 +165,37 @@ export function PathEditorForm({
           value={values.sortOrder}
           onChange={(e) => patch({ sortOrder: e.target.value })}
         />
-        <label className="editor-check">
-          <input
-            type="checkbox"
-            checked={values.published}
-            onChange={(e) => patch({ published: e.target.checked })}
-          />
-          <span>منتشر شود</span>
+        <label className="z-field">
+          <span className="z-field__label">وضعیت انتشار</span>
+          <select
+            className="z-field__control"
+            value={values.published ? "published" : "draft"}
+            onChange={(e) => patch({ published: e.target.value === "published" })}
+          >
+            <option value="draft">پیش‌نویس — در سایت نمایش داده نشود</option>
+            <option value="published">منتشر — در سایت نمایش داده شود</option>
+          </select>
         </label>
       </div>
       <div className="editor-form__actions">
-        <Button type="submit" loading={loading}>
-          {pathId ? "ذخیره مسیر" : "ایجاد مسیر"}
-        </Button>
+        <button
+          type="submit"
+          name="pathAction"
+          value="draft"
+          className="admin-range__submit"
+          disabled={loading}
+        >
+          ذخیرهٔ پیش‌نویس
+        </button>
+        <button
+          type="submit"
+          name="pathAction"
+          value="publish"
+          className="admin-range__submit"
+          disabled={loading}
+        >
+          ذخیره و انتشار
+        </button>
         <Button href="/admin/paths" variant="secondary">
           بازگشت
         </Button>

@@ -165,81 +165,87 @@ export function CurriculumEditor({ course }: { course: AdminCourseDraft }) {
                 </div>
               )}
 
-              <ul>
-                {mod.lessons.map((lesson) => (
-                  <li key={lesson.id}>
-                    {editingLesson === lesson.id ? (
-                      <form className="curriculum-editor__edit" onSubmit={(event) => saveLesson(lesson, event)}>
-                        <LessonFields
-                          idPrefix={`edit-${lesson.id}`}
-                          title={lesson.title}
-                          summary={lesson.summary ?? ""}
-                          sortOrder={String(lesson.sortOrder)}
-                          minutes={lesson.durationMinutes == null ? "" : String(lesson.durationMinutes)}
-                          isPreview={lesson.isPreview}
-                          video={lesson.videoAsset ?? ""}
-                        />
-                        <div className="curriculum-editor__actions">
-                          <Button type="submit" disabled={loading}>
-                            ذخیره جلسه
-                          </Button>
-                          <Button type="button" variant="secondary" onClick={() => setEditingLesson(null)}>
-                            انصراف
-                          </Button>
+              <details className="curriculum-editor__content">
+                <summary>
+                  <strong>{mod.lessons.length.toLocaleString("fa-IR")} جلسه</strong>
+                  <span>نمایش و مدیریت جلسه‌ها</span>
+                </summary>
+                <ul>
+                  {mod.lessons.map((lesson) => (
+                    <li key={lesson.id}>
+                      {editingLesson === lesson.id ? (
+                        <form className="curriculum-editor__edit" onSubmit={(event) => saveLesson(lesson, event)}>
+                          <LessonFields
+                            idPrefix={`edit-${lesson.id}`}
+                            title={lesson.title}
+                            summary={lesson.summary ?? ""}
+                            sortOrder={String(lesson.sortOrder)}
+                            minutes={lesson.durationMinutes == null ? "" : String(lesson.durationMinutes)}
+                            isPreview={lesson.isPreview}
+                            video={lesson.videoAsset ?? ""}
+                          />
+                          <div className="curriculum-editor__actions">
+                            <Button type="submit" disabled={loading}>
+                              ذخیره جلسه
+                            </Button>
+                            <Button type="button" variant="secondary" onClick={() => setEditingLesson(null)}>
+                              انصراف
+                            </Button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div className="curriculum-editor__row">
+                          <span>
+                            {lesson.title}
+                            {lesson.isPreview ? (
+                              <em className="curriculum-editor__preview-tag"> پیش‌نمایش</em>
+                            ) : null}
+                            {lesson.durationMinutes != null
+                              ? ` · ${lesson.durationMinutes.toLocaleString("fa-IR")} دقیقه`
+                              : ""}
+                            {lesson.videoAsset ? " · ویدیوی سایت" : " · بدون ویدیوی سایت"}
+                          </span>
+                          <div className="curriculum-editor__actions">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              disabled={loading}
+                              onClick={() => setEditingLesson(lesson.id)}
+                            >
+                              ویرایش
+                            </Button>
+                            <button
+                              type="button"
+                              className="text-button"
+                              disabled={loading}
+                              onClick={() => removeLesson(lesson)}
+                            >
+                              حذف
+                            </button>
+                          </div>
                         </div>
-                      </form>
-                    ) : (
-                      <div className="curriculum-editor__row">
-                        <span>
-                          {lesson.title}
-                          {lesson.isPreview ? (
-                            <em className="curriculum-editor__preview-tag"> پیش‌نمایش</em>
-                          ) : null}
-                          {lesson.durationMinutes != null
-                            ? ` · ${lesson.durationMinutes.toLocaleString("fa-IR")} دقیقه`
-                            : ""}
-                          {lesson.videoAsset ? " · ویدیوی سایت" : " · بدون ویدیوی سایت"}
-                        </span>
-                        <div className="curriculum-editor__actions">
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            disabled={loading}
-                            onClick={() => setEditingLesson(lesson.id)}
-                          >
-                            ویرایش
-                          </Button>
-                          <button
-                            type="button"
-                            className="text-button"
-                            disabled={loading}
-                            onClick={() => removeLesson(lesson)}
-                          >
-                            حذف
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                      )}
+                    </li>
+                  ))}
+                </ul>
 
-              <form className="curriculum-editor__lesson" onSubmit={(event) => addLesson(mod.id, event)}>
-                <h3>جلسه جدید</h3>
-                <LessonFields
-                  key={`${mod.id}-${draftKey}`}
-                  idPrefix={`new-${mod.id}-${draftKey}`}
-                  title=""
-                  summary=""
-                  sortOrder={String(mod.lessons.length + 1)}
-                  minutes=""
-                  isPreview={false}
-                  video=""
-                />
-                <Button type="submit" variant="secondary" disabled={loading}>
-                  افزودن جلسه
-                </Button>
-              </form>
+                <form className="curriculum-editor__lesson" onSubmit={(event) => addLesson(mod.id, event)}>
+                  <h3>جلسه جدید</h3>
+                  <LessonFields
+                    key={`${mod.id}-${draftKey}`}
+                    idPrefix={`new-${mod.id}-${draftKey}`}
+                    title=""
+                    summary=""
+                    sortOrder={String(mod.lessons.length + 1)}
+                    minutes=""
+                    isPreview={false}
+                    video=""
+                  />
+                  <Button type="submit" variant="secondary" disabled={loading}>
+                    افزودن جلسه
+                  </Button>
+                </form>
+              </details>
             </li>
           ))}
         </ol>

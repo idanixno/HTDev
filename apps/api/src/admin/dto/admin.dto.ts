@@ -98,6 +98,15 @@ export class UpsertCourseDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(120)
+  instructorName?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  showInstructor?: boolean;
+
+  @IsOptional()
+  @IsString()
   categoryId?: string | null;
 
   @IsEnum(CoursePublicationStatus)

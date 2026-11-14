@@ -77,6 +77,7 @@ export type PublicTopicRef = {
 
 export type PublicCourseDetail = PublicCourseCard & {
   description: string | null;
+  instructorName: string | null;
   previewAsset: string | null;
   spotPlayerProtected: boolean;
   publishedAt: string | null;
@@ -202,12 +203,6 @@ export async function fetchFeaturedCourses(): Promise<PublicCourseCard[]> {
     (await catalogFetch<PublicCourseCard[]>("/catalog/courses/featured")) ?? []
   );
 }
-
-export type PublicFaq = {
-  id: string;
-  question: string;
-  answer: string;
-};
 
 export type PublicArticleCard = {
   id: string;
@@ -345,10 +340,6 @@ export async function fetchCourseTracks(
 
 export async function fetchLevels(): Promise<string[]> {
   return (await catalogFetch<string[]>("/catalog/meta/levels")) ?? [];
-}
-
-export async function fetchFaq(): Promise<PublicFaq[]> {
-  return (await catalogFetch<PublicFaq[]>("/catalog/faq")) ?? [];
 }
 
 export type PublicFooterTrusts = {

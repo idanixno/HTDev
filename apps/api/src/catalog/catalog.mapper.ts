@@ -84,6 +84,7 @@ export type PublicTopicRefDto = {
 
 export type PublicCourseDetailDto = PublicCourseCardDto & {
   description: string | null;
+  instructorName: string | null;
   /** Public intro/preview video for the course hero (optional). */
   previewAsset: string | null;
   /**
@@ -221,6 +222,10 @@ export function toPublicCourseDetail(
   return {
     ...toPublicCourseCard(course),
     description: course.description,
+    instructorName:
+      course.showInstructor && course.instructorName?.trim()
+        ? course.instructorName.trim()
+        : null,
     previewAsset: course.previewAsset,
     spotPlayerProtected,
     modules: course.modules.map((mod) => ({

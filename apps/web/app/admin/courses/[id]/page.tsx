@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Notice } from "@zharfa/ui";
 import { CourseEditorForm } from "../../../../components/admin/course-editor-form";
 import { CourseNotesEditor } from "../../../../components/admin/course-notes-editor";
 import { CurriculumEditor } from "../../../../components/admin/curriculum-editor";
@@ -14,10 +15,28 @@ export default async function EditCoursePage({ params }: { params: Params }) {
     fetchAdminCategories(),
     loadTopicOptionsForEditors(),
   ]);
-  if (!course) notFound();
+
+  if (!course) {
+    return (
+      <section className="admin-page admin-course-editor-page">
+        <header className="admin-page__header">
+          <div>
+            <p className="admin-page__eyebrow">کاتالوگ</p>
+            <h1 className="admin-page__title">دوره پیدا نشد</h1>
+            <p className="admin-page__subtitle">
+              اطلاعات این دوره در دسترس نیست یا دسترسی ندارید. لطفاً دوباره تلاش کنید یا به فهرست دوره‌ها بازگردید.
+            </p>
+          </div>
+        </header>
+        <Notice tone="warning" title="دسترسی یا داده ناموجود">
+          برای ادامه، به <Link href="/admin/courses">فهرست دوره‌ها</Link> برگردید.
+        </Notice>
+      </section>
+    );
+  }
 
   return (
-    <section className="admin-page">
+    <section className="admin-page admin-course-editor-page">
       <header className="admin-page__header">
         <div>
           <p className="admin-page__eyebrow">کاتالوگ</p>
@@ -39,6 +58,8 @@ export default async function EditCoursePage({ params }: { params: Params }) {
           title: course.title,
           summary: course.summary ?? "",
           description: course.description ?? "",
+          instructorName: course.instructorName ?? "",
+          showInstructor: course.showInstructor,
           categoryId: course.categoryId ?? "",
           publicationStatus: course.publicationStatus,
           offerKind: course.offerKind,

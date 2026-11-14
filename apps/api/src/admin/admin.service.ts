@@ -143,6 +143,12 @@ export class AdminService {
       title: dto.title.trim(),
       summary: dto.summary ?? null,
       description: dto.description ?? null,
+      instructorName: has("instructorName")
+        ? dto.instructorName?.trim() || null
+        : (existing?.instructorName ?? null),
+      showInstructor: has("showInstructor")
+        ? (dto.showInstructor ?? false)
+        : (existing?.showInstructor ?? false),
       categoryId: dto.categoryId || null,
       publicationStatus: dto.publicationStatus,
       offerKind: dto.offerKind,
@@ -307,6 +313,8 @@ export class AdminService {
       title: course.title,
       summary: course.summary,
       description: course.description,
+      instructorName: course.instructorName,
+      showInstructor: course.showInstructor,
       categoryId: course.categoryId,
       publicationStatus: course.publicationStatus,
       offerKind: course.offerKind,

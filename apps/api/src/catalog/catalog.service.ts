@@ -18,6 +18,7 @@ import {
   toPublicPathDetail,
   toPublicPathSummary,
 } from "./catalog.mapper";
+import { hasRetiredPageLink } from "./purchase-note-policy";
 import type { CourseSort, ListCoursesQueryDto } from "./dto/list-courses.dto";
 import type {
   ListTopicsQueryDto,
@@ -163,6 +164,7 @@ export class CatalogService {
     });
 
     const purchaseNotes = [...noteRows]
+      .filter((note) => !hasRetiredPageLink(note.body))
       .sort((a, b) => {
         const aScope = a.courseId ? 1 : 0;
         const bScope = b.courseId ? 1 : 0;

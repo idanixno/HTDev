@@ -1001,13 +1001,6 @@ async function seedCms(admin: { id: string }) {
             { href: "/journal", label: "مقالات" },
           ],
         },
-        {
-          label: "درباره",
-          links: [
-            { href: "/faq", label: "پرسش‌های رایج" },
-            { href: "/terms", label: "شرایط استفاده" },
-          ],
-        },
       ],
       mobileGroups: [
         {
@@ -1016,13 +1009,6 @@ async function seedCms(admin: { id: string }) {
             { href: "/courses", label: "دوره‌ها" },
             { href: "/paths", label: "مسیرهای یادگیری" },
             { href: "/journal", label: "مقالات" },
-          ],
-        },
-        {
-          label: "درباره",
-          links: [
-            { href: "/faq", label: "پرسش‌ها" },
-            { href: "/terms", label: "شرایط استفاده" },
           ],
         },
       ],
@@ -1112,7 +1098,7 @@ async function seedCms(admin: { id: string }) {
     },
     {
       id: "seed_purchase_note_faq",
-      body: "پرسش‌های عمومی در [پرسش‌های رایج](/faq) جمع شده‌اند.",
+      body: "پیش از خرید، سرفصل‌ها و شرایط دسترسی دوره را بررسی کنید.",
       sortOrder: 2,
     },
   ];
